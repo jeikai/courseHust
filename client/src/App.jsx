@@ -3,6 +3,7 @@ import Login from './pages/auth/Login'
 import Logout from './pages/auth/Logout'
 import Home from './pages/Home'
 import Courses from './pages/Courses'
+import CourseDetail from './pages/CourseDetail'
 
 function App() {
 
@@ -10,8 +11,8 @@ function App() {
     // <Login />
     // <Logout />
     // <Home />
-    <Courses />
-
+    // <Courses />
+    <CourseDetail />
   )
 }
 

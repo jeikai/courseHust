@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dropdown, Flex, Space, Typography } from 'antd'
+import { Badge, Dropdown, Flex, Space, Typography } from 'antd'
 import {
     DownOutlined,
     EditOutlined,
@@ -44,7 +44,7 @@ const Header = () => {
     <header className='py-1'>
         <div className="container mx-auto max-w-screen-xl flex gap-4 items-center p-1">
             <a href='#' className="logo w-[136px] h-[36px]">
-                <img src={logo} alt="logo" className='w-full h-full'/>
+                <img src={logo} alt="logo" className='w-full h-full object-contain'/>
             </a>
             <Flex justify='space-between' className='flex-1'>
                 <div className='bg-[#754ffe58] px-4 py-2 rounded cursor-pointer'>
@@ -108,8 +108,10 @@ const Header = () => {
                     </a>
                 </div>
                 <div className='px-4 py-2 rounded cursor-pointer'>
-                    <Flex align='center' gap={2} className='text-2xl font-semibold'>
-                        <ShoppingCartOutlined  />
+                    <Flex align='center' gap={2}>
+                        <Badge count={0}>
+                            <ShoppingCartOutlined className='text-2xl'  />
+                        </Badge>
                     </Flex>
                 </div>
                 <div className='px-4 py-2 rounded cursor-pointer'>

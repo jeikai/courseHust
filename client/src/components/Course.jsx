@@ -4,7 +4,7 @@ import { Button, Flex, Space } from "antd"
 const Course = ({list = "Grid"}) => {
     const layout = list === "Grid" ? 'vertical' : 'horizontal'
     return (
-        <Space direction={layout} className={`group rounded-md overflow-hidden courses-card-body w-full cursor-pointer`}>
+        <Space direction={layout} className={`group rounded-md overflow-hidden courses-card-body ${list === "Grid" ? 'w-[290px] ' : 'w-full '} cursor-pointer`}>
             <div className="w-full h-[164px] relative overflow-hidden">
                 <img src="https://demo.creativeitem.com/academy/uploads/thumbnails/course_thumbnails/optimized/course_thumbnail_default-new_211689234810.jpg" alt="" className="w-full h-full hover:scale-105 duration-200" />
                 <div className="bg-white absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full">

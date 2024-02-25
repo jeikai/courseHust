@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.card-category:hover {
+    background: url('./assets/mask.png') no-repeat center;
+}
+
+.courses-card-body {
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 8px -2px !important;
+    border: 1px solid #f3f1f8 !important;
+}
+
+.courses-card-image-text {
+    position: absolute;
+    background-color: #FDE6EC;
+    padding: 8px 13px;
+    bottom: 10px;
+    right: 0;
+}
+
+.courses-card-image-text::after {
+    clip-path: polygon(100% 0, 100% 50%, 100% 100%, 0 100%, 95% 50%, 0% 0%);
+    background-color: #FDE6EC;
+    width: 20px;
+    content: "";
+    position: absolute;
+    height: 100%;
+    left: -19px;
+    top: 0;
+}
+
+.courses-card-image-text h3 {
+    color: #f25c88;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.text-line-2 {
+    display: -webkit-box!important;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}

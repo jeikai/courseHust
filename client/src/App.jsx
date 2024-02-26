@@ -4,6 +4,7 @@ import Logout from './pages/auth/Logout'
 import Home from './pages/Home'
 import Courses from './pages/Courses'
 import CourseDetail from './pages/CourseDetail'
+import Instructor from './pages/Instructor'
 
 function App() {
 
@@ -13,7 +14,8 @@ function App() {
     // <Home />
     // <Courses />
     // <CourseDetail />
-    <h1 className='font-bold text-4xl'>Chua chia router, mo comment trong app.jsx de xem tung page nhe :vv</h1>
+    <Instructor />
+    // <h1 className='font-bold text-4xl'>Chua chia router, mo comment trong app.jsx de xem tung page nhe :vv</h1>
   )
 }
 

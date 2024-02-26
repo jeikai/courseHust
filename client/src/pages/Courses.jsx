@@ -2,7 +2,7 @@ import Layout from "../layout/Layout";
 import breadcramb from '../assets/course-breadcramb.png'
 import book from '../assets/brd-book.png'
 import { Breadcrumb, Col, ConfigProvider, Radio, Rate, Row, Segmented, Space, Typography } from "antd";
-import { AppstoreOutlined, BarsOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, BarsOutlined, HomeOutlined } from "@ant-design/icons";
 import Course from "../components/Course";
 import { useState } from "react";
 const Courses = () => {

@@ -14,8 +14,8 @@ function App() {
     // <Home />
     // <Courses />
     // <CourseDetail />
-    <Instructor />
-    // <h1 className='font-bold text-4xl'>Chua chia router, mo comment trong app.jsx de xem tung page nhe :vv</h1>
+    // <Instructor />
+    <h1 className='font-bold text-4xl'>Chua chia router, mo comment trong app.jsx de xem tung page nhe :vv</h1>
   )
 }
 

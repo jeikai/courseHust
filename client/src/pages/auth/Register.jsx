@@ -1,9 +1,9 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Upload } from "antd"
-import Layout from "../../layout/Layout"
+// import Layout from "../../layout/AppLayout"
 import login from '../../assets/login-security.gif'
 import { KeyOutlined, PhoneFilled, UploadOutlined, UserOutlined } from "@ant-design/icons"
 import { useState } from "react"
-const Logout = () => {
+const Register = () => {
   const [checked, setChecked] = useState(false)
   const handleInstructor = () => {
     setChecked(!checked)
@@ -34,7 +34,7 @@ const Logout = () => {
     },
   };
   return (
-    <Layout>
+    // <Layout>
       <section className="max-w-screen-xl m-auto py-24">
         <Row>
           <Col span={14}>
@@ -113,8 +113,8 @@ const Logout = () => {
           </Col>
         </Row>
       </section>
-    </Layout>
+    //</Layout>
   )
 }
 
-export default Logout
+export default Register

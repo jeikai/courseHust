@@ -1,5 +1,5 @@
 import React from 'react'
-import Layout from '../layout/Layout'
+// import Layout from '../layout/AppLayout'
 import { Avatar, Breadcrumb, Button, Card, Col, ConfigProvider, Flex, Image, Row, Space, Typography } from 'antd'
 import { EditOutlined, EllipsisOutlined, FacebookOutlined, HomeOutlined, LinkedinOutlined, MailFilled, MessageOutlined, SettingOutlined, StarFilled, TwitterOutlined } from '@ant-design/icons'
 import breadcramb from '../assets/course-breadcramb.png'
@@ -7,7 +7,7 @@ import book from '../assets/brd-book.png'
 import Course from '../components/Course'
 const Instructor = () => {
     return (
-        <Layout>
+        <>
             <section style={{ backgroundImage: `url(${breadcramb})` }} className="my-6">
                 <Row className="max-w-screen-xl m-auto">
                     <Col span={18} className="flex items-center">
@@ -168,7 +168,7 @@ const Instructor = () => {
                     </Col>
                 </Row>
             </section>
-        </Layout>
+        </>
     )
 }
 

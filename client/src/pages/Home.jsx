@@ -1,5 +1,5 @@
 import { Button, Carousel, Col, Collapse, Flex, Input, Row, Space, Typography } from "antd"
-import Layout from "../layout/Layout"
+// import Layout from "../layout/AppLayout"
 import { ArrowRightOutlined, BarcodeOutlined, BulbOutlined, CameraOutlined, CodeOutlined, EditOutlined, FilePdfFilled, FileWordOutlined, FontColorsOutlined, Html5Filled, LeftCircleOutlined, LeftOutlined, MobileOutlined, PaperClipOutlined, PictureFilled, PictureOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import banner from '../assets/home-3.png'
 import banner1 from '../assets/banner-1.png'
@@ -105,7 +105,7 @@ const Home = () => {
   ];
   const carousel = useRef()
   return (
-    <Layout>
+    <>
       <section className="max-w-screen-xl m-auto py-24">
         <Row>
           <Col span={12}>
@@ -318,7 +318,7 @@ const Home = () => {
           </Col>
         </Row>
       </section>
-    </Layout>
+    </>
   )
 }
 

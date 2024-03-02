@@ -28,8 +28,7 @@ export function AuthProvider(props) {
         if (res.data) {
 
             localStorage.setItem('user', JSON.stringify(res.data));
-            res.data.token = "eyJhbGciOiJIUz"
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.token;
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.authenticated;
 
             // if (!res.data.verified)
             //     return window.location = '/signup/verify';

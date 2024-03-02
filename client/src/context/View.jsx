@@ -2,6 +2,8 @@ import { createContext, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import AppLayout from "../layout/AppLayout";
 import Loader from "../components/Loader";
+import Notification from "../components/Notification";
+import { CloseSquareOutlined } from "@ant-design/icons";
 
 export const ViewContext = createContext()
 
@@ -76,11 +78,11 @@ export function View(props) {
                             break;
 
                         case 429:
-                            showNotification(err.response.data, 'error', false);
+                            showNotification(err.response.data, 'error', false, '', CloseSquareOutlined);
                             break;
 
                         default:
-                            showNotification(message, 'error', false);
+                            showNotification(message, 'error', false, '', CloseSquareOutlined);
                             break;
 
                     }
@@ -88,7 +90,7 @@ export function View(props) {
             }
             else {
 
-                showNotification(message, 'error', false);
+                showNotification(message, 'error', false, '', CloseSquareOutlined);
 
             }
         }

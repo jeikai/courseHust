@@ -7,47 +7,44 @@ import * as Yup from 'yup';
 import { AuthContext } from "../../context/Auth";
 import { useContext, useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import Loader from "../../components/Loader";
+import Axios from 'axios';
+import { ViewContext } from "../../context/View";
+import axios from "axios";
+
 
 const Login = () => {
 
   const authContext = useContext(AuthContext);
+  const viewContext = useContext(ViewContext);
   const navigate = useNavigate()
-  const initialValues = {
-    email: '',
-    password: '',
-  }; 
-  const validationSchema = Yup.object({
-    email: Yup.string()
-            .email('Invalid format email')
-            .required('Required!'),
-    password: Yup.string()
-            .min(6, "Minimum 6 characters")
-            .required("Required!"),
-  })
-
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: (values) => handleSubmit(values)
-  })
-  const handleSubmit = (data) => {
-    console.log(data);
-    const res = {
-      data: data
+  const [form] = Form.useForm();
+  const handleSubmit = async (data) => {
+    try {
+      const res = await Axios({
+        url: "/api/user/login",
+        method: "POST",
+        data: data,
+      })
+      console.log(res);
+      navigate(authContext.signin(res))
+    } catch (error) {
+      console.log(error);
+      viewContext.handleError(error)
     }
-    debugger
-    navigate(authContext.signin(res))
+
+    // console.log(res);
+    // if(res.response.status == 500) {
+    //   console.log('hello');
+    //   viewContext.handleError(res)
+    // }
+    // const res = {
+    //   data: data
+    // }
+    // navigate(authContext.signin(res))
   }
-  // console.log(authContext);
-  // if(authContext.user) {
-  //   console.log('vo day');
-  //   navigate("/", {replace: true} )
-  //   console.log('user');
-  // }
   const [authentication, setAuthentication] = useState(true)
   useEffect(() => {
-    if(authContext.user) {
+    if(authContext?.user) {
       navigate('/', {replace: true})
     }
   } ,[])
@@ -72,28 +69,40 @@ const Login = () => {
               </Typography.Text>
               <Form
                 layout="vertical"
-                onFinish={formik.handleSubmit}
+                form={form}
+                onFinish={handleSubmit}
               >
                 <Form.Item 
                   hasFeedback
-                  validateStatus={formik.touched.email && formik.errors.email && "error"}
-                  help={formik.touched.email && formik.errors.email && `${formik.errors.email}`}
+                  name="email" 
+                  rules={[
+                    {
+                      type: 'email',
+                      message: 'The input is not valid E-mail!',
+                    },
+                    {
+                      required: true,
+                      message: 'Please input your E-mail!',
+                    },
+                  ]}
                   label={<Typography.Title level={5}>Your email</Typography.Title>}
                 >
                     <Input 
-                      name="email" 
                       size="large" 
                       variant="filled" 
                       placeholder="Enter your email" 
                       prefix={<UserOutlined />}
-                      value={formik.values.email}
-                      onChange={formik.handleChange} 
                     />
                 </Form.Item>
                 <Form.Item 
                   hasFeedback
-                  validateStatus={formik.touched.password && formik.errors.password && "error"}
-                  help={formik.touched.password && formik.errors.password && `${formik.errors.password}`}
+                  name="password"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please input your password!',
+                    },
+                  ]}
                   label={<Typography.Title level={5}>Password</Typography.Title>}
                 >
                     <Input.Password 
@@ -101,9 +110,6 @@ const Login = () => {
                       variant="filled" 
                       placeholder="Enter your valid password" 
                       prefix={<KeyOutlined />}
-                      name="password"
-                      value={formik.values.password}
-                      onChange={formik.handleChange} 
                     />
                 </Form.Item>
                 <a href="#" className="block text-right text-base mb-2">Forget Password?</a>

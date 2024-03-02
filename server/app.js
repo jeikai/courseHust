@@ -7,7 +7,7 @@ const cors = require('cors');
 const dotenv = require("dotenv");
 
 const connectDB = require('./config/database')
-const apis = require('./apis')
+const apis = require('./api')
 
 var app = express();
 

@@ -1,4 +1,5 @@
 const userModel = require('../models/User')
+const tokenModel = require('../models/Token')
 const utility = require('../helper/utility')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
@@ -17,12 +18,14 @@ exports.register = async function(req, res){
         if(newUser.error) return res.status(500).json({message: "Failed to register"})
 
         const { JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env
+        const token = jwt.sign({ _id: newUser._id, email: newUser.email, password: newUser.password, role: newUser.role },
+            JWT_SECRET_ACCESS_TOKEN,
+            {expiresIn: JWT_EXPRIRE_ACCESS_TOKEN})
+        await tokenModel.create(newUser._id, token)
         return res.status(200).json({
             message: 'Register successfully',
-            data: newUser,
-            token: jwt.sign({ _id: newUser._id, email: newUser.email, password: newUser.password, role: newUser.role },
-                JWT_SECRET_ACCESS_TOKEN,
-                {expiresIn: JWT_EXPRIRE_ACCESS_TOKEN})
+            account: newUser,
+            authenticated: token
         })
 
     }catch(e){
@@ -39,21 +42,35 @@ exports.login = async function(req, res){
         if(!checkUser) return res.status(500).json({message: "Account not exist"})
         
         const checkPassword = await bcrypt.compare(data.password, checkUser.password)
-        if(!checkPassword) return res.status(400).json({message: "Incorrect password"})
+        if(!checkPassword) return res.status(400).json({message: "Incorrect email or password"})
 
         const { JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env
+        const token = jwt.sign({ _id: checkUser._id, email: checkUser.email, password: checkUser.password, role: checkUser.role },
+            JWT_SECRET_ACCESS_TOKEN,
+            {expiresIn: JWT_EXPRIRE_ACCESS_TOKEN})
+        const checkToken = await tokenModel.get(checkUser._id)
+        if(!checkToken) {
+            await tokenModel.create(checkUser._id, token)
+        }else{
+            const data = {
+                token: token,
+                date_created: new Date()
+            }
+            await tokenModel.update(checkUser._id, data)
+        }
         return res.status(200).json({
             message: 'Login successfully',
-            data: checkUser,
-            token: jwt.sign({ _id: checkUser._id, email: checkUser.email, password: checkUser.password, role: checkUser.role },
-                JWT_SECRET_ACCESS_TOKEN,
-                {expiresIn: JWT_EXPRIRE_ACCESS_TOKEN})
+            account: checkUser,
+            authenticated: token
         })
+
     
     }catch(e){
         return res.status(500).json({message: e.message})
     }
 }
+
+
 
 exports.get = async function(req, res){
     try{
@@ -79,6 +96,17 @@ exports.update = async function(req, res){
         const data = req.body
         const result = await userModel.update(userId, data)
         if(result.error) return res.status(500).json({message: "Failed to update"})
+        return res.status(200).json(result)
+    }catch(e){
+        return res.status(500).json({message: e.message})
+    }
+}
+
+exports.delete = async function(req, res){
+    try{
+        const userId = req.params.userId
+        const result = await userModel.delete(userId)
+        if(!result) return res.status(400).json({message: "Failed to delete"})
         return res.status(200).json(result)
     }catch(e){
         return res.status(500).json({message: e.message})

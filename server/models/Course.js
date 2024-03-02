@@ -6,7 +6,7 @@ const courseSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     category: { type: String, required: true },
-    level: { type: String, required: true },
+    level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
     language: { type: String, required: true },
     tags: [{ type: String, required: true }],
     price: { type: Number, required: true },
@@ -17,3 +17,7 @@ const courseSchema = new Schema({
 
 const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course
+
+exports.create = async function(data){
+    
+}

@@ -61,7 +61,9 @@ exports.login = async function(req, res){
         return res.status(200).json({
             message: 'Login successfully',
             account: checkUser,
-            authenticated: token
+            authenticated: token,
+            permission: checkUser.role,
+            verified: checkUser.is_verified
         })
 
     

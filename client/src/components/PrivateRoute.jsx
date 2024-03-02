@@ -8,6 +8,7 @@ const PrivateRoute = (props) => {
     const path = window.location.pathname;
 
     if(user?.token) {
+
         if(permission[user.permission][props.permission]) {
             
             if(user.verified) {

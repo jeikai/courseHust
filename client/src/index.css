@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .card-category:hover {
     background: url('./assets/mask.png') no-repeat center;
 }

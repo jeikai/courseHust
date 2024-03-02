@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { useAPI } from "../hooks/api";
 import axios from "axios";
 import permissions from '../config/permission.json'
+import Loader from "../components/Loader";
 
 export const AuthContext = createContext();
 
@@ -88,7 +89,12 @@ export function AuthProvider(props) {
 
         }}
 
-            {...props} />
+            {...props}>
+                {auth.loading ?
+                    <Loader /> :
+                    {...props.children}
+                }
+        </AuthContext.Provider>
     );
 }
 

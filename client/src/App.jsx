@@ -1,18 +1,13 @@
-import { useState } from 'react'
-import Login from './pages/auth/Login'
-import Register from './pages/auth/Register'
-import Home from './pages/Home'
-import Courses from './pages/Courses'
-import CourseDetail from './pages/CourseDetail'
-import Instructor from './pages/Instructor'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { View } from './context/View'
 
 import websiteRoutes from './routes/website'
 import authRoutes from './routes/auth'
 import PrivateRoute from './components/PrivateRoute'
-import { AuthProvider } from './context/Auth'
+import { AuthContext, AuthProvider } from './context/Auth'
+import Axios from 'axios';
+
 
 const routes = [
 
@@ -21,6 +16,16 @@ const routes = [
 
 ]
 function App() {
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  Axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+  if (user?.token){
+
+    // add auth token to api header calls
+    Axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
+
+  }
+
   return (
     <AuthProvider>
       <BrowserRouter>

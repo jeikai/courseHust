@@ -7,10 +7,9 @@ export function useAPI(url, method){
 
   // wrap in useRef to prevent triggering useEffect multiple times  
   const context = useRef(useContext(ViewContext));
-  const [state, setState] = useState({ data: null, loading: false })
+  const [state, setState] = useState({ data: null, loading: true })
 
   const fetch = useCallback(async () => {
-    console.log(url);
     try {
 
       if (!url){
@@ -19,19 +18,19 @@ export function useAPI(url, method){
         return false;
 
       }
-
-      setState({ loading: true });
+      // setState({ loading: true });
     //   const res = await Axios({
 
     //     url: url,
     //     method: method || 'get',
         
     //   })
-    debugger
     const data = {
         name: 'Cuong',
         email: 'dvc@gmail.com',
-        authenticated: true
+        authenticated: true,
+        token: 'token',
+        permission: 'user'
     }
 
       setState({ data: data, loading: false });

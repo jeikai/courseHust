@@ -19,10 +19,10 @@ function App() {
 
   const user = JSON.parse(localStorage.getItem('user'));
   Axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
-  if (user?.token){
+  if (user?.authenticated){
 
     // add auth token to api header calls
-    Axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
+    Axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.authenticated;
 
   }
 

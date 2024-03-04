@@ -72,6 +72,10 @@ export function View(props) {
                         case 401:
                             navigate('/signin');
                             break;
+                        
+                        case 403:
+                            navigate('/notfound');
+                            break;
 
                         case 404:
                             navigate('/notfound');

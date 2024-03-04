@@ -19,22 +19,22 @@ export function useAPI(url, method){
 
       }
       // setState({ loading: true });
-    //   const res = await Axios({
+      const res = await Axios({
 
-    //     url: url,
-    //     method: method || 'get',
+        url: url,
+        method: method || 'get',
         
-    //   })
-    const data = {
-        name: 'Cuong',
-        email: 'dvc@gmail.com',
-        authenticated: true,
-        token: 'token',
-        permission: 'user'
-    }
-
-      setState({ data: data, loading: false });
-    //   setState({ data: res.data.data, loading: false });
+      })
+    // const data = {
+    //     name: 'Cuong',
+    //     email: 'dvc@gmail.com',
+    //     authenticated: true,
+    //     token: 'token',
+    //     permission: 'user'
+    // }
+      console.log(res);
+      // setState({ data: data, loading: false });
+      setState({ data: res.data, loading: false });
 
     }
     catch (err){

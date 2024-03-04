@@ -16,8 +16,10 @@ const Login = () => {
 
   const authContext = useContext(AuthContext);
   const viewContext = useContext(ViewContext);
+
   const navigate = useNavigate()
   const [form] = Form.useForm();
+
   const handleSubmit = async (data) => {
     try {
       const res = await Axios({
@@ -31,18 +33,8 @@ const Login = () => {
       console.log(error);
       viewContext.handleError(error)
     }
-
-    // console.log(res);
-    // if(res.response.status == 500) {
-    //   console.log('hello');
-    //   viewContext.handleError(res)
-    // }
-    // const res = {
-    //   data: data
-    // }
-    // navigate(authContext.signin(res))
   }
-  const [authentication, setAuthentication] = useState(true)
+
   useEffect(() => {
     if(authContext?.user) {
       navigate('/', {replace: true})
@@ -50,9 +42,6 @@ const Login = () => {
   } ,[])
   return (
     <section className="max-w-screen-xl m-auto py-24 min-h-96">
-      {/* {authentication ? 
-        <Loader /> :
-      } */}
         <Row>
           <Col span={14} className="flex items-center justify-center">
             <img src={login} alt="" />

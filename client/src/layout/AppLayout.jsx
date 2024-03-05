@@ -1,16 +1,14 @@
 import Footer from "../components/Footer"
 import Header from "../components/header/Header"
 
-const Layout = ({children}) => {
+const AppLayout = ({children}) => {
   return (
     <>
         <Header />
-        
-        {children}
-        
+          {children}
         <Footer />
     </>
   )
 }
 
-export default Layout
+export default AppLayout

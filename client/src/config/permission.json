@@ -1,0 +1,6 @@
+{
+    "admin": { "admin": true, "user": true, "instructor": false },
+    "instructor": { "admin": false, "user": true, "instructor": true },
+    "user": { "admin": false, "user": true, "instructor": false }
+}
+  

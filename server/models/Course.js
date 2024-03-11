@@ -19,5 +19,24 @@ const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course
 
 exports.create = async function(data){
-    
+    try{
+        const courseData = {
+            instuctorId: data.instuctorId,
+            title: data.title, 
+            description: data.description, 
+            category: data.category,
+            level: data.level || "basic",
+            language: data.language,
+            tags: data.tags || [],
+            price: parseFloat(data.price),
+            thumbnail: data.thumbnail || '',
+            date_created: new Date(),
+            date_updated: new Date()
+        }
+        const newCourse = Course(courseData)
+        await newCourse.save()
+        return newCourse
+    }catch(e){
+        return {error: e}
+    }
 }

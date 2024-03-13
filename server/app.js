@@ -9,7 +9,7 @@ const dotenv = require("dotenv");
 const connectDB = require('./config/database')
 const apis = require('./api')
 
-var app = express();
+var app = express(); 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

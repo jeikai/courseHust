@@ -4,8 +4,6 @@ const utility = require('../helper/utility')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
-
-
 exports.register = async function(req, res){
     try{
         const data = req.body

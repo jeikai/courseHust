@@ -10,12 +10,12 @@
   "private": true,
   "workspaces": [
     "server",
-    "client"
-  ],
+    "client" 
+  ], 
   "author": "",
   "license": "MIT",
   "dependencies": {
     "concurrently": "^8.2.2",
     "wait-on": "^7.2.0"
-  }
+  } 
 }

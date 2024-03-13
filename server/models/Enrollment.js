@@ -10,4 +10,4 @@ const EnrollmentSchema = new Schema({
 })
 
 const Enrollment = mongoose.model('Enrollment', EnrollmentSchema, 'enrollments')
-exports.schema = Enrollment
+exports.schema = Enrollment 

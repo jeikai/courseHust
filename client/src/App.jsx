@@ -10,10 +10,8 @@ import Axios from 'axios';
 
 
 const routes = [
-
   ...websiteRoutes,
   ...authRoutes,
-
 ]
 function App() {
 
@@ -51,7 +49,7 @@ function App() {
     </AuthProvider>
     // <Login />
     // <Logout />
-    // <Home />
+    // <Home /> 
     // <Courses />
     // <CourseDetail />
     // <Instructor />

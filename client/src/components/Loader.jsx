@@ -3,7 +3,7 @@ import React from 'react'
 
 const Loader = () => {
   return (
-      <Spin size='large' tip="Loading..." spinning={true} fullscreen></Spin>
+      <Spin className='bg-white' size='large' tip="Loading..." spinning={true} fullscreen></Spin>
   )
 }
 

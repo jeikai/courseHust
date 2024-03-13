@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"cd client && npm run dev\" \"cd server && npm start\""
+    "start": "concurrently \"cd client && npm run dev\" \"cd server && npm start\"",
+    "server": "cd server && npm start",
+    "server:debug": "cd server && node inspect ./bin/www",
+    "client": "cd client && npm run dev"
   },
   "private": true,
   "workspaces": [

@@ -19,5 +19,13 @@ const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course
 
 exports.create = async function(data){
-    
+    try {
+        const courseData = {
+            title: data.title,
+            description: data.description,
+            category: data.category
+        }
+    } catch (error) {
+        return {error: error}
+    }
 }

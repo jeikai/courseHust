@@ -3,9 +3,9 @@ const Schema = mongoose.Schema
 
 const courseSchema = new Schema({
     instuctorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    title: { type: String, required: true },
+    title: { type: String, required: true, unique: true},
     description: { type: String, required: true },
-    category: { type: String, required: true },
+    categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
     language: { type: String, required: true },
     tags: [{ type: String, required: true }],
@@ -20,11 +20,13 @@ exports.schema = Course
 
 exports.create = async function(data){
     try{
+        const checkCourse = await Course.findOne({instuctorId: data.instuctorId, title: data.title})
+        if(checkCourse) return {error: 'Course existed'}
         const courseData = {
             instuctorId: data.instuctorId,
             title: data.title, 
             description: data.description, 
-            category: data.category,
+            categoryId: data.categoryId,
             level: data.level || "basic",
             language: data.language,
             tags: data.tags || [],
@@ -36,7 +38,11 @@ exports.create = async function(data){
         const newCourse = Course(courseData)
         await newCourse.save()
         return newCourse
-    }catch(e){
-        return {error: e}
+    }catch(err){
+        return {error: err}
     }
+}
+
+exports.get = async function(data){
+    
 }

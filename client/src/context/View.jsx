@@ -6,6 +6,7 @@ import Notification from "../components/Notification";
 import { CloseSquareOutlined } from "@ant-design/icons";
 import BlankLayout from "../layout/BlankLayout";
 import LessonLayout from "../layout/LessonLayout";
+import AdminLayout from "../layout/AdminLayout";
 
 export const ViewContext = createContext()
 
@@ -19,6 +20,7 @@ export function View(props) {
     const layouts = {
         app: AppLayout,
         lesson: LessonLayout,
+        admin: AdminLayout,
     }
 
     document.title = props.title;

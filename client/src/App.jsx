@@ -5,6 +5,7 @@ import { View } from './context/View'
 import websiteRoutes from './routes/website'
 import authRoutes from './routes/auth'
 import appRoutes from './routes/app'
+import adminRoutes from './routes/admin'
 import PrivateRoute from './components/PrivateRoute'
 import { AuthContext, AuthProvider } from './context/Auth'
 import Axios from 'axios';
@@ -14,7 +15,8 @@ const routes = [
 
   ...websiteRoutes,
   ...authRoutes,
-  ...appRoutes
+  ...appRoutes,
+  ...adminRoutes,
 
 ]
 function App() {

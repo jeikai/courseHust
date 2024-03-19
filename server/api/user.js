@@ -14,5 +14,4 @@ api.put('/user/update/:userId', authMiddleware.checkToken, use(userController.up
 
 api.delete('/user/delete/:userId', authMiddleware.protectAdmin, use(userController.delete))
 
-
 module.exports = api

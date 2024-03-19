@@ -2,11 +2,11 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const courseSchema = new Schema({
-    instuctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    title: { type: String, required: true },
+    instuctorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    title: { type: String, required: true, unique: true},
     description: { type: String, required: true },
-    category: { type: String, required: true },
-    level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
+    categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
     language: { type: String, required: true },
     tags: [{ type: String, required: true }],
     price: { type: Number, required: true },
@@ -18,18 +18,20 @@ const courseSchema = new Schema({
 const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course
 
-exports.create = async function (data) {
-    try {
+exports.create = async function(data){
+    try{
+        const checkCourse = await Course.findOne({instuctorId: data.instuctorId, title: data.title})
+        if(checkCourse) return {error: 'Course existed'}
         const courseData = {
             instuctorId: data.instuctorId,
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            level: data.level,
+            title: data.title, 
+            description: data.description, 
+            categoryId: data.categoryId,
+            level: data.level || "basic",
             language: data.language,
-            tags: data.tags,
-            price: data.price,
-            thumbnail: data.thumbnail,
+            tags: data.tags || [],
+            price: parseFloat(data.price),
+            thumbnail: data.thumbnail || '',
             date_created: new Date(),
             date_updated: new Date()
         }

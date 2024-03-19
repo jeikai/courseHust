@@ -7,7 +7,7 @@ const cors = require('cors');
 const dotenv = require("dotenv");
 
 const connectDB = require('./config/database')
-const apis = require('./api')
+const api = require('./api')
 
 var app = express(); 
 
@@ -26,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 connectDB();
 
 
-app.use('/api',apis);
+app.use('/api',api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

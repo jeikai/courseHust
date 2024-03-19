@@ -1,24 +1,17 @@
 const courseModel = require('../models/Course')
+const utility = require('../helper/utility')
 
-exports.createCourse = async function(req, res){
-    try {
+exports.create = async function(req, res){
+    try{
         const data = req.body
-        const newCourse = await courseModel.create(data)
-        return res.status(200).json({
-            message: 'Create course successfully',
-            data: newCourse,
-        })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({message: error.message})
-    }
-}
+        utility.validate(data, ['instuctorId', 'title', 'description', 
+        'categoryId', 'level', 'language', 'price'])
 
-exports.getDetail = async function(req, res){
-    try {
-        
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({message: error.message})
+        const newCourse = await courseModel.create(data)
+        if(newCourse.hasOwnProperty('error')) return res.status(500).json({message: newCourse.error})
+
+        return res.status(200).json({message: "Course created successfully", data: newCourse})
+    }catch(e){
+        return res.status(500).json({message: e.message})
     }
 }

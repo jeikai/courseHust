@@ -5,7 +5,7 @@ const LessonSchema = new Schema({
     courseId: {type: mongoose.Schema.Types.ObjectId, ref: 'Session'},
     title: { type: String, required: true },
     content: { type: String, required: true },
-    videoURL: { type: String, required: true },
+    videoURL: { type: String, default: '' },
     docURL: { type: String, required: true },
     key: { type: String, required: true },
     duration: { type: Number, required: true },
@@ -16,3 +16,10 @@ const LessonSchema = new Schema({
 const Lesson = mongoose.model('Lesson', LessonSchema, 'lessons')
 exports.schema = Lesson
 
+exports.create = async function(data){
+    try {
+        
+    } catch (error) {
+        return { error: error }
+    }
+}

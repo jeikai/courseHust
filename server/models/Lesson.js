@@ -2,12 +2,10 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const LessonSchema = new Schema({
-    courseId: {type: mongoose.Schema.Types.ObjectId, ref: 'Session'},
     title: { type: String, required: true },
     content: { type: String, required: true },
     videoURL: { type: String, required: true },
     docURL: { type: String, required: true },
-    key: { type: String, required: true },
     duration: { type: Number, required: true },
     date_created: Date,
     date_updated: Date

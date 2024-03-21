@@ -1,11 +1,12 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+const categoryModel = require('./Category')
 
 const courseSchema = new Schema({
     instuctorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     title: { type: String, required: true, unique: true},
     description: { type: String, required: true },
-    categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
     language: { type: String, required: true },
     tags: [{ type: String, required: true }],
@@ -43,6 +44,25 @@ exports.create = async function(data){
     }
 }
 
-exports.get = async function(data){
-    
+exports.get = async function(query){
+    try{
+        if(!query)
+            return await Course.find({})
+        if(query.hasOwnProperty('courseId')){
+            return await Course.findById(query.courseId)
+        }else if(query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')){
+            const category = await categoryModel.get(query)
+            if(category){
+                const courses = await Course.find({categoryId: category._id})
+                return courses
+            }
+            return {error: 'not found'}
+        }else if(query.hasOwnProperty('title')){
+            // const regex = new RegExp(query.title, 'i')
+            return await Course.find({title: { $regex: query.title, $options: 'i' } })
+        }
+
+    }catch(err){
+        return {error: err}
+    }
 }

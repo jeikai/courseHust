@@ -6,6 +6,7 @@ const SessionSchema = new Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
     key: { type: String, required: true },
+    lesson: [{type: mongoose.Schema.Types.ObjectId, ref: 'Lesson'}],
     date_created: Date,
     date_updated: Date
 })

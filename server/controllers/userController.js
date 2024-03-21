@@ -47,7 +47,7 @@ exports.login = async function(req, res){
         const { JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env
         const token = jwt.sign({ _id: checkUser._id, email: checkUser.email, password: checkUser.password, role: checkUser.role },
             JWT_SECRET_ACCESS_TOKEN,
-            {expiresIn: JWT_EXPRIRE_ACCESS_TOKEN})
+            {expiresIn: 86400})
         const checkToken = await tokenModel.get(checkUser._id)
         if(!checkToken) {
             await tokenModel.create(checkUser._id, token)

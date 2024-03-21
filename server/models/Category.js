@@ -23,10 +23,14 @@ exports.create = async function(data){
     }
 }
 
-exports.get = async function(categoryTitle){
+exports.get = async function(data){
     try{
-        const result = await Category.findOne({ title: categoryTitle}).lean()
-        return result
+        if(!data) return await Category.find({})
+        
+        let query = {}
+        if(data.categoryId) query._id = data.categoryId
+        if(data.categoryTitle) query.title = data.categoryTitle
+        return await Category.findOne(query).lean()
     }catch(e){
         return {error: e}
     }

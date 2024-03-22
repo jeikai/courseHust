@@ -43,7 +43,7 @@ exports.create = async function(data){
         return { error: error }
     }
 }
-
+ 
 exports.get = async function(query){
     try{
         if(!query)

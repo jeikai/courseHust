@@ -18,26 +18,12 @@ import {
 import { Layout, Menu, Button, theme, Flex, Avatar, Badge } from 'antd';
 import logo from '../assets/logo-white.png'
 import logosm from '../assets/logo-light-sm.png'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Search from 'antd/es/input/Search';
 
 const { Header, Sider, Content, Footer } = Layout;
 
 const AdminLayout = ({ children }) => {
-  // const items = [
-  //   UserOutlined,
-  //   VideoCameraOutlined,
-  //   UploadOutlined,
-  //   BarChartOutlined,
-  //   CloudOutlined,
-  //   AppstoreOutlined,
-  //   TeamOutlined,
-  //   ShopOutlined,
-  // ].map((icon, index) => ({
-  //   key: String(index + 1),
-  //   icon: React.createElement(icon),
-  //   label: `nav ${index + 1}`,
-  // }));
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -52,7 +38,7 @@ const AdminLayout = ({ children }) => {
     };
   }
   const items = [
-    getItem('Dashboard', '/admin/dashboard', <AppstoreOutlined />),
+    getItem('Dashboard', '/admin', <AppstoreOutlined />),
     getItem('Courses', 'courses', <ShopOutlined />, [
       getItem('Manage courses', '/admin/manage_courses'),
       getItem('Add new course', '/admin/add_course'),
@@ -63,13 +49,15 @@ const AdminLayout = ({ children }) => {
         getItem('Manage instructors', '/admin/instructors'),
         getItem('Add new instructor', '/admin/add_instructor'),
       ]),
-      getItem('Students', '/admin/students', '', [
+      getItem('Students', 'students', '', [
         getItem('Manage students', '/admin/students'),
         getItem('Add new student', '/admin/add_student'),
       ]),
     ]),
     getItem('Manage Profile', '/admin/profile', <ProfileOutlined />)
   ];
+
+  const navigate = useNavigate()
   return (
     <Layout hasSider>
       <Sider
@@ -97,7 +85,7 @@ const AdminLayout = ({ children }) => {
         </div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']}
           items={items}
-          onClick={(e) => console.log(e)}
+          onClick={(e) => navigate(e.key)}
         />
       </Sider>
       <Layout

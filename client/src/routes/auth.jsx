@@ -1,5 +1,6 @@
 import Login from "../pages/auth/Login"
 import Register from "../pages/auth/Register"
+import Verify from "../pages/auth/Verify"
 
 const Routes = [
     {
@@ -14,12 +15,13 @@ const Routes = [
         layout: 'app',
         title: 'Funbug - Login | E-Learning'
     },
-    // {
-    //     path: '/signup/verify',
-    //     view: ,
-    //     layout: 'app',
-    //     title: 'Funbug - Please verify you email address'
-    // },
+    {
+        path: '/signup/verify',
+        view: Verify,
+        // layout: 'app',
+        permission: 'student',
+        title: 'Funbug - Please verify you email address'
+    },
     // {
     //     path: '/forgotpassword',
     //     view: '',

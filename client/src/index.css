@@ -44,3 +44,18 @@
     text-overflow: ellipsis;
     white-space: normal;
 }
+.ant-spin-fullscreen .ant-spin-dot .ant-spin-dot-item {
+    background: #754FFE;
+}
+.ant-spin-fullscreen .ant-spin-text {
+    color: #754FFE;
+    font-size: 20px;
+}
+
+.tox .tox-tinymce {
+    width: 100% !important;
+}
+
+.ant-collapse-item {
+    width: 100%;
+}

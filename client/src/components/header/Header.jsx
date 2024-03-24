@@ -18,8 +18,8 @@ const Header = () => {
     const navigate = useNavigate()
     const items = [
         {
-            key: '1',
-            label: 'Web Design',
+            key: '/courses',
+            label: <Link to={`/courses`}>Web Design</Link>,
             icon: <LaptopOutlined />,
             children: [
                 {
@@ -46,6 +46,11 @@ const Header = () => {
                     label: '6th menu item',
                 },
             ],
+        },
+        {
+            key: '2',
+            label: 'Graphic Design',
+            icon: <EditOutlined />,
         },
     ];
     const itemCart = [
@@ -116,6 +121,14 @@ const Header = () => {
             navigate(authContext.signout())
         }
     }
+
+    const handleClickCourses =(props) => {
+        console.log(props);
+        // navigate(key)
+        const path = props.keyPath.reverse().join('/')
+        // navigate(path, {replace: true})
+    }
+
     return (
         <header className='py-1'>
             <div className="container mx-auto max-w-screen-xl flex gap-4 items-center p-1">
@@ -129,6 +142,7 @@ const Header = () => {
                                 <Dropdown
                                     menu={{
                                         items,
+                                        onClick: handleClickCourses
                                     }}
                                     placement="bottom"
                                 >
@@ -189,7 +203,7 @@ const Header = () => {
                         <>
                             <div className='px-4 py-2 rounded cursor-pointer'>
                                 <Flex align='center' gap={2} className='text-black'>
-                                    <Link to={"/login"} className='text-base font-semibold'>
+                                    <Link to={"/home/my_courses"} className='text-base font-semibold'>
                                         My course
                                     </Link>
                                 </Flex>

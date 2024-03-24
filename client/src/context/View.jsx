@@ -4,6 +4,9 @@ import AppLayout from "../layout/AppLayout";
 import Loader from "../components/Loader";
 import Notification from "../components/Notification";
 import { CloseSquareOutlined } from "@ant-design/icons";
+import BlankLayout from "../layout/BlankLayout";
+import LessonLayout from "../layout/LessonLayout";
+import AdminLayout from "../layout/AdminLayout";
 
 export const ViewContext = createContext()
 
@@ -16,11 +19,15 @@ export function View(props) {
 
     const layouts = {
         app: AppLayout,
+        lesson: LessonLayout,
+        admin: AdminLayout,
     }
 
     document.title = props.title;
 
-    let Layout = props.layout ? layouts[props.layout] : AppLayout;
+
+
+    let Layout = props.layout ? layouts[props.layout] : BlankLayout;
 
     function showNotification(text, type, autoclose, format, icon) {
 

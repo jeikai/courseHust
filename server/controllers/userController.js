@@ -43,6 +43,7 @@ exports.login = async function(req, res){
         if(!checkPassword) return res.status(400).json({message: "Incorrect email or password"})
 
         const { JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env
+        console.log(JWT_EXPRIRE_ACCESS_TOKEN);
         const token = jwt.sign({ _id: checkUser._id, email: checkUser.email, password: checkUser.password, role: checkUser.role },
             JWT_SECRET_ACCESS_TOKEN,
             {expiresIn: 86400})

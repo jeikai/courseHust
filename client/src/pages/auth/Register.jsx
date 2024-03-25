@@ -94,13 +94,12 @@ const Register = () => {
   const handleSubmit = async (data) => {
     console.log(data);
     try {
-      // const res = await Axios({
-      //   url: "/api/user/register",
-      //   method: "POST",
-      //   data: data,
-      // })
-      // console.log(res);
-      // navigate(authContext.signin(res))
+      const res = await Axios({
+        url: "/api/user/register",
+        method: "POST", 
+        data: data,
+      })
+      navigate(authContext.signin(res))
     } catch (error) {
       console.log(error);
       viewContext.handleError(error)

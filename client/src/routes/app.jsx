@@ -1,5 +1,5 @@
 import Account from "../pages/Account"
-import Affiliate from "../pages/Affiliate"
+// import Affiliate from "../pages/Affiliate"
 import Bootcamp from "../pages/Bootcamp"
 import BootcampDetail from "../pages/BootcampDetail"
 import Cart from "../pages/Cart"
@@ -44,13 +44,13 @@ const Routes = [
         // permission: 'student',
         title: 'Funbug - My whishlist | E-Learning'
     },
-    {
-        path: '/home/affiliate_course',
-        view: Affiliate,
-        layout: 'app',
-        // permission: 'student',
-        title: 'Funbug - Affiliate course | E-Learning'
-    },
+    // {
+    //     path: '/home/affiliate_course',
+    //     view: Affiliate,
+    //     layout: 'app',
+    //     // permission: 'student',
+    //     title: 'Funbug - Affiliate course | E-Learning'
+    // },
     {
         path: '/home/purchase_course',
         view: Purchase,

@@ -3,5 +3,6 @@ module.exports = [
   require('./token'),
   require('./category'),
   require('./course'),
-  require('./enrollment')
+  require('./enrollment'),
+  require('./instructor'),
 ]

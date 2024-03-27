@@ -7,7 +7,7 @@ const EnrollmentSchema = new Schema({
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     date_created: Date,
     date_updated: Date
-})
+}) 
 
 const Enrollment = mongoose.model('Enrollment', EnrollmentSchema, 'enrollments')
 exports.schema = Enrollment
@@ -35,7 +35,7 @@ exports.create = async function (data) {
 
 exports.getById = async function (data) {
     try {
-        const enrollments = await Enrollment.find({ userId: data })
+        const enrollments = await Enrollment.find({ userId: data }).populate('courseId');
         return enrollments
     } catch (error) {
         return { error: error }

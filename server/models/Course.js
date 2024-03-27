@@ -9,7 +9,7 @@ const courseSchema = new Schema({
     categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
     language: { type: String, required: true },
-    tags: [{ type: String, required: true }],
+    tags: [{ type: String, required: true }], 
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true }, 
     date_created: Date,

@@ -5,4 +5,5 @@ module.exports = [
   require('./course'),
   require('./enrollment'),
   require('./instructor'),
+  require('./bill')
 ]

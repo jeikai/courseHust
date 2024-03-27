@@ -6,13 +6,13 @@ exports.create = async function (req, res) {
         const newEnrollment = await enrollmentModel.create(data)
         if (newEnrollment.hasOwnProperty('error')) return res.status(500).json({ message: newEnrollment.error })
 
-        return res.status(200).json({ message: "Course has been added to cart successfully", data: newCourse })
+        return res.status(200).json({ message: "Course has been added to cart successfully", data: newEnrollment })
     } catch (error) {
         return res.status(500).json({ message: error.message })
     }
-}
+} 
 
-exports.getById = async function (req, res) {
+exports.getById = async function (req, res) { 
     try {
         const userId = req.params.userId
         const result = await enrollmentModel.getById(userId)

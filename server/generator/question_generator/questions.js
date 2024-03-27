@@ -13,7 +13,7 @@ class Question {
 }
 
 const QuestionTypes = {
-    MULTIPLE_CHOICE: 'Multiple-Choice',
+    MULTIPLE_CHOICE: 'Multiple-Choice', 
     FILLING: 'Filling',
     WRITING: 'Writing'
 }

@@ -5,4 +5,6 @@ const use = require('../helper/utility').use
 
 api.post('/section/:courseId', use(sectionController.create))
 
+api.get('/section', use(sectionController.getById))
+
 module.exports = api

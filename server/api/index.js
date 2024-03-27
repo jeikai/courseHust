@@ -4,5 +4,6 @@ module.exports = [
   require('./category'),
   require('./course'),
   require('./section'),
-  require('./upload')
+  require('./upload'),
+  require('./lesson')
 ]

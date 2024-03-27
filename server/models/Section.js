@@ -6,11 +6,11 @@ const SectionSchema = new Schema({
     title: { type: String, required: true },
     spec: [
             {
-                id: {type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }, 
+                _id: {type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }, 
                 type: { type: String, enum: ['lesson', 'quiz'], default: 'lesson'}
             }, 
             { 
-                id: {type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
+                _id: {type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
                 type: { type: String, enum: ['lesson', 'quiz'], default: 'quiz'}
             }
             ],
@@ -39,6 +39,29 @@ exports.create = async function(data){
         await newSection.save()
         await courseModel.addSection(data.courseId, newSection._id)
         return newSection
+    }catch(err){
+        return {error: err}
+    }
+}
+
+exports.addSpec = async function(sectionId ,id, type){
+    try{
+        const section = await Section.findById(sectionId)
+        if(!section) return {error:'section not found'}
+
+        section.spec.push({_id: id, type: type})
+        section.date_updated = new Date()
+        section.markModified("spec")
+        section.markModified("date_updated")
+        await section.save()
+    }catch(err){
+        return {error: err}
+    }
+}
+
+exports.get = async function(data){
+    try{
+        return await Section.findById(data.sectionId).populate('spec._id').where('spec.type').equals(data.specType)
     }catch(err){
         return {error: err}
     }

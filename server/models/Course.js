@@ -77,7 +77,9 @@ exports.addSection = async function(courseId, sectionId){
         if(!course) return {error: "course not found"}
 
         course.sections.push(sectionId)
+        course.date_updated = new Date()
         course.markModified("sections")
+        course.markModified("date_updated")
         await course.save()
     }catch(err){
         return {error: err}

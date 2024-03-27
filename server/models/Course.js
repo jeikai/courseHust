@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 const categoryModel = require('./Category')
 
 const courseSchema = new Schema({
-    instuctorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    instructorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     title: { type: String, required: true, unique: true},
     description: { type: String, required: true },
     categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
@@ -12,6 +12,7 @@ const courseSchema = new Schema({
     tags: [{ type: String, required: true }],
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true },
+    sections: [{type: mongoose.Schema.Types.ObjectId, ref: 'Section'}],
     date_created: Date,
     date_updated: Date
 })
@@ -21,10 +22,10 @@ exports.schema = Course
 
 exports.create = async function(data){
     try{
-        const checkCourse = await Course.findOne({instuctorId: data.instuctorId, title: data.title})
+        const checkCourse = await Course.findOne({instructorId: data.instructorId, title: data.title})
         if(checkCourse) return {error: 'Course existed'}
         const courseData = {
-            instuctorId: data.instuctorId,
+            instructorId: data.instructorId,
             title: data.title, 
             description: data.description, 
             categoryId: data.categoryId,
@@ -33,6 +34,7 @@ exports.create = async function(data){
             tags: data.tags || [],
             price: parseFloat(data.price),
             thumbnail: data.thumbnail || '',
+            sections: data.sections || [],
             date_created: new Date(),
             date_updated: new Date()
         }
@@ -49,7 +51,7 @@ exports.get = async function(query){
         if(!query)
             return await Course.find({})
         if(query.hasOwnProperty('courseId')){
-            return await Course.findById(query.courseId)
+            return await Course.findById(query.courseId).populate('sections')
         }else if(query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')){
             const category = await categoryModel.get(query)
             if(category){
@@ -60,8 +62,23 @@ exports.get = async function(query){
         }else if(query.hasOwnProperty('title')){
             // const regex = new RegExp(query.title, 'i')
             return await Course.find({title: { $regex: query.title, $options: 'i' } })
+        }else if(query.hasOwnProperty('instructorId')){
+            return await Course.find({instructorId: query.instructorId})
         }
 
+    }catch(err){
+        return {error: err}
+    }
+}
+
+exports.addSection = async function(courseId, sectionId){
+    try{
+        const course = await Course.findById(courseId)
+        if(!course) return {error: "course not found"}
+
+        course.sections.push(sectionId)
+        course.markModified("sections")
+        await course.save()
     }catch(err){
         return {error: err}
     }

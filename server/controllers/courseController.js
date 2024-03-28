@@ -70,3 +70,17 @@ exports.getByTitle = async function(req, res){
         return res.status(500).json({message: e.message})
     }
 }
+
+exports.getByInstructorId = async function(req, res){
+    try{
+        const data = req.body
+        utility.validate(data, ['instructorId'])
+
+        const courses = await courseModel.get(data)
+        if(courses.hasOwnProperty('error')) return res.status(500).json({message: courses.error})
+        
+        return res.status(200).json(courses)
+    }catch(e){
+        return res.status(500).json({message: e.message})
+    }
+}

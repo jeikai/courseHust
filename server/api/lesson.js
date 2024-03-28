@@ -1,7 +1,8 @@
 const api = require('express').Router()
-const use = require('../helper/utility').use
 const lessonController = require('../controllers/lessonController')
+const authMiddleware = require('../middlewares/authMiddleware')
+const use = require('../helper/utility').use
 
-api.post('/lesson/create', use(lessonController.createLesson))
+api.post('/lesson', use(lessonController.create))
 
 module.exports = api

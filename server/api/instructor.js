@@ -4,6 +4,6 @@ const instructorController = require('../controllers/instructorController');
 const fileUploadMiddleware = require('../middlewares/fileUploadMiddleware');
 const use = require('../helper/utility').use;
 
-api.post('/instructor/upload-questions', authMiddleware.protectTeacher, fileUploadMiddleware, use(instructorController.postQuestions));
+api.post('/instructor/upload-questions', fileUploadMiddleware, use(instructorController.postQuestions));
 
-module.exports = api;
+module.exports = api; 

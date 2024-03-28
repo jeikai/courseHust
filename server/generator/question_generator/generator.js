@@ -7,4 +7,4 @@ const Generator = {
     }
 };
 
-module.exports = Generator;
+module.exports = Generator; 

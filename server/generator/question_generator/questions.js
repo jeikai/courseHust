@@ -1,6 +1,8 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require("fs");
 const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config();
 
 class Question {
     constructor(question, type, options) {
@@ -11,7 +13,7 @@ class Question {
 }
 
 const QuestionTypes = {
-    MULTIPLE_CHOICE: 'Multiple-Choice',
+    MULTIPLE_CHOICE: 'Multiple-Choice', 
     FILLING: 'Filling',
     WRITING: 'Writing'
 }

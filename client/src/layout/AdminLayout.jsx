@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  ApartmentOutlined,
   AppstoreOutlined,
   BarChartOutlined,
   CloudOutlined,
@@ -53,6 +54,10 @@ const AdminLayout = ({ children }) => {
         getItem('Manage students', '/admin/students'),
         getItem('Add new student', '/admin/add_student'),
       ]),
+    ]),
+    getItem('Enrollments', 'enrollment', <ApartmentOutlined />, [
+        getItem('Course enrollment', '/admin/enrollment'),
+        getItem('Enrol History', '/admin/enrol_history'),
     ]),
     getItem('Manage Profile', '/admin/profile', <ProfileOutlined />)
   ];

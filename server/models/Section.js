@@ -13,7 +13,7 @@ const SectionSchema = new Schema({
             _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
             type: { type: String, enum: ['lesson', 'quiz'], default: 'quiz' }
         }
-    ],
+    ], 
     date_created: Date,
     date_updated: Date
 })

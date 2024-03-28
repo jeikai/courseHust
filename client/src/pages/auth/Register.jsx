@@ -30,26 +30,26 @@ const Register = () => {
     setImageFilesList([...imageFilesList, file]);
     onSuccess("ok");
 
-    // try {
-    //   const result = await Promise.all([]);
-    //   for (let i = 0; i < imageFilesList.length; i++) {
-    //     let file = imageFilesList[i];
-    //     console.log("FILE: ", file);
-    //     const formData = new FormData();
-    //     formData.append("file", file);
-        // formData.append(
-        //   "upload_preset",
-        //   cloudinaryInfo.CLOUDINARY_UPLOAD_PRESET
-        // );
-        // result.push(
-        //   axios.post(cloudinaryInfo.CLOUDINARY_IMAGE_UPLOAD_URL, formData)
-        // );
-      // }
-      // onSuccess("ok");
-    // } catch (err) {
-    //   console.log(err);
-    //   onError(err);
-    // }
+    try {
+      const result = await Promise.all([]);
+      for (let i = 0; i < imageFilesList.length; i++) {
+        let file = imageFilesList[i];
+        console.log("FILE: ", file);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append(
+          "upload_preset",
+          cloudinaryInfo.CLOUDINARY_UPLOAD_PRESET
+        );
+        result.push(
+          axios.post(cloudinaryInfo.CLOUDINARY_IMAGE_UPLOAD_URL, formData)
+        );
+      }
+      onSuccess("ok");
+    } catch (err) {
+      console.log(err);
+      onError(err);
+    }
   };
 
   const props = {

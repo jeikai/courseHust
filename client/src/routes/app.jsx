@@ -6,6 +6,7 @@ import Cart from "../pages/Cart"
 import Lesson from "../pages/Lesson"
 import Mycourses from "../pages/Mycourses"
 import Mywishlist from "../pages/Mywishlist"
+import NotFound from "../pages/NotFound"
 import Profile from "../pages/Profile"
 import Purchase from "../pages/Purchase"
 
@@ -78,6 +79,13 @@ const Routes = [
         layout: 'lesson',
         // permission: 'student',
         title: 'Funbug - Lesson | E-Learning'
+    },
+    {
+        path: '/home/notfound',
+        view: NotFound,
+        layout: 'app',
+        // permission: 'student',
+        title: 'Funbug - 404 Not Found | E-Learning'
     },
 ]
 

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import Bread from '../../components/Bread'
-import { Button, Checkbox, Col, Collapse, ConfigProvider, Divider, Drawer, Dropdown, Flex, Form, Input, Modal, Row, Select, Space, Steps, Table, Typography, Upload, message, theme } from 'antd'
-import { CheckOutlined, DeleteOutlined, EditOutlined, MinusOutlined, MoreOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined, SettingOutlined, UploadOutlined, VideoCameraOutlined } from '@ant-design/icons'
+import { Avatar, Button, Checkbox, Col, Collapse, ConfigProvider, Divider, Drawer, Dropdown, Flex, Form, Input, Modal, Progress, Row, Select, Space, Steps, Table, Typography, Upload, message, theme } from 'antd'
+import { CheckOutlined, CreditCardOutlined, DeleteOutlined, EditOutlined, MinusOutlined, MoreOutlined, PlusOutlined, QuestionCircleOutlined, SearchOutlined, SettingOutlined, UploadOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 import { Editor } from '@tinymce/tinymce-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -871,6 +871,127 @@ const AddCourse = () => {
         )
     }
 
+    const progressData = [
+        {
+            id: 1,
+            photo: "https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png",
+            name: 'Signe Thomson',
+            email: 'signeiner@gmail.com',
+            enrolledDate: '11 Now 2020',
+            completeOn: 'Not completed yet',
+            quizDone: 1,
+            quizs: 10,
+        }
+    ]
+
+    const ProgressAcademy = ({ index }) => {
+        return (
+            <div className={`${current === index ? 'block' : 'hidden'}`}>
+                <Table dataSource={progressData}>
+                    <Table.Column
+                        width={50}
+                        title="Avatar"
+                        render={(_, record) => {
+                            return (
+                                <div>
+                                    <Avatar size={48} shape='circle' src={record.photo} />
+                                </div>
+                            )
+                        }}
+                    />
+                    <Table.Column
+                        title="Student"
+                        render={(_, record) => {
+                            return (
+                                <Flex vertical>
+                                    <Typography.Title level={5}>{record.name}</Typography.Title>
+                                    <Typography.Text className='p-1 shadow bg-[#e3eaef] w-fit rounded'>{record.email}</Typography.Text>
+                                </Flex>
+                            )
+                        }}
+                    />
+                    <Table.Column 
+                        title="Date"
+                        render={(_, record) => {
+                            return (
+                                <Flex vertical >
+                                    <Typography.Text>
+                                        <span className='font-semibold'>Enroll from: </span>
+                                        {record.enrolledDate}
+                                    </Typography.Text>
+                                    <Typography.Text>
+                                        <span className='font-semibold'>Last seen on: </span>
+                                        {record.completeOn}
+                                    </Typography.Text>
+                                </Flex>
+                            )
+                        }}
+                    />
+                    <Table.Column 
+                        title="Progress"
+                        render={(_, record) => {
+                            return (
+                                <Flex vertical className='w-[85%]'>
+                                    <Progress percent={20} />
+                                    <Typography.Text>
+                                        <span className='font-semibold'>Complete quiz: </span>
+                                        {record.quizDone}
+                                        <span> out of </span>
+                                        {record.quizs}
+                                    </Typography.Text>
+                                </Flex>
+                            )
+                        }}
+                    />
+                    <Table.Column 
+                        title="Actions"
+                        render={(_, record) => {
+                            return (
+                                <Flex align='center'>
+                                    <Button icon={<CreditCardOutlined />}></Button>
+                                </Flex>
+                            )
+                        }}
+                    />
+                </Table>
+
+                <Table>
+                    <Table.Column
+                        title="#"
+                        key={"id"}
+                        dataIndex={"id"}
+                    />
+                    <Table.Column
+                        title="Student"
+                        render={(_, record) => {
+                            return (
+                                <Flex vertical>
+                                    <Typography.Title level={5}>{record.name}</Typography.Title>
+                                    <Typography.Text className='p-1 shadow bg-[#e3eaef] w-fit rounded'>{record.email}</Typography.Text>
+                                </Flex>
+                            )
+                        }}
+                    />
+                    <Table.Column
+                        title="Mark"
+                        key={"mark"}
+                        dataIndex={"mark"}
+                    />
+                    <Table.Column
+                        title="Status"
+                        key={"status"}
+                        dataIndex={"status"}
+                    />
+                    {/* <Table.Column
+                        title="#"
+                        key={"id"}
+                        dataIndex={"id"}
+                    /> */}
+                </Table>
+            </div>
+        )
+    }
+
     const steps = [
         {
             title: <Typography.Title level={5} style={{ display: 'inline-block', marginBottom: 0 }}>Basic infomation</Typography.Title>,
@@ -892,35 +1013,36 @@ const AddCourse = () => {
             title: <Typography.Title level={5} style={{ display: 'inline-block', marginBottom: 0 }}>Curriculum</Typography.Title>,
             content: <Curriculum index={4} />,
         },
+        // {
+        //     title: <Typography.Title level={5} style={{ display: 'inline-block', marginBottom: 0 }}>Academic progress</Typography.Title>,
+        //     content: <ProgressAcademy index={5} />,
+        // },
     ];
-
-    const items = steps.map((item) => ({
-        key: item.title,
-        title: item.title,
-    }));
 
     return (
         <section>
             <Bread title="Add new courses" items={breadcrumb} />
             <div className='w-full p-8 bg-white shadow-md my-8'>
-                <Flex align='center' justify='space-between' className='px-5' gap={6}>
-                    {steps.map((step, index) => {
-                        return (
-                            <Fragment key={index}>
-                                <Flex className='flex-1 cursor-pointer' align='center' gap={12} onClick={() => setCurrent(index)}>
-                                    <Flex align='center' justify='center' className={`font-semibold w-10 h-10 ${current >= index ? 'bg-[#754FFE] text-white' : 'bg-gray-200'} rounded-full`}>{index + 1}</Flex>
-                                    {step.title}
-                                </Flex>
-
-                                {index < steps.length - 1 &&
-                                    <Flex className='flex-1'>
-                                        <Divider className={`bg-[#754FFE]`} />
+                <div className='w-full overflow-x-auto'>
+                    <Flex align='center' justify='space-between' className='px-5' gap={6}>
+                        {steps.map((step, index) => {
+                            return (
+                                <Fragment key={index}>
+                                    <Flex className='flex-1 cursor-pointer min-w-max' align='center' gap={12} onClick={() => setCurrent(index)}>
+                                        <Flex align='center' justify='center' className={`font-semibold w-10 h-10 ${current >= index ? 'bg-[#754FFE] text-white' : 'bg-gray-200'} rounded-full`}>{index + 1}</Flex>
+                                        {step.title}
                                     </Flex>
-                                }
-                            </Fragment>
-                        )
-                    })}
-                </Flex>
+
+                                    {index < steps.length - 1 &&
+                                        <Flex className='flex-1'>
+                                            <Divider className={`bg-[#754FFE]`} />
+                                        </Flex>
+                                    }
+                                </Fragment>
+                            )
+                        })}
+                    </Flex>
+                </div>
 
                 <div className='mt-8'>
                     <Form

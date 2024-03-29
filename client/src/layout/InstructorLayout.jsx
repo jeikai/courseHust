@@ -14,12 +14,15 @@ import {
     UploadOutlined,
     UserOutlined,
     VideoCameraOutlined,
+    BookOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Flex, Avatar, Badge } from 'antd';
 import logo from '../assets/logo-white.png'
 import logosm from '../assets/logo-light-sm.png'
 import { Link, useNavigate } from 'react-router-dom';
 import Search from 'antd/es/input/Search';
+
+const { Header, Sider, Content, Footer } = Layout;
 
 const InstructorLayout = ({children}) => {
     const [collapsed, setCollapsed] = useState(false);
@@ -37,7 +40,14 @@ const InstructorLayout = ({children}) => {
         };
     }
 
-    const items = []
+    //Course Menu
+    const items = [
+        getItem('Courses', 'courses', <BookOutlined />, [
+            getItem('Create Course', '/instructor_m/create_course'),
+            getItem('Create Lesson', '/instructor_m/create_lesson'),
+            getItem('Create Quiz', '/instructor_m/create_quiz')
+        ]),
+    ]
 
     const navigate = useNavigate()
     return (

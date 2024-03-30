@@ -30,3 +30,12 @@ exports.create = async function (data) {
         return { error: error }
     }
 }
+
+exports.getById = async function (data) {
+    try {
+        const quiz = await Quiz.findById(data).populate('ques');
+        return quiz
+    } catch (error) {
+        return { error: error }
+    }
+}

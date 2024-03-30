@@ -8,5 +8,6 @@ module.exports = [
   require('./bill'),
   require('./section'),
   require('./upload'),
-  require('./lesson')
+  require('./lesson'),
+  require('./quiz')
 ]

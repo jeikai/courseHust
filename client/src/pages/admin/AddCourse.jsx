@@ -48,20 +48,20 @@ const AddCourse = () => {
 
     const options = [
         {
-            label: 'gold',
-            value: 'gold',
+            label: 'Math',
+            value: 'Math',
         },
         {
-            label: 'lime',
-            value: 'lime',
+            label: 'Physic',
+            value: 'Physic',
         },
         {
-            label: 'green',
-            value: 'green',
+            label: 'Literature',
+            value: 'Literature',
         },
         {
-            label: 'cyan',
-            value: 'cyan',
+            label: 'Chemistry',
+            value: 'Chemistry',
         },
     ];
     const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -270,7 +270,6 @@ const AddCourse = () => {
     }, [current])
 
     const serverUpload = async (options, callback) => {
-        debugger
         const { onSuccess, file, onError, onProgress } = options;
         console.log(file);
         callback([file]);
@@ -278,8 +277,18 @@ const AddCourse = () => {
     }
 
 
-    const handleSubmit = (data) => {
-        console.log(data);
+    const handleSubmit = async (data) => {
+        console.log(data); 
+        try {
+            // const resCourse = await Axios({
+            //     url: "/api/course",
+            //     method: "POST",
+                
+            // })
+        } catch (error) {
+            console.log(error);
+            viewContext.handleError(error)
+        }
     }
 
     const BasicInfor = ({ index }) => (

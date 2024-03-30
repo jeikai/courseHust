@@ -13,7 +13,7 @@ import axios from "axios";
 
 
 const Login = () => {
-
+ 
   const authContext = useContext(AuthContext);
   const viewContext = useContext(ViewContext);
 
@@ -25,7 +25,7 @@ const Login = () => {
       const res = await Axios({
         url: "/api/user/login",
         method: "POST",
-        data: data,
+        data: data, 
       })
       console.log(res);
       navigate(authContext.signin(res))

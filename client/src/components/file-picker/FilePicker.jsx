@@ -17,7 +17,7 @@ const FilePicker = ({ accept, uploadURL, onFinish }) => {
         let filesArray = Array.from(files);
 
         filesArray = filesArray.map((file) => ({
-            id: nanoid(),
+            id: nanoid(), 
             file,
         }));
 
@@ -41,11 +41,11 @@ const FilePicker = ({ accept, uploadURL, onFinish }) => {
 
             files.forEach((file) => {
                 data.append("file", file.file);
+                data.append("title", "Bài tập lịch sử");
             });
-
             const res = await axios.request({
                 url: uploadURL,
-                method: "POST",
+                method: "POST", 
                 data,
                 onUploadProgress: (progressEvent) => {
                     setUploadStarted(true);

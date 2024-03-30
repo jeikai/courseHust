@@ -16,7 +16,7 @@ exports.schema = Question
 exports.create = async function (data) {
     try {
         const checkExisted = await Question.findOne({ question: data.question })
-        if (checkExisted) return { error: 'Question has already existed!' }
+        if (checkExisted) return { data: checkExisted }
         const questionData = {
             question: data.question,
             level: data.level,
@@ -27,7 +27,7 @@ exports.create = async function (data) {
         }
         const newQuestion = Question(questionData)
         await newQuestion.save()
-        return newQuestion
+        return {data: newQuestion}
     } catch (error) {
         return { error: error }
     }

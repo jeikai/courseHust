@@ -17,12 +17,12 @@ const UploadQuiz = () => {
     //Use Tabs in MUI to create a layout with tabs
     return (
         <Box
-            sx={{
+            sx={{ 
                 width: '100%',
                 minHeight: '100vh',
                 p: 2,
                 borderRadius: 1,
-                bgcolor: 'background.paper',
+                bgcolor: 'background.paper', 
             }}
         >
             <TabContext value={value}>

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const categoryModel = require('./Category')
-
+ 
 const courseSchema = new Schema({
     instructorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     title: { type: String, required: true, unique: true},
@@ -15,7 +15,7 @@ const courseSchema = new Schema({
     sections: [{type: mongoose.Schema.Types.ObjectId, ref: 'Section'}],
     date_created: Date,
     date_updated: Date
-})
+}) 
 
 const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course

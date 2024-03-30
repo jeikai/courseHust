@@ -16,17 +16,19 @@ exports.register = async function(req, res){
         if(newUser.error) return res.status(500).json({message: "Failed to register"})
 
         const { JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env
+        console.log(JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN)
         const token = jwt.sign({ _id: newUser._id, email: newUser.email, password: newUser.password, role: newUser.role },
             JWT_SECRET_ACCESS_TOKEN,
             {expiresIn: JWT_EXPRIRE_ACCESS_TOKEN})
         await tokenModel.create(newUser._id, token)
         return res.status(200).json({
             message: 'Register successfully',
-            account: newUser,
+            account: newUser, 
             authenticated: token
         })
 
     }catch(e){
+        console.log(e)
         return res.status(500).json({message: e.message})
     }
 }

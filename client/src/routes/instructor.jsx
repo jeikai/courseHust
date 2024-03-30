@@ -2,7 +2,7 @@ import UploadQuiz from "../pages/instructor/UploadQuiz.jsx";
 import CreateCourse from "../pages/instructor/CreateCourse.jsx";
 import CreateLesson from "../pages/instructor/CreateLesson.jsx";
 
-const Routes = [
+const Routes = [ 
     {
         path: 'instructor_m/create_quiz',
         view: UploadQuiz,

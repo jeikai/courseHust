@@ -24,7 +24,6 @@ export function AuthProvider(props) {
     }, [auth]);
 
     function signin(res) {
-        debugger
         if (res.data) {
 
             localStorage.setItem('user', JSON.stringify(res.data));

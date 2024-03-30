@@ -15,6 +15,4 @@ api.get('/course/instructor', use(courseController.getByInstructorId))
 
 api.get('/course/:courseId', use(courseController.getById))
 
-
-
 module.exports = api

@@ -6,10 +6,11 @@ import { Link } from 'react-router-dom'
 import { Editor } from '@tinymce/tinymce-react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities'
 import RowSection from '../../components/admin/RowSection'
+import Spring from '../../components/Spring'
 
 const AddCourse = () => {
     const [form] = Form.useForm();
@@ -284,7 +285,7 @@ const AddCourse = () => {
 
     const BasicInfor = ({ index }) => (
 
-        <div className={`${current === index ? 'block' : 'hidden'}`}>
+        <Spring className={`${current === index ? 'block' : 'hidden'}`}>
             <Typography.Title level={4}>Basic Infomation</Typography.Title>
             <Divider></Divider>
             <Row gutter={[24, 0]}>
@@ -353,11 +354,11 @@ const AddCourse = () => {
                     </Form.Item>
                 </Col>
             </Row>
-        </div>
+        </Spring>
     )
 
     const Information = ({ index }) => (
-        <div className={`${current === index ? 'block' : 'hidden'}`}>
+        <Spring className={`${current === index ? 'block' : 'hidden'}`}>
             <Row>
                 <Col span={6}>
                     <Typography.Title level={5}>
@@ -470,11 +471,11 @@ const AddCourse = () => {
                     </Form.List>
                 </Col>
             </Row>
-        </div>
+        </Spring>
     )
 
     const Pricing = ({ index }) => (
-        <div className={`${current === index ? 'block' : 'hidden'}`}>
+        <Spring className={`${current === index ? 'block' : 'hidden'}`}>
             <Row>
                 <Col span={6}>
                     <Typography.Title level={5}>
@@ -510,11 +511,11 @@ const AddCourse = () => {
                     </>
                 }
             </Row>
-        </div>
+        </Spring>
     )
 
     const Media = ({ index }) => (
-        <div className={`${current === index ? 'block' : 'hidden'}`}>
+        <Spring className={`${current === index ? 'block' : 'hidden'}`}>
             <Typography.Title level={4}>Courses Media</Typography.Title>
             <Divider />
             <Row>
@@ -565,18 +566,74 @@ const AddCourse = () => {
                     </Form.Item>
                 </Col>
             </Row>
-        </div>
+        </Spring>
     )
     
+    const ACTIVE_DRAG_ITEM_TYPE = {
+        CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
+        SECTION: 'ACTIVE_DRAG_ITEM_TYPE_SECTION'
+    }
     const [isDragging, setIsDragging] = useState(false);
+    const [activeDragItemId, setActiveDragItemId] = useState(null)
+    const [activeDragItemType, setActiveDragItemType] = useState(null)
+    const [activeDragItemData, setActiveDragItemData] = useState(null)
+    
     const handleDragStart = (event) => {
-        console.log("drag start");
+        console.log("drag start", event);
         setIsDragging(true);
+        setActiveDragItemId(event?.active?.id)
+        setActiveDragItemType(event?.active?.data?.current?.sectionId ? ACTIVE_DRAG_ITEM_TYPE.CARD : ACTIVE_DRAG_ITEM_TYPE.SECTION)
+        setActiveDragItemData(event?.active?.data?.current)
+        console.log('done drag start');
     }
 
     const handleDragEnd = (event) => {
+        console.log("dragEnd", event);
         const { active, over } = event
-        const { sections} = data
+        const { sections } = data
+
+        if(active?.data?.current?.sectionId && over?.data?.current?.sectionId) {
+            let specActive = active?.data?.current
+            delete specActive.sortable
+
+            let specOver = over?.data?.current
+            delete specOver.sortable
+
+            let sectionIdActive = active?.data?.current?.sectionId
+            let sectionIdOver = over?.data?.current?.sectionId
+            
+            let sectionActive = sections.find(section => section.id == sectionIdActive);
+            let sectionOver = sections.find(section => section.id == sectionIdOver);
+
+            let positionActive = sectionActive?.specials.findIndex(item => item.id === specActive.id)
+            debugger
+            let positionOver = sectionOver?.specials.findIndex(item => item.id === specOver.id);
+
+            let typeActive = sectionActive.specialIds[positionActive]
+            let typeOver = sectionOver.specialIds[positionOver]
+            // hoán đổi id section của mỗi special.
+            specActive.sectionId = sectionIdOver;
+            specOver.sectionId = sectionIdActive;
+
+            // Trong specials (section) active, xóa bỏ object active và thay vào object được over
+            sectionActive.specials.splice(positionActive, 1);
+            sectionActive.specials.splice(positionActive, 0, specOver);
+            sectionActive.specialIds.splice(positionActive, 1)
+            sectionActive.specialIds.splice(positionActive, 0, typeOver)
+            // trong specials (section) over, xóa bỏ object over và thay vào object active
+            sectionOver.specials.splice(positionOver, 1);
+            sectionOver.specials.splice(positionOver, 0, specActive);
+            sectionOver.specialIds.splice(positionOver, 1)
+            sectionOver.specialIds.splice(positionOver, 0, typeActive)
+
+            console.log("sectionActive", sectionActive);
+            console.log("sectionOver", sectionOver);
+            console.log("positionActive", positionActive);
+            console.log("positionOver", positionOver);
+            console.log("section", sections);
+            console.log("data", data);
+            return
+        }
 
         if(active.id === over.id) return
 
@@ -606,22 +663,33 @@ const AddCourse = () => {
         },
     })
 
-    const sensors = useSensors(mouseSensor)
+    const touchSensor = useSensor(TouchSensor, {
+        activationConstraint: {
+            delay: 250,
+            tolerance: 500
+        }
+    })
+
+    const sensors = useSensors(mouseSensor, touchSensor)
 
     const Curriculum = ({ index }) => {
         return (
-            <div className={`${current === index ? 'block' : 'hidden'}`}>
+            <Spring className={`${current === index ? 'block' : 'hidden'}`}>
                 <Typography.Title level={4}>Curriculum</Typography.Title>
                 <div className='p-4'>
                     <div className='bg-[#f1f5f9] p-2 rounded-md mb-4'>
                         <Flex vertical gap={12}>
-                            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                            <DndContext 
+                                sensors={sensors} 
+                                // onDragStart={handleDragStart} 
+                                onDragEnd={handleDragEnd}
+                            >
                                 <SortableContext items={data?.sections} strategy={verticalListSortingStrategy}>
-                                    {data?.sections.map(section => {
-                                        return (
-                                            <RowSection key={section.id} section={section} openModalEditSection={openModalEditSection} handleRemoveSection={handleRemoveSection} openModalEditLesson={openModalEditLesson} handleRemoveLesson={handleRemoveLesson} formLesson={formLesson} setOpenInputLesson={setOpenInputLesson} someoneIsDragging={isDragging} />
-                                        )
-                                    })}
+                                        {data?.sections.map(section => {
+                                            return (
+                                                <RowSection key={section.id} section={section} openModalEditSection={openModalEditSection} handleRemoveSection={handleRemoveSection} openModalEditLesson={openModalEditLesson} handleRemoveLesson={handleRemoveLesson} formLesson={formLesson} setOpenInputLesson={setOpenInputLesson} someoneIsDragging={isDragging} />
+                                            )
+                                        })}
                                 </SortableContext>
                             </DndContext>
                         </Flex>
@@ -867,7 +935,7 @@ const AddCourse = () => {
                     </div>
 
                 </div>
-            </div>
+            </Spring>
         )
     }
 
@@ -1021,64 +1089,66 @@ const AddCourse = () => {
 
     return (
         <section>
-            <Bread title="Add new courses" items={breadcrumb} />
-            <div className='w-full p-8 bg-white shadow-md my-8'>
-                <div className='w-full overflow-x-auto'>
-                    <Flex align='center' justify='space-between' className='px-5' gap={6}>
-                        {steps.map((step, index) => {
-                            return (
-                                <Fragment key={index}>
-                                    <Flex className='flex-1 cursor-pointer min-w-max' align='center' gap={12} onClick={() => setCurrent(index)}>
-                                        <Flex align='center' justify='center' className={`font-semibold w-10 h-10 ${current >= index ? 'bg-[#754FFE] text-white' : 'bg-gray-200'} rounded-full`}>{index + 1}</Flex>
-                                        {step.title}
-                                    </Flex>
-
-                                    {index < steps.length - 1 &&
-                                        <Flex className='flex-1'>
-                                            <Divider className={`bg-[#754FFE]`} />
+            <Spring>
+                <Bread title="Add new courses" items={breadcrumb} />
+                <div className='w-full p-8 bg-white shadow-md my-8'>
+                    <div className='w-full overflow-x-auto'>
+                        <Flex align='center' justify='space-between' className='px-5' gap={6}>
+                            {steps.map((step, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        <Flex className='flex-1 cursor-pointer min-w-max' align='center' gap={12} onClick={() => setCurrent(index)}>
+                                            <Flex align='center' justify='center' className={`font-semibold w-10 h-10 ${current >= index ? 'bg-[#754FFE] text-white' : 'bg-gray-200'} rounded-full`}>{index + 1}</Flex>
+                                            {step.title}
                                         </Flex>
-                                    }
-                                </Fragment>
-                            )
-                        })}
-                    </Flex>
+
+                                        {index < steps.length - 1 &&
+                                            <Flex className='flex-1'>
+                                                <Divider className={`bg-[#754FFE]`} />
+                                            </Flex>
+                                        }
+                                    </Fragment>
+                                )
+                            })}
+                        </Flex>
+                    </div>
+
+                    <div className='mt-8'>
+                        <Form
+                            form={form}
+                            layout="vertical"
+                            onFinish={handleSubmit}
+                            initialValues={{
+                                faq: [null],
+                                requirements: [null],
+                                outcomes: [null],
+                            }}
+                        // onValuesChange={handleChangeValue}
+                        >
+                            {steps.map((step, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        {step.content}
+                                    </Fragment>
+                                )
+                            })}
+                            <div style={{ marginTop: 24 }}>
+                                {current < steps.length - 1 && (
+                                    <Button onClick={() => setCurrent(current + 1)} className='bg-[#754FFE] text-white font-semibold' size='large'>Next</Button>
+                                )}
+                                {current === steps.length - 1 && (
+                                    <Button htmlType="submit" type='submit' className='bg-[#754FFE] text-white font-semibold' size='large'>Done</Button>
+
+                                )}
+                                {current > 0 && (
+
+                                    <Button onClick={() => setCurrent(current - 1)} className='text-[#754FFE] font-semibold ml-2' size='large'>Previous</Button>
+                                )}
+                            </div>
+                        </Form>
+                    </div>
                 </div>
-
-                <div className='mt-8'>
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={handleSubmit}
-                        initialValues={{
-                            faq: [null],
-                            requirements: [null],
-                            outcomes: [null],
-                        }}
-                    // onValuesChange={handleChangeValue}
-                    >
-                        {steps.map((step, index) => {
-                            return (
-                                <Fragment key={index}>
-                                    {step.content}
-                                </Fragment>
-                            )
-                        })}
-                        <div style={{ marginTop: 24 }}>
-                            {current < steps.length - 1 && (
-                                <Button onClick={() => setCurrent(current + 1)} className='bg-[#754FFE] text-white font-semibold' size='large'>Next</Button>
-                            )}
-                            {current === steps.length - 1 && (
-                                <Button htmlType="submit" type='submit' className='bg-[#754FFE] text-white font-semibold' size='large'>Done</Button>
-
-                            )}
-                            {current > 0 && (
-
-                                <Button onClick={() => setCurrent(current - 1)} className='text-[#754FFE] font-semibold ml-2' size='large'>Previous</Button>
-                            )}
-                        </div>
-                    </Form>
-                </div>
-            </div>
+            </Spring>
         </section>
     )
 }

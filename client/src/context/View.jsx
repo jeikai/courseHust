@@ -93,9 +93,8 @@ export function View(props) {
                             break;
 
                         default:
-                            showNotification(message, 'error', false, '', CloseSquareOutlined);
+                            showNotification(message, 'error', true, '', CloseSquareOutlined);
                             break;
-
                     }
                 }
             }
@@ -116,6 +115,7 @@ export function View(props) {
             data: notification,
 
         },
+        loading: loading,
 
         setLoading: state => setLoading(state),
         handleError: handleError

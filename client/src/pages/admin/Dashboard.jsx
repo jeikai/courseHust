@@ -3,6 +3,7 @@ import Bread from '../../components/Bread'
 import { Button, ConfigProvider, Dropdown, Flex, Input, Row, Table } from 'antd'
 import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
+import Spring from '../../components/Spring'
 
 const Dashboard = () => {
     const breadcrumb = [
@@ -68,7 +69,7 @@ const Dashboard = () => {
       ];
     const [type, setType] = useState('all')
     return (
-        <section>
+        <Spring>
             <Bread title="Courses" items={breadcrumb} label={"Add new courses"} link={'/'} />
             <div className='shadow-md border bg-white'>
                 <div className='mb-4'>
@@ -208,7 +209,7 @@ const Dashboard = () => {
                     </Table>
                 </div>
             </div>
-        </section>
+        </Spring>
     )
 }
 

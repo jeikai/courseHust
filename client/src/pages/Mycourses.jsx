@@ -4,6 +4,7 @@ import { Alert, Avatar, Button, Col, Flex, Image, Progress, Rate, Row, Space, Ty
 import Sidenav from '../components/sidenav/Sidenav'
 import { Link } from 'react-router-dom'
 import { PlayCircleOutlined } from '@ant-design/icons'
+import Spring from '../components/Spring'
 
 const Course = () => {
     return (
@@ -92,10 +93,14 @@ const Mycourses = () => {
                         <div className='bg-white shadow-lg border rounded-lg px-6 py-8'>
                             <Typography.Title level={3}>Courses</Typography.Title>
                             <Row gutter={[12, 60]}>
-                                <Course />
-                                <Course />
-                                <Course />
-                                <Course />
+                                {Array.from({length: 5}).map((item, index) => {
+                                    return (
+                                        <Spring className='w-full'>
+                                            <Course />
+                                        </Spring>
+                                    )
+                                })}
+                                
                             </Row>
                         </div>
                     </Col>

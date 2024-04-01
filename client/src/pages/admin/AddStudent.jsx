@@ -5,7 +5,7 @@ import { CheckCircleOutlined, CheckOutlined, DollarOutlined, LockOutlined, MoreO
 import { Editor } from '@tinymce/tinymce-react'
 import Spring from '../../components/Spring'
 
-const AddInstructor = () => {
+const AddStudent = () => {
     const [form] = Form.useForm()
     const [current, setCurrent] = useState(0)
 
@@ -15,47 +15,8 @@ const AddInstructor = () => {
             href: '',
         },
         {
-            title: 'Add a new instructor',
+            title: 'Add a new student',
         },
-    ]
-    const action = [
-        {
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    1st menu item
-                </a>
-            ),
-            key: '0',
-        },
-        {
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                    2nd menu item
-                </a>
-            ),
-            key: '1',
-        },
-        {
-            type: 'divider',
-        },
-        {
-            label: '3rd menu item（disabled）',
-            key: '3',
-            disabled: true,
-        },
-    ];
-    const data = [
-        {
-            id: 1,
-            photo: "https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png",
-            name: "Signe Thompson",
-            email: "demo@creativeitem.com",
-            phone: "0982193203",
-            date: "Mon, 26 Apr 2015",
-            courses: [
-                'course 1', 'course 2', 'course 3', 'course 4', 'course 5',
-            ]
-        }
     ]
 
     const BasicInfo = ({ index }) => (
@@ -272,9 +233,9 @@ const AddInstructor = () => {
 
     return (
         <Spring>
-            <Bread title="Add a new instructor" items={breadcrumb} />
+            <Bread title="Add a new student" items={breadcrumb} />
             <div className='shadow-md border bg-white p-8'>
-                <Typography.Title level={5}>INSTRUCTOR ADD FORM</Typography.Title>
+                <Typography.Title level={5}>STUDENT ADD FORM</Typography.Title>
                 <Flex className='mb-4'>
                     {steps.map((step, index) => {
                         return (
@@ -320,4 +281,4 @@ const AddInstructor = () => {
     )
 }
 
-export default AddInstructor
+export default AddStudent

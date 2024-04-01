@@ -2,6 +2,7 @@ import React from 'react'
 import Bread from '../../components/Bread'
 import { Avatar, Button, Dropdown, Flex, Table, Typography } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
+import Spring from '../../components/Spring'
 
 const EnrolHistory = () => {
     const breadcrumb = [
@@ -49,7 +50,7 @@ const EnrolHistory = () => {
         }
     ]
     return (
-        <section>
+        <Spring>
             <Bread title="Enrol history" items={breadcrumb} />
             <div className='shadow-md border bg-white p-8'>
                 <Table size='large' dataSource={data} pagination={true}>
@@ -126,7 +127,7 @@ const EnrolHistory = () => {
                     />
                 </Table>
             </div>
-        </section>
+        </Spring>
     )
 }
 

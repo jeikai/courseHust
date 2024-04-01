@@ -1,5 +1,6 @@
 import React from 'react'
 import Bread from '../../components/Bread'
+import Spring from '../../components/Spring'
 
 const Category = () => {
     const breadcrumb = [
@@ -12,10 +13,10 @@ const Category = () => {
         },
     ]
   return (
-    <section>
+    <Spring>
         <Bread title="Cateogries" items={breadcrumb} label={"Add new category"} link={'/add_category'} />
 
-    </section>
+    </Spring>
   )
 }
 

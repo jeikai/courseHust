@@ -2,6 +2,7 @@ import React from 'react'
 import Bread from '../../components/Bread'
 import { Avatar, Button, Dropdown, Flex, Input, List, Table, Typography } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
+import Spring from '../../components/Spring'
 
 const Instructors = () => {
     const breadcrumb = [
@@ -53,7 +54,7 @@ const Instructors = () => {
         }
     ]
   return (
-    <section>
+    <Spring>
         <Bread title="Instructor" items={breadcrumb} label={"Add new instructor"} link={"/admin/add_instructor"} />
         <div className='shadow-md border bg-white p-8'>
             <div className='text-right mb-4'>
@@ -171,7 +172,7 @@ const Instructors = () => {
                     />
                 </Table>
         </div>
-    </section>
+    </Spring>
   )
 }
 

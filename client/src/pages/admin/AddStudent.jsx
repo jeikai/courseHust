@@ -1,13 +1,36 @@
 import React, { Fragment, useState } from 'react'
 import Bread from '../../components/Bread'
-import { Avatar, Button, Col, Dropdown, Flex, Form, Input, List, Progress, Row, Space, Table, Typography, Upload } from 'antd'
+import { Avatar, Button, Col, Dropdown, Flex, Form, Input, List, Progress, Row, Space, Table, Typography, Upload, message } from 'antd'
 import { CheckCircleOutlined, CheckOutlined, DollarOutlined, LockOutlined, MoreOutlined, RedditOutlined, UploadOutlined, WifiOutlined } from '@ant-design/icons'
 import { Editor } from '@tinymce/tinymce-react'
 import Spring from '../../components/Spring'
+import { createUser } from '../../api/user'
 
 const AddStudent = () => {
     const [form] = Form.useForm()
     const [current, setCurrent] = useState(0)
+
+    const handleFinish = (data) => {
+        console.log(data);
+        createUser(data).then(res => {
+            if(res) {
+                message.success("Create a new student")
+            }else {
+                // message.error(err.toString());
+            }
+        }).catch(err => {
+            message.error(err.toString());
+        })
+    }
+
+    const getFile = (e) => {
+        console.log('Upload event:', e);
+
+        if (Array.isArray(e)) {
+            return e;
+        }
+        return e && e.fileList;
+    };
 
     const breadcrumb = [
         {
@@ -74,11 +97,14 @@ const AddStudent = () => {
                 </Col>
                 <Col span={18}>
                     <Form.Item
-                        name={"file"}
+                        name={"photo"}
+                        getValueFromEvent={getFile}
                     >
                         <Upload
-                            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                            maxCount={1}
+                            // action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                             // fileList={fileList}
+                            customRequest={({onSuccess}) => onSuccess("OK")}
                             >
                             <Button icon={<UploadOutlined />}>Click to Upload</Button>
                         </Upload>
@@ -252,7 +278,7 @@ const AddStudent = () => {
                 <Progress percent={(current + 1) / steps.length * 100} showInfo={false} size="small" />
                 <Form
                     form={form}
-                    onFinish={(data) => console.log(data)}
+                    onFinish={handleFinish}
                 >
                     <div className='mt-4'>
                         {steps.map((step, index) => {

@@ -19,6 +19,10 @@ const createUser = async (data) => {
     // const data = await res.json();
 
     // const status = data.status
+    if(data.photo instanceof Array) {
+
+    }
+    
     const status = true
     return status
 }

@@ -71,7 +71,7 @@ const Courses = () => {
     return (
         <section>
             <Spring>
-                <Bread title="Courses" items={breadcrumb} label={"Add new courses"} link={'/'} />
+                <Bread title="Courses" items={breadcrumb} label={"Add new courses"} link={'/admin/add_course'} />
                 <div className='shadow-md border bg-white'>
                     <div className='mb-4'>
                         <Flex align="center" className='border-b'>

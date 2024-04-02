@@ -192,7 +192,6 @@ const AddCourse = () => {
         formSection.resetFields()
     }
 
-
     const handleEditSection = () => {
         data.sections.forEach(section => {
             if (section.id === idEditSection) {
@@ -523,9 +522,9 @@ const AddCourse = () => {
                     <Typography.Title level={5}>Course thumbnail</Typography.Title>
                 </Col>
                 <Col span={16}>
-                    <Form.Item>
+                    <Form.Item name={"thumbnail"}>
                         <Upload
-                            customRequest={(options) => serverUpload(options, setThumbnail)}
+                            // customRequest={(options) => serverUpload(options, setThumbnail)}
                             listType="picture-card"
                             fileList={thumbnail}
                             onRemove={() => setThumbnail([])}

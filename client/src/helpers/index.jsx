@@ -1,3 +1,5 @@
+import Axios from "axios";
+
 export const filterArray = (arr, e) => {
     const filteredObjects = arr.filter(obj => {
         // Lặp qua các khóa trong đối tượng
@@ -11,4 +13,17 @@ export const filterArray = (arr, e) => {
     });
 
     return filteredObjects
+}
+
+export const uploadFile = async (file) => {
+  debugger
+  const res = await Axios.post('/api/upload', {file},
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    }
+  })
+  debugger
+  const data = await res.data.file_url
+  return data
 }

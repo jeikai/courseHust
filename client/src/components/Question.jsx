@@ -4,8 +4,7 @@ import React from 'react'
 const Question = ({question}) => {
     return (
         <Space direction='vertical w-full'>
-            <p className='mt-8'>Question 1</p>
-            <Typography.Title level={3}>React is mainly used for building ___.</Typography.Title>
+            <Typography.Title level={3}>{question.title}</Typography.Title>
             <ConfigProvider
                 theme={{
                     components: {
@@ -22,7 +21,7 @@ const Question = ({question}) => {
                             {question?.options.map((option, index) => {
                                 console.log(option);
                                 return (
-                                    <Radio value={index} checked={option?.isSelected === true} className='w-full border p-4 rounded-md'>{option.label}</Radio>
+                                    <Radio value={index} defaultChecked={option?.isSelected === true ? true : false} className='w-full border p-4 rounded-md'>{option.label}</Radio>
                                 )
                             })}
                         </Space>

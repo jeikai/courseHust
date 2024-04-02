@@ -1,9 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import Bread from '../../components/Bread'
-import { Button, Col, ConfigProvider, DatePicker, Flex, Form, Input, InputNumber, Modal, Radio, Row, Select, Switch, TimePicker, Typography } from 'antd'
+import { Avatar, Button, Col, ConfigProvider, DatePicker, Flex, Form, Input, InputNumber, Modal, Radio, Row, Select, Switch, TimePicker, Typography } from 'antd'
+import { MoreOutlined } from '@ant-design/icons'
 import Question from '../../components/Question'
 import Spring from '../../components/Spring'
-
+import scq from '../../assets/scq.svg'
+import mcq from '../../assets/mcq.svg'
+import fill from '../../assets/fill.svg'
 const AddQuiz = () => {
   const breadcrumb = [
     {
@@ -21,9 +24,22 @@ const AddQuiz = () => {
   const [formQuiz] = Form.useForm()
   const [data, setData] = useState({})
   const formRef = useRef(null)
+  let flag = true
   const handleFormQustionChange = (value) => {
+    debugger
+    if(value.numberOptions === '') {
+      setNumOfOptions(0)
+      flag = true
+      return
+    }
+
     if(value.numberOptions) {
       setNumOfOptions(value.numberOptions)
+    }
+    if(value.options && flag) {
+      value.options[0].isSelected = true
+      formRef.current.setFieldsValue({options: value.options})
+      flag = false
     }
   }
 
@@ -34,6 +50,7 @@ const AddQuiz = () => {
     values.deadline = values?.deadline?.map(value => value.format('YYYY-MM-DD HH:mm:ss'))
 
     setData({...data, ...values})
+    
   }
 
   const handleAddQuestion = () => {
@@ -48,6 +65,7 @@ const AddQuiz = () => {
     formRef.current.resetFields()
     console.log(data);
     setOpen(false)
+    setNumOfOptions(0)
   }
 
   const handleSetAsDefaultChange = (index) => {
@@ -115,7 +133,7 @@ const AddQuiz = () => {
                     name={"totalMarks"}
                     label={<Typography.Title level={5}>Total marks</Typography.Title>}
                   >
-                    <InputNumber className='w-full' min={1} defaultValue={10} changeOnWheel />
+                    <InputNumber className='w-full' min={1} changeOnWheel />
 
                   </Form.Item>
                 </Col>
@@ -124,20 +142,41 @@ const AddQuiz = () => {
                     name={"passMarks"}
                     label={<Typography.Title level={5}>Pass marks</Typography.Title>}
                   >
-                    <InputNumber className='w-full' min={1} defaultValue={6} changeOnWheel />
+                    <InputNumber className='w-full' min={1} changeOnWheel />
 
                   </Form.Item>
                 </Col>
               </Row>
             </Col>
             <Col span={16}>
-              <Row className='shadow-md border bg-white p-8'>
+              <Row gutter={[12, 24]} className='shadow-md border bg-white p-8'>
                   <Col span={24}>
                     <Button className='ml-auto block' size='large' onClick={() => setOpen(true)}>Add a new question</Button>
                   </Col>
+                  
                   {data?.questions?.map((question, index) => (
                     <Col span={24}>
-                      <Question question={question} />
+                      <div className='px-3 border shadow rounded-sm py-1 select-none'>
+                        <Flex align='center' justify='space-between'>
+                          <Flex flex={3}>
+                            <Typography.Title level={5} style={{ marginBottom: 0, textTransform:'capitalize' }}>{question.title}</Typography.Title>
+                          </Flex>
+                          <Flex flex={1} align='center' justify='space-between' gap={60}>
+                            <Flex align='center'>
+                                {question.type === 'mcq' && <Avatar src={mcq} size={30} />}
+                                {question.type === 'scq' && <Avatar src={scq} size={30} />}
+                                {question.type === 'fill' && <Avatar src={fill} size={30} />}
+                              
+                              <Typography.Title level={5} style={{ marginBottom: 0 }}>
+                                {question.type === 'mcq' && 'Multiple Choice'}
+                                {question.type === 'scq' && 'Single Choice'}
+                                {question.type === 'fill' && 'Fill Question'}
+                              </Typography.Title>
+                            </Flex>
+                            <Button icon={<MoreOutlined />}></Button>
+                          </Flex>
+                        </Flex>
+                      </div>
                     </Col>
                   ))}
               </Row>
@@ -186,7 +225,7 @@ const AddQuiz = () => {
               {(fields, { add, remove }) => (
                 <>
                   {Array.from({ length: numOfOptions }).map((num, index) => (
-                    <>
+                    <Fragment key={index}>
                       <Row gutter={[12, 12]} className='mb-8 text-base'>
                         <Col span={12}>
                           <Typography.Text>Choice {index + 1}</Typography.Text>
@@ -208,7 +247,7 @@ const AddQuiz = () => {
                                 }}
                               >
                             <Form.Item style={{ marginBottom: 0 }} name={[index, "isSelected"]} valuePropName="checked">
-                                <Switch onChange={() => handleSetAsDefaultChange(index)}></Switch>
+                                <Switch checked onChange={() => handleSetAsDefaultChange(index)}></Switch>
                             </Form.Item>
                               </ConfigProvider>
                           </Flex>
@@ -220,7 +259,7 @@ const AddQuiz = () => {
                           </Form.Item>
                         </Col>
                       </Row>
-                    </>
+                    </Fragment>
                   ))}
                 </>
               )}

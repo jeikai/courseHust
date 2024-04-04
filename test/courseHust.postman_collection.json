@@ -8,41 +8,6 @@
 	},
 	"item": [
 		{
-			"name": "lesson",
-			"item": [
-				{
-					"name": "create lesson",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"phúc\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:5000/api/lesson/create",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"api",
-								"lesson",
-								"create"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "course",
 			"item": [
 				{
@@ -173,7 +138,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/D:/CodeThue/course_HUST/test.png"
+									"src": "/D:/CodeThue/course_HUST/courseHust/test/test.png"
 								},
 								{
 									"key": "title",

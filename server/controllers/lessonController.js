@@ -3,7 +3,6 @@ const utility = require('../helper/utility')
 
 exports.create = async function(req, res){
     try{
-        debugger
         const data = req.body
         utility.validate(data, ['sectionId', 'title', 'content', 'videoURL', 'duration'])
 

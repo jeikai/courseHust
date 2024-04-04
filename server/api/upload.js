@@ -2,6 +2,7 @@ const api = require('express').Router()
 const uploadCloud = require('../middlewares/upload')
 
 api.post('/upload', uploadCloud.single('file'), (req, res, next) => {
+  debugger
     if (!req.file) {
       next(new Error('No file uploaded!'));
       return;

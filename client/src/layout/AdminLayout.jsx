@@ -8,6 +8,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   ProfileOutlined,
+  QuestionOutlined,
   SearchOutlined,
   SettingOutlined,
   ShopOutlined,
@@ -59,6 +60,10 @@ const AdminLayout = ({ children }) => {
         getItem('Course enrollment', '/admin/enrollment'),
         getItem('Enrol History', '/admin/enrol_history'),
     ]),
+    getItem('Quizs', 'quiz', <QuestionOutlined />, [
+      getItem('Manage Quiz', '/admin/quiz'),
+      getItem('Add new quiz', '/admin/add_quiz'),
+  ]),
     getItem('Manage Profile', '/admin/profile', <ProfileOutlined />)
   ];
 

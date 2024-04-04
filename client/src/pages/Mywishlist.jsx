@@ -5,6 +5,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import { FacebookOutlined, KeyOutlined, LinkedinOutlined, LockOutlined, MailOutlined, SettingOutlined, TwitterOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Course from '../components/Course';
+import Spring from '../components/Spring';
 const Mywishlist = () => {
     const navaigate = useNavigate()
     return (
@@ -19,24 +20,15 @@ const Mywishlist = () => {
                         <div className='bg-white shadow-lg border rounded-lg px-6 py-8'>
                             <Typography.Title level={3}>Wish list</Typography.Title>
                             <Row gutter={[12,24]}>
-                                <Col span={8}>
-                                    <Course />
-                                </Col>
-                                <Col span={8}>
-                                    <Course />
-                                </Col>
-                                <Col span={8}>
-                                    <Course />
-                                </Col>
-                                <Col span={8}>
-                                    <Course />
-                                </Col>
-                                <Col span={8}>
-                                    <Course />
-                                </Col>
-                                <Col span={8}>
-                                    <Course />
-                                </Col>
+                                {Array.from({ length:12 }).map((item, index) => {
+                                    return (
+                                        <Col span={8}>
+                                            <Spring index={index}>
+                                                <Course />
+                                            </Spring>
+                                        </Col>
+                                    )
+                                })}
                             </Row>
                         </div>
                     </Col>

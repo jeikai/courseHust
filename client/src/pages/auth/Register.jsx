@@ -9,20 +9,16 @@ import {
   Upload,
 } from "antd";
 // import Layout from "../../layout/AppLayout"
-import login from "../../assets/login-security.gif";
-import {
-  KeyOutlined,
-  PhoneFilled,
-  UploadOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/Auth";
-import Loader from "../../components/Loader";
-import Axios from "axios";
-import { ViewContext } from "../../context/View";
-import axios from "axios";
+import login from '../../assets/login-security.gif'
+import { KeyOutlined, PhoneFilled, UploadOutlined, UserOutlined } from "@ant-design/icons"
+import { useContext, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { AuthContext } from "../../context/Auth"
+import Loader from "../../components/Loader"
+import Axios from "axios"
+import { ViewContext } from "../../context/View"
+import axios from "axios"
+import Spring from "../../components/Spring"
 const Register = () => {
   const [checked, setChecked] = useState(false);
 
@@ -127,7 +123,7 @@ const Register = () => {
     }
   }, []);
   return (
-    <section className="max-w-screen-xl m-auto py-24">
+    <Spring className="max-w-screen-xl m-auto py-24">
       <Row>
         <Col span={14}>
           <div className="flex items-center justify-center">
@@ -318,8 +314,8 @@ const Register = () => {
           </div>
         </Col>
       </Row>
-    </section>
-  );
-};
+    </Spring>
+  )
+}
 
 export default Register;

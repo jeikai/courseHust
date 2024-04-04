@@ -1,6 +1,7 @@
 import React from 'react'
 import Bread from '../../components/Bread'
 import { Button, ConfigProvider, Flex, Form, Select, Typography } from 'antd'
+import Spring from '../../components/Spring';
 
 const Enrollments = () => {
     const [form] = Form.useForm();
@@ -41,7 +42,7 @@ const Enrollments = () => {
 
     const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
     return (
-        <section>
+        <Spring>
             <Bread title="Course enrollment" items={breadcrumb} />
             <div className='shadow-md border bg-white p-8 w-2/3 m-auto'>
                 <Typography.Title level={4}>ENROLMENT FORM</Typography.Title>
@@ -96,7 +97,7 @@ const Enrollments = () => {
                     </Form.Item>
                 </Form>
             </div>
-        </section>
+        </Spring>
     )
 }
 

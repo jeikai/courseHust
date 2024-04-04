@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined, PlusOutlined, QuestionCircleOutlined, Upl
 import { Button, Col, Drawer, Flex, Form, Input, Space, Typography, Upload } from 'antd'
 import React, { useRef } from 'react'
 import Card from './Card'
-import { useSortable } from '@dnd-kit/sortable'
+import { SortableContext, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 const RowSection = ({ section, openModalEditSection, handleRemoveSection, openModalEditLesson, handleRemoveLesson, formLesson, setOpenInputLesson, someoneIsDragging }) => {
@@ -13,13 +13,15 @@ const RowSection = ({ section, openModalEditSection, handleRemoveSection, openMo
         setNodeRef,
         transform,
         transition,
-    } = useSortable({id: section.id});
+    } = useSortable({
+        id: section.id,
+        data: {...section}
+    });
       
     const style = {
-        transform: CSS.Transform.toString(transform),
+        transform: CSS.Translate.toString(transform),
         transition,
     };
-    const ref  = useRef()
     return (
         <div key={section.id} ref={setNodeRef} style={style} {...attributes} {...listeners} className="border border-[#e2e8f0] item rounded text-nowrap bg-white text-[#64748b] p-4">
             <div>
@@ -34,11 +36,13 @@ const RowSection = ({ section, openModalEditSection, handleRemoveSection, openMo
                         />
                     </Space>
                 </Flex>
-                {section?.specials?.map((item) => {
-                    return (
-                        <Card item={item} section={section} openModalEditLesson={openModalEditLesson} handleRemoveLesson={handleRemoveLesson} />
-                    )
-                })}
+                <SortableContext items={[]}>
+                    {section?.specials?.map((item) => {
+                        return (
+                            <Card item={item} section={section} openModalEditLesson={openModalEditLesson} handleRemoveLesson={handleRemoveLesson} />
+                        )
+                    })}
+                </SortableContext>
 
             </div>
             <Space>

@@ -1,13 +1,41 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useContext, useEffect, useState } from 'react'
 import Bread from '../../components/Bread'
 import { Avatar, Button, Col, Dropdown, Flex, Form, Input, List, Progress, Row, Space, Table, Typography, Upload } from 'antd'
 import { CheckCircleOutlined, CheckOutlined, DollarOutlined, LockOutlined, MoreOutlined, RedditOutlined, UploadOutlined, WifiOutlined } from '@ant-design/icons'
 import { Editor } from '@tinymce/tinymce-react'
 import Spring from '../../components/Spring'
+import { useParams } from 'react-router-dom'
+import { editUser, getUserById } from '../../api/user'
+import { ViewContext } from '../../context/View'
 
-const AddInstructor = () => {
+const EditStudent = () => {
     const [form] = Form.useForm()
     const [current, setCurrent] = useState(0)
+    const id = useParams().id
+    const [isLoading, setIsLoading] = useState(true)
+    const [initialForm, setInitialForm] = useState({})
+
+    const viewContext = useContext(ViewContext)
+    useEffect(() => {
+
+        getUserById(id).then(data => {
+            console.log(data);
+            setInitialForm(data)
+            setIsLoading(false)
+        }).catch(error => {
+            console.log(error)
+            viewContext.handleError(error)
+        })
+    }, [id])
+
+    const handleFinish = (data) => {
+        console.log(data);
+        editUser(data).then(res => {
+            viewContext.notification.show('Edit user successfully')
+        }).catch(error => {
+            viewContext.handleError(error)
+        })
+    }
 
     const breadcrumb = [
         {
@@ -15,52 +43,20 @@ const AddInstructor = () => {
             href: '',
         },
         {
-            title: 'Add a new instructor',
+            title: 'Add an student',
         },
-    ]
-    const action = [
-        {
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    1st menu item
-                </a>
-            ),
-            key: '0',
-        },
-        {
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                    2nd menu item
-                </a>
-            ),
-            key: '1',
-        },
-        {
-            type: 'divider',
-        },
-        {
-            label: '3rd menu item（disabled）',
-            key: '3',
-            disabled: true,
-        },
-    ];
-    const data = [
-        {
-            id: 1,
-            photo: "https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png",
-            name: "Signe Thompson",
-            email: "demo@creativeitem.com",
-            phone: "0982193203",
-            date: "Mon, 26 Apr 2015",
-            courses: [
-                'course 1', 'course 2', 'course 3', 'course 4', 'course 5',
-            ]
-        }
     ]
 
     const BasicInfo = ({ index }) => (
         <Spring className={`${current === index ? 'block' : 'hidden'}`}>
             <Row>
+                <Col span={24} className='hidden'>
+                    <Form.Item
+                        name={"id"}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
                 <Col span={6}>
                     <Typography.Title level={5}>First name</Typography.Title>
                 </Col>
@@ -113,9 +109,10 @@ const AddInstructor = () => {
                 </Col>
                 <Col span={18}>
                     <Form.Item
-                        name={"file"}
+                        name={"photo"}
                     >
                         <Upload
+                            defaultFileList={[initialForm.photo]}
                             action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                             // fileList={fileList}
                             >
@@ -272,9 +269,9 @@ const AddInstructor = () => {
 
     return (
         <Spring>
-            <Bread title="Add a new instructor" items={breadcrumb} />
+            <Bread title="Edit a student" items={breadcrumb} />
             <div className='shadow-md border bg-white p-8'>
-                <Typography.Title level={5}>INSTRUCTOR ADD FORM</Typography.Title>
+                <Typography.Title level={5}>STUDENT EDIT FORM</Typography.Title>
                 <Flex className='mb-4'>
                     {steps.map((step, index) => {
                         return (
@@ -289,35 +286,41 @@ const AddInstructor = () => {
                     })}
                 </Flex>
                 <Progress percent={(current + 1) / steps.length * 100} showInfo={false} size="small" />
-                <Form
-                    form={form}
-                    onFinish={(data) => console.log(data)}
-                >
-                    <div className='mt-4'>
-                        {steps.map((step, index) => {
-                            return (
-                                <Fragment key={index}>
-                                    {step.page}
-                                </Fragment>
-                            )
-                        })}
-                    </div>
-                    <Flex align='center' justify='space-between'>
-                        { 
-                            current > 0 ?
-                            <Button onClick={() => setCurrent(prev => prev - 1)} size='large'>Prev</Button> :
-                            <Button disabled size='large'>Prev</Button>
-                        }
-                        {
-                            current < steps.length - 1 ?
-                            <Button onClick={() => setCurrent(prev => prev + 1)} size='large'>Next</Button> :
-                            <Button disabled size='large'>Next</Button>
-                        }
-                    </Flex>
-                </Form>
+                
+                
+                {!isLoading &&
+                    <Form
+                        form={form}
+                        onFinish={handleFinish}
+                        // fields={initialForm}
+                        initialValues={initialForm}
+                    >
+                        <div className='mt-4'>
+                            {steps.map((step, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        {step.page}
+                                    </Fragment>
+                                )
+                            })}
+                        </div>
+                        <Flex align='center' justify='space-between'>
+                            { 
+                                current > 0 ?
+                                <Button onClick={() => setCurrent(prev => prev - 1)} size='large'>Prev</Button> :
+                                <Button disabled size='large'>Prev</Button>
+                            }
+                            {
+                                current < steps.length - 1 ?
+                                <Button onClick={() => setCurrent(prev => prev + 1)} size='large'>Next</Button> :
+                                <Button disabled size='large'>Next</Button>
+                            }
+                        </Flex>
+                    </Form>
+                }
             </div>
         </Spring>
     )
 }
 
-export default AddInstructor
+export default EditStudent

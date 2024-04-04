@@ -4,6 +4,7 @@ import { Avatar, Button, Col, Flex, Form, Image, Input, Row, Space, Table, Typog
 import Sidenav from '../components/sidenav/Sidenav'
 import { Editor } from '@tinymce/tinymce-react';
 import { FacebookOutlined, KeyOutlined, LinkedinOutlined, LockOutlined, MailOutlined, TwitterOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
+import Spring from '../components/Spring';
 const Purchase = () => {
 
     const columns = [
@@ -79,13 +80,12 @@ const Purchase = () => {
                         <Sidenav />
                     </Col>
                     <Col span={18}>
-                        <div className='bg-white shadow-lg border rounded-lg px-6 py-8'>
+                        <Spring className='bg-white shadow-lg border rounded-lg px-6 py-8'>
                             <Typography.Title level={3}>Purchase history</Typography.Title>
                             <div>
                                 <Table columns={columns} dataSource={data} />
                             </div>
-
-                        </div>
+                        </Spring>
                     </Col>
                 </Row>
             </section>

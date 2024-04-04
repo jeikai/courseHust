@@ -4,6 +4,7 @@ import { Avatar, Button, Col, Flex, Form, Input, Row, Space, Typography, Upload 
 import Sidenav from '../components/sidenav/Sidenav'
 import { Editor } from '@tinymce/tinymce-react';
 import { FacebookOutlined, KeyOutlined, LinkedinOutlined, LockOutlined, MailOutlined, TwitterOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
+import Spring from '../components/Spring';
 const Account = () => {
     return (
         <>
@@ -14,7 +15,7 @@ const Account = () => {
                         <Sidenav />
                     </Col>
                     <Col span={18}>
-                        <div className='bg-white shadow-lg border rounded-lg px-6 py-8'>
+                        <Spring className='bg-white shadow-lg border rounded-lg px-6 py-8'>
                             <Flex align='center' justify='space-between' className='mb-6'>
                                 <Flex align='center' gap={12}>
                                     <Avatar size={98} shape='circle' src='https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png' />
@@ -77,7 +78,7 @@ const Account = () => {
                                 </Row>
                             </Form>
 
-                        </div>
+                        </Spring>
                     </Col>
                 </Row>
             </section>

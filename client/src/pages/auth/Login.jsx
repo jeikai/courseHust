@@ -10,6 +10,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Axios from 'axios';
 import { ViewContext } from "../../context/View";
 import axios from "axios";
+import Spring from "../../components/Spring";
 
 
 const Login = () => {
@@ -41,7 +42,7 @@ const Login = () => {
     }
   } ,[])
   return (
-    <section className="max-w-screen-xl m-auto py-24 min-h-96">
+    <Spring className="max-w-screen-xl m-auto py-24 min-h-96">
         <Row>
           <Col span={14} className="flex items-center justify-center">
             <img src={login} alt="" />
@@ -115,7 +116,7 @@ const Login = () => {
             </div>
           </Col>
         </Row>
-    </section>
+    </Spring>
   )
 }
 

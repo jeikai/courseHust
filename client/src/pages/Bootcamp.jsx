@@ -5,6 +5,7 @@ import Sidenav from '../components/sidenav/Sidenav'
 import { Editor } from '@tinymce/tinymce-react';
 import { FacebookOutlined, KeyOutlined, LinkedinOutlined, LockOutlined, MailOutlined, RightOutlined, TwitterOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import Spring from '../components/Spring';
 const Bootcamp = () => {
 
     return (
@@ -16,7 +17,7 @@ const Bootcamp = () => {
                         <Sidenav />
                     </Col>
                     <Col span={18}>
-                        <div className='bg-white shadow-lg border rounded-lg px-6 py-8'>
+                        <Spring className='bg-white shadow-lg border rounded-lg px-6 py-8'>
                             <Typography.Title level={3}>Bootcamp</Typography.Title>
                             <Space direction='vertical' className='w-full'>
                                 <Link to={'/home/my_bootcamp/1'} className='py-5 border-b block group cursor-pointer'>
@@ -77,7 +78,7 @@ const Bootcamp = () => {
                                     </Row>
                                 </Link>
                             </Space>
-                        </div>
+                        </Spring>
                     </Col>
                 </Row>
             </section>

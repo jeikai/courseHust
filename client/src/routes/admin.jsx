@@ -1,12 +1,17 @@
 import AddCourse from "../pages/admin/AddCourse"
 import AddInstructor from "../pages/admin/AddInstructor"
+import AddQuiz from "../pages/admin/AddQuiz"
+import AddStudent from "../pages/admin/AddStudent"
 import Category from "../pages/admin/Category"
 import Courses from "../pages/admin/Courses"
 import Dashboard from "../pages/admin/Dashboard"
+import EditStudent from "../pages/admin/EditStudent"
 import EnrolHistory from "../pages/admin/EnrolHistory"
 import Enrollments from "../pages/admin/Enrollments"
 import Instructors from "../pages/admin/Instructors"
 import Profile from "../pages/admin/Profile"
+import Quiz from "../pages/admin/Quiz"
+import Students from "../pages/admin/Students"
 
 const Routes = [
     {
@@ -67,14 +72,21 @@ const Routes = [
     },
     {
         path: '/admin/students',
-        view: Instructors,
+        view: Students,
         layout: 'admin',
         // permission: 'student',
         title: 'Funbug - Manage students | E-Learning'
     },
     {
         path: '/admin/add_student',
-        view: AddInstructor,
+        view: AddStudent,
+        layout: 'admin',
+        // permission: 'student',
+        title: 'Funbug - Add student | E-Learning'
+    },
+    {
+        path: '/admin/edit_student/:id',
+        view: EditStudent,
         layout: 'admin',
         // permission: 'student',
         title: 'Funbug - Add student | E-Learning'
@@ -85,6 +97,20 @@ const Routes = [
         layout: 'admin',
         // permission: 'student',
         title: 'Funbug - Manage Profile | E-Learning'
+    },
+    {
+        path: '/admin/quiz',
+        view: Quiz,
+        layout: 'admin',
+        // permission: 'student',
+        title: 'Funbug - Manage Quiz | E-Learning'
+    },
+    {
+        path: '/admin/add_quiz',
+        view: AddQuiz,
+        layout: 'admin',
+        // permission: 'student',
+        title: 'Funbug - Add a new quiz | E-Learning'
     },
 ]
 

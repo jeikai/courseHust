@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities'
 import RowSection from '../../components/admin/RowSection'
 import Spring from '../../components/Spring'
 
-const AddCourse = () => {
+const EditCourse = () => {
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
     const [formLesson] = Form.useForm()
@@ -1182,5 +1182,5 @@ const AddCourse = () => {
     )
 }
 
-export default AddCourse
+export default EditCourse
 

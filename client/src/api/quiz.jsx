@@ -13,4 +13,18 @@ const deleteQuiZ = async (id) => {
     return true
 }
 
-export { getQuizs, deleteQuiZ }
+const createQuiz = async (data) => {
+    // const res = await Axios.post('url', data)
+    // const data = await res.json();
+
+    return true
+}
+
+const getQuizById = async (id) => {
+    // const res = await Axios.post('../config/users.json', id)
+    // const data = await res.json();
+    const data = QuizData[0]
+    return data;
+}
+
+export { getQuizs, deleteQuiZ, createQuiz, getQuizById }

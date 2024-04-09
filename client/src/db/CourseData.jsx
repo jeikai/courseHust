@@ -3,8 +3,8 @@ const CourseData = [
     {
         id: faker.string.uuid(),
         title: faker.person.jobTitle(),
-        category: faker.string.uuid(),
-        level: faker.helpers.enumValue({Basic, Advanced, Immediate}),
+        categoryId: faker.string.uuid(),
+        level: faker.helpers.enumValue({basic, advanced, immediate, specialized}),
         shortDes: faker.commerce.productDescription(),
         description: faker.commerce.productDescription(),
         faq: [
@@ -45,7 +45,7 @@ const CourseData = [
         ],
         free: faker.datatype.boolean(),
         price: faker.commerce.price(),
-        thumbnail: faker.image.avatar(),
+        thumbnail: faker.image.avatar(),    
         courseVideo: faker.image.url(),
         sectionIds: ['section-1', 'section-2', 'section-3'],
         sections: [
@@ -75,9 +75,9 @@ const CourseData = [
                     {
                         id: 'lesson-1',
                         title: faker.lorem.word(10),
-                        file: faker.image.url(),
+                        videoURL: faker.image.url(),
                         sectionId: 'section-1',
-                        description: faker.lorem.word(30),
+                        content: faker.lorem.word(30),
                     },
                     {
                         id: 'lesson-2',

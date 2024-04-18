@@ -2,7 +2,6 @@ import React, { useCallback, useContext } from "react";
 import { Box } from "@mui/material";
 import { FilePicker } from "../../../components/file-picker/FilePicker.jsx";
 import { useNavigate } from "react-router-dom";
-import 'react-toastify/dist/ReactToastify.css';
 
 const UploadQuizImage = () => {
   const navigator = useNavigate();

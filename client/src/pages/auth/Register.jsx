@@ -315,7 +315,7 @@ const Register = () => {
         </Col>
       </Row>
     </Spring>
-  )
+  ) 
 }
 
 export default Register;

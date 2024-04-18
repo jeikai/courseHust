@@ -11,70 +11,18 @@ import think3 from '../assets/think-3.png'
 import bgcategories from '../assets/bgcategories.png'
 import faq2 from '../assets/faq2.jpg'
 import Course from "../components/Course"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 const Home = () => {
   const categories = [
     {
       icon: Html5Filled,
       name: 'HTML & CSS',
       qty: 3
-    },
-    {
-      icon: BarcodeOutlined,
-      name: 'Color Theory',
-      qty: 2
-    },
-    {
-      icon: CameraOutlined,
-      name: 'Photoshop',
-      qty: 2
-    },
-    {
-      icon: FileWordOutlined,
-      name: 'WordPress Theme',
-      qty: 1
-    },
-    {
-      icon: FilePdfFilled,
-      name: 'Adobe Illustrator',
-      qty: 1
-    },
-    {
-      icon: EditOutlined,
-      name: 'Drawing',
-      qty: 1
-    },
-    {
-      icon: PictureOutlined,
-      name: 'Blender',
-      qty: 1
-    },
-    {
-      icon: PaperClipOutlined,
-      name: 'Sewing',
-      qty: 1
-    },
-    {
-      icon: PictureFilled,
-      name: 'Motion Graphics',
-      qty: 1
-    },
-    {
-      icon: BulbOutlined,
-      name: 'Lighting Design',
-      qty: 1
-    },
-    {
-      icon: MobileOutlined,
-      name: 'Mobile App Design',
-      qty: 1
-    },
-    {
-      icon: CodeOutlined,
-      name: 'Bootstrap',
-      qty: 1
-    },
+    }
   ]
+  useEffect(() => {
+
+  }, categories)
   const text = [
     "A Learning Management System is a software application or platform designed to manage and deliver online educational courses, training programs, and learning content. It provides a centralized system for instructors to create, organize, track, and assess learning materials and activities.",
     "Common features of an LMS include course management, content creation and delivery, student enrollment and tracking, assessment and grading tools, communication and collaboration tools, reporting and analytics, and integration with other systems or tools.",

@@ -23,7 +23,7 @@ export function useAPI(url, method){
 
         url: url,
         method: method || 'get',
-        
+         
       })
     // const data = {
     //     name: 'Cuong',

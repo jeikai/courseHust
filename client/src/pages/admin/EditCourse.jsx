@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities'
 import RowSection from '../../components/admin/RowSection'
 import Spring from '../../components/Spring'
 
-const AddCourse = () => {
+const EditCourse = () => {
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
     const [formLesson] = Form.useForm()
@@ -58,20 +58,20 @@ const AddCourse = () => {
 
     const options = [
         {
-            label: 'Math',
-            value: 'Math',
+            label: 'gold',
+            value: 'gold',
         },
         {
-            label: 'Physic',
-            value: 'Physic',
+            label: 'lime',
+            value: 'lime',
         },
         {
-            label: 'Literature',
-            value: 'Literature',
+            label: 'green',
+            value: 'green',
         },
         {
-            label: 'Chemistry',
-            value: 'Chemistry',
+            label: 'cyan',
+            value: 'cyan',
         },
     ];
     const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -275,6 +275,7 @@ const AddCourse = () => {
     }, [current])
 
     const serverUpload = async (options, callback) => {
+        debugger
         const { onSuccess, file, onError, onProgress } = options;
         console.log(file);
         callback([file]);
@@ -282,18 +283,8 @@ const AddCourse = () => {
     }
 
 
-    const handleSubmit = async (data) => {
-        console.log(data); 
-        try {
-            // const resCourse = await Axios({
-            //     url: "/api/course",
-            //     method: "POST",
-                
-            // })
-        } catch (error) {
-            console.log(error);
-            viewContext.handleError(error)
-        }
+    const handleSubmit = (data) => {
+        console.log(data);
     }
 
     const BasicInfor = ({ index }) => (
@@ -1191,5 +1182,5 @@ const AddCourse = () => {
     )
 }
 
-export default AddCourse
+export default EditCourse
 

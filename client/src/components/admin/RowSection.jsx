@@ -5,7 +5,7 @@ import Card from './Card'
 import { SortableContext, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-const RowSection = ({ section, openModalEditSection, handleRemoveSection, openModalEditLesson, handleRemoveLesson, formLesson, setOpenInputLesson, someoneIsDragging }) => {
+const RowSection = ({ section, openModalEditSection, handleRemoveSection, openModalEditLesson, handleRemoveLesson, formLesson, setOpenInputLesson, someoneIsDragging, formQuiz, setOpenEditQuiz, setOpenInputQuiz }) => {
     const {
         attributes,
         listeners,
@@ -51,7 +51,10 @@ const RowSection = ({ section, openModalEditSection, handleRemoveSection, openMo
                     formLesson.setFieldValue("sectionId", section.id)
                     setOpenInputLesson(true)
                 }} icon={<PlusOutlined />}>Lesson</Button>
-                <Button icon={<PlusOutlined />}>Quiz</Button>
+                <Button onClick={() => {
+                    formQuiz.setFieldValue("sectionId", section.id)
+                    setOpenInputQuiz(true)
+                }} icon={<PlusOutlined />}>Quiz</Button>
             </Space>
         </div>
     )

@@ -3,7 +3,7 @@ const courseController = require('../controllers/courseController')
 const authMiddleware = require('../middlewares/authMiddleware')
 const use = require('../helper/utility').use
 
-api.post('/course', authMiddleware.protectTeacher, use(courseController.create))
+api.post('/course', use(courseController.create))
 
 api.get('/course', use(courseController.getAll))
 

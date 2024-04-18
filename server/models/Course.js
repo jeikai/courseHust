@@ -5,11 +5,12 @@ const categoryModel = require('./Category')
 const courseSchema = new Schema({
     instructorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     title: { type: String, required: true, unique: true},
+    shortDes: { type: String},
     description: { type: String, required: true },
     categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
-    language: { type: String, required: true },
-    tags: [{ type: String, required: true }], 
+    courseVideo: { type: String, required: true },
+    tags: [{ type: String }],
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true },
     sections: [{type: mongoose.Schema.Types.ObjectId, ref: 'Section'}],
@@ -27,14 +28,14 @@ exports.create = async function(data){
         const courseData = {
             instructorId: data.instructorId,
             title: data.title, 
+            shortDes: data.shortDes,
             description: data.description, 
             categoryId: data.categoryId,
             level: data.level || "basic",
-            language: data.language,
+            courseVideo: data.courseVideo,
             tags: data.tags || [],
             price: parseFloat(data.price),
             thumbnail: data.thumbnail || '',
-            sections: data.sections || [],
             date_created: new Date(),
             date_updated: new Date()
         }

@@ -9,17 +9,15 @@ export const AuthContext = createContext();
 export function AuthProvider(props) {
     const cache = JSON.parse(localStorage.getItem('user'));
     const [user, setUser] = useState(cache);
-    const auth = useAPI(user ? '/api/auth' : null);
+    const auth = useAPI(user ? '/api/auth' : null, null, (err) => {
+        if(err.response.status === 403) signout();
+    });
 
-    console.log(auth);
     useEffect(() => {
-
         // update the auth status
         if (!auth.loading && auth.data) {
-
             auth.data.authenticated ?
                 update(auth.data) : signout();
-
         }
     }, [auth]);
 
@@ -55,34 +53,28 @@ export function AuthProvider(props) {
                 if (Array.isArray(data[key])) {
 
                     user[key] = data[key]
-
                 }
                 else if (typeof data[key] === 'object') {
                     for (let innerKey in data[key]) {
-
                         user[key][innerKey] = data[key][innerKey]
-
                     }
                 }
                 else {
 
                     user[key] = data[key];
-
                 }
             }
-
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
-
         }
     }
     return (
         <AuthContext.Provider value={{
 
             user: user,
-            signin: signin,
-            signout: signout,
-            update: update,
+            signin,
+            signout,
+            update,
             permission: permissions[user?.permission]
 
         }}

@@ -7,7 +7,6 @@ import {
   Dropdown,
   Empty,
   Flex,
-  Menu,
   Space,
   Typography,
 } from "antd";
@@ -32,7 +31,7 @@ import { AuthContext } from "../../context/Auth";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"))
+  let user
   const items = [
     {
       key: "/courses",
@@ -103,51 +102,57 @@ const Header = () => {
     },
   ];
 
-  const itemProfile = [
-    {
-      key: "1",
-      label: (
-        <Space
-          direction="vertical"
-          align="center"
-          justify="center"
-          className="p-4"
-        >
-          <Avatar
-            size={64}
-            src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
-          />
-          <Typography.Title level={5}>{user.account.name}</Typography.Title>
-          <Typography.Text>{user.account.email}</Typography.Text>
-        </Space>
-      ),
-    },
-    {
-      key: "2",
-      label: "Become a Instructor", 
-      icon: <BookOutlined />,
-    },
-    {
-      key: "3",
-      label: "My courses",
-      icon: <UngroupOutlined />,
-    },
-    {
-      key: "4",
-      label: "My messages",
-      icon: <MessageOutlined />,
-    },
-    {
-      key: "5",
-      label: "User profile",
-      icon: <UserOutlined />,
-    },
-    {
-      key: "signout",
-      label: "Log out",
-      icon: <RollbackOutlined />,
-    },
-  ];
+  //check if localStorage has item user
+  const temp = localStorage.getItem("user");
+  let itemProfile = [];
+  if (temp != null) {
+    user = JSON.parse(temp);
+    itemProfile = [
+      {
+        key: "1",
+        label: (
+            <Space
+                direction="vertical"
+                align="center"
+                justify="center"
+                className="p-4"
+            >
+              <Avatar
+                  size={64}
+                  src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
+              />
+              <Typography.Title level={5}>{user.account.name}</Typography.Title>
+              <Typography.Text>{user.account.email}</Typography.Text>
+            </Space>
+        ),
+      },
+      {
+        key: "2",
+        label: "Become a Instructor",
+        icon: <BookOutlined />,
+      },
+      {
+        key: "3",
+        label: "My courses",
+        icon: <UngroupOutlined />,
+      },
+      {
+        key: "4",
+        label: "My messages",
+        icon: <MessageOutlined />,
+      },
+      {
+        key: "5",
+        label: "User profile",
+        icon: <UserOutlined />,
+      },
+      {
+        key: "signout",
+        label: "Log out",
+        icon: <RollbackOutlined />,
+      },
+    ];
+  }
 
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
@@ -159,7 +164,7 @@ const Header = () => {
     console.log(props);
     // navigate(key)
     const path = props.keyPath.reverse().join("/");
-    // navigate(path, {replace: true})
+    navigate(path, {replace: true})
   };
 
   return (

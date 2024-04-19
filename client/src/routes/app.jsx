@@ -81,7 +81,7 @@ const Routes = [
         title: 'Funbug - Lesson | E-Learning'
     },
     {
-        path: '/home/notfound',
+        path: '/notfound',
         view: NotFound,
         layout: 'app',
         // permission: 'student',

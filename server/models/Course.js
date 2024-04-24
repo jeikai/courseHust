@@ -16,7 +16,7 @@ const courseSchema = new Schema({
     sections: [{type: mongoose.Schema.Types.ObjectId, ref: 'Section'}],
     date_created: Date,
     date_updated: Date
-}) 
+})  
 
 const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course
@@ -52,7 +52,7 @@ exports.get = async function(query){
         if(!query)
             return await Course.find({})
         if(query.hasOwnProperty('courseId')){
-            return await Course.findById(query.courseId).populate('sections')
+            return await Course.findById(query.courseId).populate(['sections', 'instructorId', 'categoryId'])
         }else if(query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')){
             const category = await categoryModel.get(query)
             if(category){

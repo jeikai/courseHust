@@ -42,8 +42,8 @@ const Lesson = () => {
                 </Col>
                 <Col span={16} pull={8}>
                     <div className='mb-4 mt-2'>
-                        {/* <Video /> */}
-                        {/* <Quiz /> */}
+                        <Video />
+                        <Quiz />
                         <Questions />
                     </div>   
                 </Col>

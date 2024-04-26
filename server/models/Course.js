@@ -1,35 +1,35 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const categoryModel = require('./Category')
- 
+
 const courseSchema = new Schema({
-    instructorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    title: { type: String, required: true, unique: true},
-    shortDes: { type: String},
+    instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    title: { type: String, required: true, unique: true },
+    shortDes: { type: String },
     description: { type: String, required: true },
-    categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-    level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
     courseVideo: { type: String, required: true },
     tags: [{ type: String }],
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true },
-    sections: [{type: mongoose.Schema.Types.ObjectId, ref: 'Section'}],
+    sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
     date_created: Date,
     date_updated: Date
-})  
+})
 
 const Course = mongoose.model('Course', courseSchema, 'courses')
 exports.schema = Course
 
-exports.create = async function(data){
-    try{
-        const checkCourse = await Course.findOne({instructorId: data.instructorId, title: data.title})
-        if(checkCourse) return {error: 'Course existed'}
+exports.create = async function (data) {
+    try {
+        const checkCourse = await Course.findOne({ instructorId: data.instructorId, title: data.title })
+        if (checkCourse) return { error: 'Course existed' }
         const courseData = {
             instructorId: data.instructorId,
-            title: data.title, 
+            title: data.title,
             shortDes: data.shortDes,
-            description: data.description, 
+            description: data.description,
             categoryId: data.categoryId,
             level: data.level || "basic",
             courseVideo: data.courseVideo,
@@ -46,43 +46,48 @@ exports.create = async function(data){
         return { error: error }
     }
 }
- 
-exports.get = async function(query){
-    try{
-        if(!query)
+
+exports.get = async function (query) {
+    try {
+        if (!query)
             return await Course.find({})
-        if(query.hasOwnProperty('courseId')){
-            return await Course.findById(query.courseId).populate(['sections', 'instructorId', 'categoryId'])
-        }else if(query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')){
+        if (query.hasOwnProperty('courseId')) {
+            return await Course.findById(query.courseId).populate(['sections', 'instructorId', 'categoryId']).populate({
+                path: 'sections',
+                populate: { path: 'specs._id' } 
+            })
+                .populate('instructorId')
+                .populate('categoryId');
+        } else if (query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')) {
             const category = await categoryModel.get(query)
-            if(category){
-                const courses = await Course.find({categoryId: category._id})
+            if (category) {
+                const courses = await Course.find({ categoryId: category._id })
                 return courses
             }
-            return {error: 'not found'}
-        }else if(query.hasOwnProperty('title')){
+            return { error: 'not found' }
+        } else if (query.hasOwnProperty('title')) {
             // const regex = new RegExp(query.title, 'i')
-            return await Course.find({title: { $regex: query.title, $options: 'i' } })
-        }else if(query.hasOwnProperty('instructorId')){
-            return await Course.find({instructorId: query.instructorId})
+            return await Course.find({ title: { $regex: query.title, $options: 'i' } })
+        } else if (query.hasOwnProperty('instructorId')) {
+            return await Course.find({ instructorId: query.instructorId })
         }
 
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }
 
-exports.addSection = async function(courseId, sectionId){
-    try{
+exports.addSection = async function (courseId, sectionId) {
+    try {
         const course = await Course.findById(courseId)
-        if(!course) return {error: "course not found"}
+        if (!course) return { error: "course not found" }
 
         course.sections.push(sectionId)
         course.date_updated = new Date()
         course.markModified("sections")
         course.markModified("date_updated")
         await course.save()
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }

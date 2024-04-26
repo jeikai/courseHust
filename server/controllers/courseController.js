@@ -51,7 +51,7 @@ exports.create = async function(req, res){
 }
 
 
-exports.getById = async function(req, res){
+exports.getById = async function(req, res){ 
     try{
         const courseId = req.params.courseId
         const data = {courseId: courseId}

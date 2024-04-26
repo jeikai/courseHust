@@ -31,7 +31,7 @@ import { AuthContext } from "../../context/Auth";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-  let user
+  let user;
   const items = [
     {
       key: "/courses",
@@ -111,19 +111,19 @@ const Header = () => {
       {
         key: "1",
         label: (
-            <Space
-                direction="vertical"
-                align="center"
-                justify="center"
-                className="p-4"
-            >
-              <Avatar
-                  size={64}
-                  src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
-              />
-              <Typography.Title level={5}>{user.account.name}</Typography.Title>
-              <Typography.Text>{user.account.email}</Typography.Text>
-            </Space>
+          <Space
+            direction="vertical"
+            align="center"
+            justify="center"
+            className="p-4"
+          >
+            <Avatar
+              size={64}
+              src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
+            />
+            <Typography.Title level={5}>{user.account.name}</Typography.Title>
+            <Typography.Text>{user.account.email}</Typography.Text>
+          </Space>
         ),
       },
       {
@@ -164,7 +164,7 @@ const Header = () => {
     console.log(props);
     // navigate(key)
     const path = props.keyPath.reverse().join("/");
-    navigate(path, {replace: true})
+    navigate(path, { replace: true });
   };
 
   return (

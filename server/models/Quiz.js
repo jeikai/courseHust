@@ -18,7 +18,7 @@ exports.create = async function (data) {
     try {
         const quizData = {
             title: data.title,
-            ques: data.ques,
+            ques: data.ques, 
             date_created: new Date(),
             date_updated: new Date()
         }

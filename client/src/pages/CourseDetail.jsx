@@ -29,6 +29,7 @@ import {
   PlayCircleOutlined,
   PlusOutlined,
   ProfileOutlined,
+  QuestionCircleOutlined,
   RetweetOutlined,
   SettingOutlined,
   TagsOutlined,
@@ -42,106 +43,118 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { useAPI } from "../hooks/api.jsx";
 import Loader from "../components/Loader.jsx";
-import { ViewContext } from '../context/View.jsx'
+import { ViewContext } from "../context/View.jsx";
 import axios from "axios";
 
-const Overview =  ({course}) => {
-  
+const Overview = ({ course }) => {
   return (
     <>
-    <Space direction="vertical">
-      <Typography.Title level={3}>Course description</Typography.Title>
-      <Typography.Paragraph style={{ color: "#676C7D" }}>
-        {course.description.toString()}
-      </Typography.Paragraph>
-      <Typography.Title level={3}>Categories</Typography.Title>
-      <Typography.Paragraph>
-        <ul>
-          <li>
-            <Typography.Link
-              className="text-base"
-              style={{ color: "#676C7D" }}
-              href="#"
-            >
-              {course.categoryId.description}
-            </Typography.Link>
-          </li>
-        </ul>
-      </Typography.Paragraph>
-      <Typography.Title level={3}>Language</Typography.Title>
-      <Typography.Paragraph>
-        <ul>
-          <li>
-            <Typography.Link
-              className="text-base"
-              style={{ color: "#676C7D" }}
-              href="/docs/spec/proximity"
-            >
-              {course.language}
-            </Typography.Link>
-          </li>
-        </ul>
-      </Typography.Paragraph>
-    </Space>
+      <Space direction="vertical">
+        <Typography.Title level={3}>Course description</Typography.Title>
+        <Typography.Paragraph style={{ color: "#676C7D" }}>
+          {course.description.toString()}
+        </Typography.Paragraph>
+        <Typography.Title level={3}>Categories</Typography.Title>
+        <Typography.Paragraph>
+          <ul>
+            <li>
+              <Typography.Link
+                className="text-base"
+                style={{ color: "#676C7D" }}
+                href="#"
+              >
+                {course.categoryId.description}
+              </Typography.Link>
+            </li>
+          </ul>
+        </Typography.Paragraph>
+        <Typography.Title level={3}>Language</Typography.Title>
+        <Typography.Paragraph>
+          <ul>
+            <li>
+              <Typography.Link
+                className="text-base"
+                style={{ color: "#676C7D" }}
+                href="/docs/spec/proximity"
+              >
+                {course.language}
+              </Typography.Link>
+            </li>
+          </ul>
+        </Typography.Paragraph>
+      </Space>
     </>
   );
 };
 
-const Curriculum = ({course}) => {
+const Curriculum = ({ course }) => {
   let totalSections = 0;
   const calculateTotalLectures = () => {
     if (!course || !course.sections) {
-      return 0; 
+      return 0;
     }
 
-    let totalLectures = 0;
     totalSections = course.sections.length;
+    let totalLectures = 0;
     for (const section of course.sections) {
-      if (section.spec) {
-        for (const item of section.spec) {
-          if (item.type === "lesson") {
-            totalLectures += 1 || 0;
-          }
+      for (const spec of section.specs) {
+        if (spec.type === "lesson") {
+          totalLectures += 1;
         }
       }
     }
+
     return totalLectures;
   };
 
   const totalLectures = calculateTotalLectures();
-  const items = [
-    {
-      key: "1",
-      label: (
-        <Flex align="center" justify="space-between">
-          <h5 className="font-semibold text-[18px]">Getting Started</h5>
-          <Flex gap={12} align="center" className="text-base text-[#676C7D]">
-            <span>{totalSections} Sections</span>
-            <span>|</span>
-            <span>{totalLectures} Lessons</span>
-          </Flex>
+
+  const items = course.sections.map((section) => ({
+    key: section._id, // Use section ID for unique keys
+    label: (
+      <Flex align="center" justify="space-between">
+        <h5 className="font-semibold text-[18px]">{section.title}</h5>
+        <Flex gap={12} align="center" className="text-base text-[#676C7D]">
+          <span>{totalSections} Sections</span>
+          <span>|</span>
+          <span>{totalLectures} Lessons</span>
         </Flex>
-      ),
-      children: (
-        <ul>
-          <li className="hover:bg-slate-100 px-1 py-3">
-            <a href="#" className="group">
-              <Flex align="center" justify="space-between">
-                <Flex align="center" gap={12}>
-                  <PlayCircleOutlined className="text-xl text-[#754FFE]" />
-                  <span className="text-[#676C7D]">
-                    Welcome & What We're Learning
-                  </span>
+      </Flex>
+    ),
+    children: (
+      <ul>
+        {section.specs.map((spec) => {
+          return (
+            <li key={spec?._id?._id} className="hover:bg-slate-100 px-1 py-3">
+              <a href={"/home/lesson/" + spec?._id?._id} className="group">
+                <Flex align="center" justify="space-between">
+                  <Flex align="center" gap={12}>
+                    {spec.type == "lesson" ? (
+                      <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                    ) : (
+                      <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
+                    )}
+                    <span className="text-[#676C7D">
+                      {spec?._id?.title ? spec._id.title : ""}
+                    </span>
+                  </Flex>
+                  <span className="text-[#676C7D">11:09:00</span>
                 </Flex>
-                <span className="text-[#676C7D]">00:09:11</span>
-              </Flex>
-            </a>
-          </li>
-        </ul>
-      ),
-    },
-  ];
-  return <Collapse defaultActiveKey={["1"]} ghost items={items} />;
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    ),
+  }));
+
+  return (
+    <Collapse
+      defaultActiveKey={items.map((item) => item.key)}
+      ghost
+      items={items}
+    />
+  );
 };
 
 const Reviews = () => {
@@ -199,9 +212,7 @@ const Instructor = ({ instructorId, navigate }) => {
       />
       <Space direction="vertical" className="ml-6">
         <Typography.Title level={5}>{instructorId.name}</Typography.Title>
-        <Typography.Text>
-          Email: {instructorId.email}
-        </Typography.Text>
+        <Typography.Text>Email: {instructorId.email}</Typography.Text>
         <Typography.Text className="text-line-2">
           Join Date: {instructorId.date_created}
         </Typography.Text>
@@ -242,18 +253,16 @@ const CourseDetail = () => {
 
   const calculateTotalLectures = () => {
     if (!course.data || !course.data.sections) {
-      return 0; 
+      return 0;
     }
 
     let totalLectures = 0;
-    for (const section of course.data.sections) {
-      if (section.spec) {
-        for (const item of section.spec) {
-          if (item.type === "lesson") {
-            totalLectures += 1 || 0;
-          } else {
-            totalQuizs += 1;
-          }
+    for (const sections of course.data.sections) {
+      for (const spec of sections.specs) {
+        if (spec.type === "lesson") {
+          totalLectures += 1 || 0;
+        } else {
+          totalQuizs += 1;
         }
       }
     }
@@ -264,23 +273,23 @@ const CourseDetail = () => {
 
   const handleAddToCart = async () => {
     try {
-      if(!JSON.parse(localStorage.getItem("user"))) {
-        viewContext.handleError("You need to login first")
-        navigate('/login')
+      if (!JSON.parse(localStorage.getItem("user"))) {
+        viewContext.handleError("You need to login first");
+        navigate("/login");
       } else {
-        const userId = JSON.parse(localStorage.getItem("user")).account._id
+        const userId = JSON.parse(localStorage.getItem("user")).account._id;
         const response = await axios.post("/api/enrollment", {
           userId: userId,
-          courseId: courseId
-        })
-        console.log(response)
+          courseId: courseId,
+        });
+        console.log(response);
         viewContext.handleSuccess("Add to cart successfully");
       }
     } catch (error) {
       console.log(error);
-      viewContext.handleError(error)
+      viewContext.handleError(error);
     }
-  }
+  };
   const items = [
     {
       icon: TagsOutlined,
@@ -417,19 +426,23 @@ const CourseDetail = () => {
                       <RetweetOutlined className="text-2xl" />
                     </a>
                   </Flex>
-                </div>  
+                </div>
                 <div className="p-3 w-full border-b">
                   <Flex align="center" className="w-full">
                     <BarsOutlined className="text-2xl mr-2 text-red-500" />
                     <span className="font-semibold text-base">Lectures</span>
-                    <div className="ml-auto text-base font-semibold">{totalLectures}</div>
+                    <div className="ml-auto text-base font-semibold">
+                      {totalLectures}
+                    </div>
                   </Flex>
                 </div>
                 <div className="p-3 w-full border-b">
                   <Flex align="center" className="w-full">
                     <CalculatorOutlined className="text-2xl mr-2 text-purple-500" />
                     <span className="font-semibold text-base">Quizzes</span>
-                    <div className="ml-auto text-base font-semibold">{totalQuizs}</div>
+                    <div className="ml-auto text-base font-semibold">
+                      {totalQuizs}
+                    </div>
                   </Flex>
                 </div>
                 <div className="p-3 w-full border-b">
@@ -468,7 +481,7 @@ const CourseDetail = () => {
                     }}
                   >
                     <Button
-                      icon={<PlusOutlined />} 
+                      icon={<PlusOutlined />}
                       size="large"
                       className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500 mb-6"
                       onClick={handleAddToCart}

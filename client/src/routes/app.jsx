@@ -82,7 +82,7 @@ const Routes = [
     },
     {
         path: '/notfound',
-        view: NotFound,
+        view: NotFound, 
         layout: 'app',
         // permission: 'student',
         title: 'Funbug - 404 Not Found | E-Learning'

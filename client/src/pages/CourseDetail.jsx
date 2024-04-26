@@ -87,7 +87,28 @@ const Overview =  ({course}) => {
   );
 };
 
-const Curriculum = () => {
+const Curriculum = ({course}) => {
+  let totalSections = 0;
+  const calculateTotalLectures = () => {
+    if (!course || !course.sections) {
+      return 0; 
+    }
+
+    let totalLectures = 0;
+    totalSections = course.sections.length;
+    for (const section of course.sections) {
+      if (section.spec) {
+        for (const item of section.spec) {
+          if (item.type === "lesson") {
+            totalLectures += 1 || 0;
+          }
+        }
+      }
+    }
+    return totalLectures;
+  };
+
+  const totalLectures = calculateTotalLectures();
   const items = [
     {
       key: "1",
@@ -95,9 +116,9 @@ const Curriculum = () => {
         <Flex align="center" justify="space-between">
           <h5 className="font-semibold text-[18px]">Getting Started</h5>
           <Flex gap={12} align="center" className="text-base text-[#676C7D]">
-            <span>1 Lessons</span>
+            <span>{totalSections} Sections</span>
             <span>|</span>
-            <span>1 Lessons</span>
+            <span>{totalLectures} Lessons</span>
           </Flex>
         </Flex>
       ),
@@ -216,17 +237,24 @@ const CourseDetail = () => {
   const course = useAPI(`/api/course/${courseId}`, null);
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
+  let totalQuizs = 0;
   if (course.loading) return <Loader />;
 
   const calculateTotalLectures = () => {
     if (!course.data || !course.data.sections) {
-      return 0; // Handle cases where course.data or course.data.sections is missing
+      return 0; 
     }
 
     let totalLectures = 0;
     for (const section of course.data.sections) {
       if (section.spec) {
-        totalLectures += section.spec.length; // Add length of each section's spec
+        for (const item of section.spec) {
+          if (item.type === "lesson") {
+            totalLectures += 1 || 0;
+          } else {
+            totalQuizs += 1;
+          }
+        }
       }
     }
     return totalLectures;
@@ -401,7 +429,7 @@ const CourseDetail = () => {
                   <Flex align="center" className="w-full">
                     <CalculatorOutlined className="text-2xl mr-2 text-purple-500" />
                     <span className="font-semibold text-base">Quizzes</span>
-                    <div className="ml-auto text-base font-semibold">10</div>
+                    <div className="ml-auto text-base font-semibold">{totalQuizs}</div>
                   </Flex>
                 </div>
                 <div className="p-3 w-full border-b">

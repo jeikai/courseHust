@@ -88,6 +88,7 @@ const Overview = ({ course }) => {
 };
 
 const Curriculum = ({ course }) => {
+  const navigate = useNavigate()
   let totalSections = 0;
   const calculateTotalLectures = () => {
     if (!course || !course.sections) {
@@ -110,7 +111,7 @@ const Curriculum = ({ course }) => {
   const totalLectures = calculateTotalLectures();
 
   const items = course.sections.map((section) => ({
-    key: section._id, // Use section ID for unique keys
+    key: section._id, 
     label: (
       <Flex align="center" justify="space-between">
         <h5 className="font-semibold text-[18px]">{section.title}</h5>
@@ -126,8 +127,8 @@ const Curriculum = ({ course }) => {
         {section.specs.map((spec) => {
           return (
             <li key={spec?._id?._id} className="hover:bg-slate-100 px-1 py-3">
-              <a href={"/home/lesson/" + spec?._id?._id} className="group">
-                <Flex align="center" justify="space-between">
+              {/* <a href={"/home/lesson/" + spec?._id?._id} className="group"> */}
+                <Flex align="center" justify="space-between" onClick={() => {navigate("/home/lesson/" + spec?._id?._id)}}>
                   <Flex align="center" gap={12}>
                     {spec.type == "lesson" ? (
                       <PlayCircleOutlined className="text-xl text-[#754FFE]" />
@@ -140,7 +141,7 @@ const Curriculum = ({ course }) => {
                   </Flex>
                   <span className="text-[#676C7D">11:09:00</span>
                 </Flex>
-              </a>
+              {/* </a> */}
             </li>
           );
         })}

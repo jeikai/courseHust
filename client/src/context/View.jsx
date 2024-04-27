@@ -40,7 +40,7 @@ export function View(props) {
       autoclose: autoclose,
     });
 
-    if (autoclose) setTimeout(hideNotification, 2000);
+    if (autoclose) setTimeout(hideNotification, 4000);
   }
 
   function hideNotification() {

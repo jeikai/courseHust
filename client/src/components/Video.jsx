@@ -1,12 +1,15 @@
 import React from 'react'
 import ReactPlayer from 'react-player'
-
-const Video = () => {
+import vid from '../assets/video/vid.mp4'
+import thumbnail from '../assets/image/thumbnail.jpg'
+const Video = ({video}) => {
+    console.log(video)
+    const videoUrl = video.startsWith("http") ? video : vid
     return (
         <div className='max-w-[1200px] h-[720px]'>
             <ReactPlayer
-                url='https://www.youtube.com/watch?v=LXb3EKWsInQ'
-                light={<img src='https://accesstrade.vn/wp-content/uploads/2023/02/thumbnail-la-gi-1.jpg' className='w-full h-full' alt='Thumbnail' />}
+                url={videoUrl}
+                light={<img src={thumbnail} className='w-full h-full' alt='Thumbnail' />}
                 width="100%"
                 height="100%"
                 playing={true}

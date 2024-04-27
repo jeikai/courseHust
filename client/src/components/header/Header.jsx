@@ -94,6 +94,7 @@ const Header = () => {
             icon={<ShopOutlined />}
             size="large"
             className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
+            onClick={() => {navigate('/home/purchase_course')}}
           >
             Check out
           </Button>

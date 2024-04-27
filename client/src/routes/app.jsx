@@ -9,6 +9,7 @@ import Mywishlist from "../pages/Mywishlist"
 import NotFound from "../pages/NotFound"
 import Profile from "../pages/Profile"
 import Purchase from "../pages/Purchase"
+// import Affiliate from "../pages/Affiliate"
 
 const Routes = [
     {
@@ -62,7 +63,7 @@ const Routes = [
     {
         path: '/home/user_profile',
         view: Profile,
-        layout: 'app',
+        layout: 'app', 
         // permission: 'student',
         title: 'Funbug - Profile | E-Learning'
     },

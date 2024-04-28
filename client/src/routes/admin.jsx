@@ -1,3 +1,4 @@
+import AddCategory from "../pages/admin/AddCategory"
 import AddCourse from "../pages/admin/AddCourse"
 import AddInstructor from "../pages/admin/AddInstructor"
 import AddQuiz from "../pages/admin/AddQuiz"
@@ -47,6 +48,13 @@ const Routes = [
     {
         path: '/admin/category',
         view: Category,
+        layout: 'admin',
+        // permission: 'student',
+        title: 'Funbug - Manage categories | E-Learning'
+    },
+    {
+        path: '/admin/add_category',
+        view: AddCategory,
         layout: 'admin',
         // permission: 'student',
         title: 'Funbug - Manage categories | E-Learning'

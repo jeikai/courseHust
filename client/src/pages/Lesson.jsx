@@ -1,13 +1,41 @@
 import { SettingOutlined } from '@ant-design/icons';
-import { Checkbox, Col, Collapse, Divider, Flex, Row, Space, Typography } from 'antd'
-import React from 'react'
+import { Checkbox, Col, Collapse, Divider, Flex, Row, Space, TimePicker, Typography } from 'antd'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import ReactPlayer from 'react-player'
 import Video from '../components/Video';
 import Quiz from '../components/Quiz';
 import Questions from '../components/Questions';
+import { getQuizById } from '../api/quiz';
 
 const Lesson = () => {
+
+    const [lesson, setLesson] = useState(null)
+    const [start, setStart] = useState(localStorage.getItem('time') || null) 
+    const handleStartQuiz = () => {
+        console.log('Start quiz')
+        // let duaration = lesson.duaration
+        let duration = '01-00-00'
+        let startTime = new Date().getTime();
+        let durationParts = duration.split('-');
+        let hours = parseInt(durationParts[0]);
+        let minutes = parseInt(durationParts[1]);
+        let seconds = parseInt(durationParts[2]);
+        let endTime = new Date(startTime + (hours * 3600000) + (minutes * 60000) + (seconds * 1000)).getTime();
+        localStorage.setItem('time', endTime)  
+        setStart(endTime)
+    }
+
+    useEffect(() => {
+        // fetchQuestions()
+        getQuizById(1).then(res => {
+          console.log(res);
+          setLesson(res)
+        }).catch(err => {
+          console.log(err);
+        })
+      }, [])
+
     return (
         <div className='py-16 px-4'>
             <Row gutter={24}>
@@ -42,9 +70,14 @@ const Lesson = () => {
                 </Col>
                 <Col span={16} pull={8}>
                     <div className='mb-4 mt-2'>
+                        {/* <TimePicker onChange={(value) => console.log(value.format('hh-mm-ss'))} /> */}
                         {/* <Video /> */}
-                        {/* <Quiz /> */}
-                        <Questions />
+                        {!start ? 
+                            <Quiz handleStartQuiz={handleStartQuiz} />
+                            :
+                            lesson &&
+                            <Questions lesson={lesson} />
+                        }
                     </div>   
                 </Col>
 

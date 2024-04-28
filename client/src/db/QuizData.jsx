@@ -11,8 +11,85 @@ const QuizData = [
         passMarks: faker.number.int({ max: 10 }),
         questions: [
             {
+                id: faker.string.uuid(),
                 title: faker.commerce.productName(),
-                type: faker.helpers.enumValue({mcq: "mcq", scq: "scq", fill: "fill"}), 
+                type: faker.helpers.enumValue({mcq: "mcq", scq: "scq"}), 
+                options: [
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    }
+                ]
+            },
+            {
+                id: faker.string.uuid(),
+                title: faker.commerce.productName(),
+                type: faker.helpers.enumValue({mcq: "mcq", scq: "scq"}), 
+                options: [
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    }
+                ]
+            },
+            {
+                id: faker.string.uuid(),
+                title: faker.commerce.productName(),
+                type: faker.helpers.enumValue({mcq: "mcq", scq: "scq"}), 
+                options: [
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    }
+                ]
+            },
+            {
+                id: faker.string.uuid(),
+                title: faker.commerce.productName(),
+                type: faker.helpers.enumValue({mcq: "mcq", scq: "scq"}), 
+                options: [
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    },
+                    {
+                        isSelected: faker.datatype.boolean(),
+                        label: faker.commerce.productName(),
+                    }
+                ]
+            },
+            {
+                id: faker.string.uuid(),
+                title: faker.commerce.productName(),
+                type: faker.helpers.enumValue({mcq: "mcq", scq: "scq"}), 
                 options: [
                     {
                         isSelected: faker.datatype.boolean(),

@@ -151,7 +151,7 @@ const AdminLayout = ({ children }) => {
             textAlign: 'center',
           }}
         >
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          Fun Course ©{new Date().getFullYear()}
         </Footer>
       </Layout>
     </Layout>

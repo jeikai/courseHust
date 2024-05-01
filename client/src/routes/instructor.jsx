@@ -22,5 +22,5 @@ const Routes = [
         title: 'Funbug - Create Lesson | E-Learning'
     }
 ]
-
+ 
 export default Routes;

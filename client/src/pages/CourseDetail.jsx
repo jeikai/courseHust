@@ -247,7 +247,7 @@ const Instructor = ({ instructorId, navigate }) => {
 const CourseDetail = () => {
   const { courseId } = useParams();
   const course = useAPI(`/api/course/${courseId}`, null);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const viewContext = useContext(ViewContext);
   let totalQuizs = 0;
   if (course.loading) return <Loader />;

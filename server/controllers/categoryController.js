@@ -17,4 +17,13 @@ exports.create = async function(req, res){
     }catch(e){
         return res.status(500).json({message: e.message})
     }
+} 
+
+exports.get = async function(req, res) {
+    try {
+        const response = await categoryModel.get();
+        return res.status(200).json({response})
+    } catch (error) {
+        return res.status(500).json({message: error.message})
+    }
 }

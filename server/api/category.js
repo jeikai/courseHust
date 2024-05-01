@@ -4,5 +4,6 @@ const authMiddleware = require('../middlewares/authMiddleware')
 const use = require('../helper/utility').use
 
 api.post('/category', authMiddleware.protectAdmin, use(categoryController.create))
+api.get('/category', use(categoryController.get))
 
-module.exports = api
+module.exports = api 

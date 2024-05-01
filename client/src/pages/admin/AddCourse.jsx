@@ -11,13 +11,14 @@ import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities'
 import RowSection from '../../components/admin/RowSection'
 import Spring from '../../components/Spring'
+import { useAPI } from '../../hooks/api'
 
 const AddCourse = () => {
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
     const [formLesson] = Form.useForm()
     const [formEditLesson] = Form.useForm()
-    const [formSection] = Form.useForm()
+    const [formSection] = Form.useForm() 
     const [formEditSection] = Form.useForm()
     const [formQuiz] = Form.useForm()
     const [formEditQuiz] = Form.useForm()
@@ -31,6 +32,8 @@ const AddCourse = () => {
     const [openEditLesson, setOpenEditLesson] = useState(false)
     const [openInputQuiz, setOpenInputQuiz] = useState(false)
     const [openEditQuiz, setOpenEditQuiz] = useState(false)
+    const options = useAPI("/api/category", null).data
+    console.log(options)
     const [data, setData] = useState({
         title: '',
         category: '',
@@ -56,24 +59,24 @@ const AddCourse = () => {
         },
     ]
 
-    const options = [
-        {
-            label: 'Math',
-            value: 'Math',
-        },
-        {
-            label: 'Physic',
-            value: 'Physic',
-        },
-        {
-            label: 'Literature',
-            value: 'Literature',
-        },
-        {
-            label: 'Chemistry',
-            value: 'Chemistry',
-        },
-    ];
+    // const options = [
+    //     {
+    //         label: 'Math',
+    //         value: 'Math',
+    //     },
+    //     {
+    //         label: 'Physic',
+    //         value: 'Physic',
+    //     },
+    //     {
+    //         label: 'Literature',
+    //         value: 'Literature',
+    //     },
+    //     {
+    //         label: 'Chemistry',
+    //         value: 'Chemistry',
+    //     },
+    // ];
     const filterOption = (input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -272,6 +275,7 @@ const AddCourse = () => {
         const field = form.getFieldsValue()
         field.description = field.description?.level?.content
         setData({ ...data, ...field })
+        console.log(current)
     }, [current])
 
     const serverUpload = async (options, callback) => {
@@ -333,16 +337,20 @@ const AddCourse = () => {
                             placeholder="Select a person"
                             options={[
                                 {
-                                    label: 'Intermediate',
+                                    label: 'basic',
+                                    value: 'basic'
+                                },
+                                {
+                                    label: 'intermediate',
                                     value: 'intermediate'
                                 },
                                 {
-                                    label: 'Advanced',
+                                    label: 'advanced',
                                     value: 'advanced'
                                 },
                                 {
-                                    label: 'Beginner',
-                                    value: 'beginner'
+                                    label: 'specialized',
+                                    value: 'specialized'
                                 },
                             ]}
                             size='large'

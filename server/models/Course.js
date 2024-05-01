@@ -50,11 +50,16 @@ exports.create = async function (data) {
 exports.get = async function (query) {
     try {
         if (!query)
-            return await Course.find({})
+            return await Course.find({}).populate(['sections', 'instructorId', 'categoryId']).populate({
+                path: 'sections',
+                populate: { path: 'specs._id' }
+            })
+                .populate('instructorId')
+                .populate('categoryId');
         if (query.hasOwnProperty('courseId')) {
             return await Course.findById(query.courseId).populate(['sections', 'instructorId', 'categoryId']).populate({
                 path: 'sections',
-                populate: { path: 'specs._id' } 
+                populate: { path: 'specs._id' }
             })
                 .populate('instructorId')
                 .populate('categoryId');

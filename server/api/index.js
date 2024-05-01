@@ -10,5 +10,6 @@ module.exports = [
   require('./upload'),
   require('./lesson'),
   require('./quiz'),
-  require('./calendar')
+  require('./calendar'),
+  require('./recommendation')
 ]

@@ -29,8 +29,26 @@ exports.get = async function(data){
         
         let query = {}
         if(data.categoryId) query._id = data.categoryId
-        if(data.categoryTitle) query.title = data.categoryTitle
-        return await Category.findOne(query).lean()
+        if(data.title) query.title = data.title
+        return await Category.find(query).lean()
+    }catch(e){
+        return {error: e}
+    }
+}
+
+exports.update = async function(categoryId, data){
+    try{
+        const result = await Category.findByIdAndUpdate(categoryId, data)
+        return await Category.findById(result._id)
+    }catch(err){
+        return {error: err}
+    }
+}
+
+exports.delete = async function(categoryId){
+    try{
+        const result = await Category.findByIdAndDelete(categoryId)
+        return result
     }catch(e){
         return {error: e}
     }

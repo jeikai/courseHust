@@ -86,3 +86,12 @@ exports.addSection = async function(courseId, sectionId){
         return {error: err}
     }
 }
+
+exports.update = async function(courseId, data){
+    try{
+        const result = await Course.findByIdAndUpdate(courseId, data)
+        return await Course.findById(result._id)
+    }catch(err){
+        return {error: err}
+    }
+}

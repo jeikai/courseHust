@@ -15,6 +15,8 @@ api.get('/course/instructor', use(courseController.getByInstructorId))
 
 api.get('/course/:courseId', use(courseController.getById))
 
+api.put('/course/:courseId', use(courseController.update))
+
 
 
 module.exports = api

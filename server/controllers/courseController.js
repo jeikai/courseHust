@@ -56,7 +56,7 @@ exports.getById = async function(req, res){
         const courseId = req.params.courseId
         const data = {courseId: courseId}
         const result = await courseModel.get(data)
-        if(result.hasOwnProperty('error')) return res.status(500).json({message: result.error})
+        if(!result || result.error) return res.status(500).json({message: "fail to find"})
 
         return res.status(200).json(result)
     }catch(e){
@@ -71,7 +71,6 @@ exports.getByCategory = async function(req, res){
         query.categoryTitle = req.body.categoryTitle || ''
 
         const courses = await courseModel.get(query)
-        console.log(courses);
         if(courses.hasOwnProperty('error')) return res.status(500).json({message: courses.error})
 
         return res.status(200).json(courses)
@@ -115,6 +114,19 @@ exports.getByInstructorId = async function(req, res){
         if(courses.hasOwnProperty('error')) return res.status(500).json({message: courses.error})
         
         return res.status(200).json(courses)
+    }catch(e){
+        return res.status(500).json({message: e.message})
+    }
+}
+
+
+exports.update = async function(req, res){
+    try{
+        const courseId = req.params.courseId
+        const data = req.body
+        const result = await courseModel.update(courseId, data)
+        if(result.error) return res.status(500).json({message: "Failed to update", data: result.error})
+        return res.status(200).json(result)
     }catch(e){
         return res.status(500).json({message: e.message})
     }

@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs')
 exports.register = async function(req, res){
     try{
         const data = req.body
-        utility.validate(data, ['email', 'password', 'name'])
+        utility.validate(data, ['email', 'password', 'first_name', 'last_name'])
 
         const checkEmail = await userModel.get(data)
         if(checkEmail) return res.status(400).json({message: 'Account existed! Please try with a different email'})

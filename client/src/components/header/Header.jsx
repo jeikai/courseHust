@@ -110,6 +110,7 @@ const Header = () => {
   let itemProfile = [];
   if (temp != null) {
     user = JSON.parse(temp);
+    console.log(user.account);
     itemProfile = [
       {
         key: "1",
@@ -165,7 +166,6 @@ const Header = () => {
 
   const handleClickCourses = (props) => {
     console.log(props);
-    // navigate(key)
     const path = props.keyPath.reverse().join("/");
     navigate(path, { replace: true });
   };
@@ -230,14 +230,6 @@ const Header = () => {
               </Flex>
             </a>
           </div>
-          <div className="px-4 py-2 rounded cursor-pointer">
-            <a href="#">
-              <Flex align="center" gap={2} className="text-base font-semibold">
-                <span>More</span>
-                <DownOutlined />
-              </Flex>
-            </a>
-          </div>
 
           {authContext.user ? (
             <>
@@ -251,6 +243,18 @@ const Header = () => {
                   </Link>
                 </Flex>
               </div>
+              {user.account.role == "teacher" ? (
+                <div className="px-4 py-2 rounded cursor-pointer">
+                  <Flex align="center" gap={2} className="text-black">
+                    <Link to={"/admin"} className="text-base font-semibold">
+                      Instructor
+                    </Link>
+                  </Flex>
+                </div>
+              ) : (
+                <></>
+              )}
+
               <div className="py-2 rounded cursor-pointer">
                 <Flex align="center" gap={2}>
                   <Dropdown

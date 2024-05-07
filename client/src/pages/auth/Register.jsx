@@ -9,16 +9,21 @@ import {
   Upload,
 } from "antd";
 // import Layout from "../../layout/AppLayout"
-import login from '../../assets/login-security.gif'
-import { KeyOutlined, PhoneFilled, UploadOutlined, UserOutlined } from "@ant-design/icons"
-import { useContext, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { AuthContext } from "../../context/Auth"
-import Loader from "../../components/Loader"
-import Axios from "axios"
-import { ViewContext } from "../../context/View"
-import axios from "axios"
-import Spring from "../../components/Spring"
+import login from "../../assets/login-security.gif";
+import {
+  KeyOutlined,
+  PhoneFilled,
+  UploadOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/Auth";
+import Loader from "../../components/Loader";
+import Axios from "axios";
+import { ViewContext } from "../../context/View";
+import axios from "axios";
+import Spring from "../../components/Spring";
 const Register = () => {
   const [checked, setChecked] = useState(false);
 
@@ -110,6 +115,7 @@ const Register = () => {
         method: "POST",
         data: data,
       });
+      viewContext.handleSuccess("Sign up successfully")
       navigate(authContext.signin(res));
     } catch (error) {
       console.log(error);
@@ -224,7 +230,7 @@ const Register = () => {
                 <>
                   <Form.Item
                     hasFeedback
-                    name="phone" 
+                    name="phone"
                     rules={[
                       {
                         type: "regexp",
@@ -315,7 +321,7 @@ const Register = () => {
         </Col>
       </Row>
     </Spring>
-  ) 
-}
+  );
+};
 
 export default Register;

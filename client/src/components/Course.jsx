@@ -32,9 +32,6 @@ const Course = ({list = "Grid", course = {}}) => {
                         </p>
                         <p>(2 Reviews)</p>
                     </Flex>
-                    <Button size="small" type="primary" className="bg-[#754FFE]" icon={<RetweetOutlined />}>
-                        Compare
-                    </Button>
                 </Flex>
                 <p className="my-2 text-line-2 text-[#6e798a]">{course.description}</p>
                 <Flex align="center" justify="space-between" className="pt-4 border-t-[0.5px] border-[#6e798a]">

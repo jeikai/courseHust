@@ -32,43 +32,6 @@ const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   let user;
-  const items = [
-    {
-      key: "/courses",
-      label: <Link to={`/courses`}>Web Design</Link>,
-      icon: <LaptopOutlined />,
-      children: [
-        {
-          key: "2-1",
-          label: "3rd menu item",
-        },
-        {
-          key: "2-2",
-          label: "4th menu item",
-        },
-      ],
-    },
-    {
-      key: "2",
-      label: "Graphic Design",
-      icon: <EditOutlined />,
-      children: [
-        {
-          key: "3-1",
-          label: "5d menu item",
-        },
-        {
-          key: "3-2",
-          label: "6th menu item",
-        },
-      ],
-    },
-    {
-      key: "2",
-      label: "Graphic Design",
-      icon: <EditOutlined />,
-    },
-  ];
   const itemCart = [
     {
       key: "1",
@@ -165,9 +128,13 @@ const Header = () => {
   };
 
   const handleClickCourses = (props) => {
-    console.log(props);
-    const path = props.keyPath.reverse().join("/");
-    navigate(path, { replace: true });
+    try {
+      console.log(props);
+      const path = props.keyPath.reverse().join("/");
+      navigate(path, { replace: true });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -178,55 +145,49 @@ const Header = () => {
         </Link>
         <Flex justify="space-between" className="flex-1">
           <div className="bg-[#754ffe58] px-4 py-2 rounded cursor-pointer">
-            <a href="#">
+            <a href="/">
               <Flex align="center" gap={8} className="text-base text-[#754FFE]">
-                <Dropdown
-                  menu={{
-                    items,
-                    onClick: handleClickCourses,
-                  }}
-                  placement="bottom"
-                >
+               
                   <Space>
                     <MenuOutlined />
-                    <span>Courses</span>
+                    <span>Home</span>
                   </Space>
-                </Dropdown>
+      
               </Flex>
             </a>
           </div>
           <div className="px-4 py-2 rounded cursor-pointer">
             <a href="#">
               <Flex align="center" gap={2} className="text-base font-semibold">
-                <span>Course bundle</span>
+                <span></span>
               </Flex>
             </a>
           </div>
           <div className="px-4 py-2 rounded cursor-pointer">
             <a href="#">
               <Flex align="center" gap={2} className="text-base font-semibold">
-                <span>Bootcamps</span>
+                <span></span>
               </Flex>
             </a>
           </div>
           <div className="px-4 py-2 rounded cursor-pointer">
             <a href="#">
               <Flex align="center" gap={2} className="text-base font-semibold">
-                <span>Team training</span>
+                <span></span>
               </Flex>
             </a>
           </div>
           <div className="px-4 py-2 rounded cursor-pointer">
             <a href="#">
               <Flex align="center" gap={2} className="text-base font-semibold">
-                <span>Ebook</span>
+                <span></span>
               </Flex>
             </a>
           </div>
           <div className="px-4 py-2 rounded cursor-pointer">
             <a href="#">
               <Flex align="center" gap={2} className="text-base font-semibold">
-                <span>Find a tutor</span>
+                <span></span>
               </Flex>
             </a>
           </div>
@@ -283,20 +244,7 @@ const Header = () => {
                   </Dropdown>
                 </Flex>
               </div>
-              <div className="py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2}>
-                  <Dropdown
-                    menu={{
-                      items: itemCart,
-                    }}
-                    placement="bottomRight"
-                  >
-                    <Badge count={0}>
-                      <BellOutlined className="text-2xl" />
-                    </Badge>
-                  </Dropdown>
-                </Flex>
-              </div>
+
               <div className="px-4 py-2 rounded cursor-pointer">
                 <Flex align="center" gap={2} className="text-black">
                   <Dropdown

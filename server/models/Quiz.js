@@ -14,7 +14,7 @@ const QuizSchema = new Schema({
 const Quiz = mongoose.model('Quiz', QuizSchema, 'quizs')
 exports.schema = Quiz
 
-exports.create = async function (data) {
+exports.create = async function  (data) {
     try {
         const quizData = {
             title: data.title,

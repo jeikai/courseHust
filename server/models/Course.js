@@ -74,7 +74,12 @@ exports.get = async function (query) {
             // const regex = new RegExp(query.title, 'i')
             return await Course.find({ title: { $regex: query.title, $options: 'i' } })
         } else if (query.hasOwnProperty('instructorId')) {
-            return await Course.find({ instructorId: query.instructorId })
+            return await Course.find({ instructorId: query.instructorId }).populate(['sections', 'instructorId', 'categoryId']).populate({
+                path: 'sections',
+                populate: { path: 'specs._id' }
+            })
+                .populate('instructorId')
+                .populate('categoryId');
         }
 
     } catch (err) {

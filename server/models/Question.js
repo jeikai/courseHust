@@ -6,6 +6,7 @@ const QuestionSchema = new Schema({
     level: { type: String, enum: ['perception', 'comprehension', 'application', 'advanced application'], required: true, default: 'perception' },
     options: [{ type: String, default: '' }],
     answer: { type: String, default: '' },
+    mark: { type: Number, default: 0 },
     date_created: Date,
     date_updated: Date
 })
@@ -22,12 +23,13 @@ exports.create = async function (data) {
             level: data.level,
             options: data.options,
             answer: data.answer,
+            mark: data.mark,
             date_created: new Date(),
             date_updated: new Date()
         }
         const newQuestion = Question(questionData)
         await newQuestion.save()
-        return {data: newQuestion}
+        return { data: newQuestion }
     } catch (error) {
         return { error: error }
     }

@@ -1,65 +1,112 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react'
-import Bread from '../../components/Bread'
-import { Avatar, Button, Col, ConfigProvider, Collapse, DatePicker, Flex, Form, Input, InputNumber, Modal, Radio, Row, Select, Space, Switch, TimePicker, Typography } from 'antd'
-import { CloseOutlined, DeleteOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons'
-import Question from '../../components/Question'
-import Spring from '../../components/Spring'
-import scq from '../../assets/scq.svg'
-import mcq from '../../assets/mcq.svg'
-import fill from '../../assets/fill.svg'
-import FormItem from 'antd/es/form/FormItem'
-import { createQuiz } from '../../api/quiz'
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import Bread from "../../components/Bread";
+import {
+  Avatar,
+  Button,
+  Col,
+  ConfigProvider,
+  Collapse,
+  DatePicker,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Radio,
+  Row,
+  Select,
+  Space,
+  Switch,
+  TimePicker,
+  Typography,
+} from "antd";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  MoreOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import Question from "../../components/Question";
+import Spring from "../../components/Spring";
+import scq from "../../assets/scq.svg";
+import mcq from "../../assets/mcq.svg";
+import fill from "../../assets/fill.svg";
+import FormItem from "antd/es/form/FormItem";
+import { createQuiz } from "../../api/quiz";
+import { useAPI } from "../../hooks/api";
 const AddQuiz = () => {
   const breadcrumb = [
     {
-      title: 'Home',
-      href: '',
+      title: "Home",
+      href: "",
     },
     {
-      title: 'Quiz',
+      title: "Quiz",
     },
-  ]
-  const [formQuiz] = Form.useForm()
+  ];
+  const [formQuiz] = Form.useForm();
+  const [course, setCourse] = useState([]);
+  const userId = JSON.parse(localStorage.getItem("user")).account;
+  const courseResponseApi = useAPI(
+    `/api/course/instructor/${userId._id}`,
+    null
+  ).data;
+  console.log(courseResponseApi);
+  useEffect(() => {
+    if (courseResponseApi) {
+      setCourse(
+        courseResponseApi.map((course) => ({
+          label: course.title,
+          value: course._id,
+        }))
+      );
+    }
+  }, [courseResponseApi]);
 
   const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
-    if (questions[indexQuestion].type === 'scq') {
-      questions[indexQuestion].options = questions[indexQuestion].options.map((option, i) => {
-        if (indexOption === i) {
-          option.isSelected = true;
-        } else {
-          option.isSelected = false;
+    if (questions[indexQuestion].type === "scq") {
+      questions[indexQuestion].options = questions[indexQuestion].options.map(
+        (option, i) => {
+          if (indexOption === i) {
+            option.isSelected = true;
+          } else {
+            option.isSelected = false;
+          }
+          return option;
         }
-        return option;
-      });
+      );
     }
     formQuiz.setFieldsValue({ questions });
   };
 
   const handleFinish = (data) => {
     console.log(data);
-    
-    createQuiz(data).then((res) => {
-      console.log(res);
-    }).catch((err) => {
-      console.log(err);
-    })
-  }
-  
+
+    createQuiz(data)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const filterOption = (input, option) =>
+    (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
   return (
     <Spring>
       <Bread title="Add a new quiz" items={breadcrumb} />
       <div>
         <Form
           form={formQuiz}
-          layout='vertical'
+          layout="vertical"
           // onValuesChange={handleFormQuizChange}
           onFinish={handleFinish}
         >
           <Row gutter={12}>
             <Col span={8}>
-              <Row className='shadow-md border bg-white p-8'>
+              <Row className="shadow-md border bg-white p-8">
                 <Col span={24}>
                   <Form.Item
                     name={"title"}
@@ -71,136 +118,231 @@ const AddQuiz = () => {
                 <Col span={24}>
                   <Form.Item
                     name={"duration"}
-                    label={<Typography.Title level={5}>Quiz duration</Typography.Title>}
+                    label={
+                      <Typography.Title level={5}>
+                        Quiz duration
+                      </Typography.Title>
+                    }
                   >
-                    <TimePicker className='w-full' />
+                    <TimePicker className="w-full" />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
                   <Form.Item
                     name={"deadline"}
-                    label={<Typography.Title level={5}>Quiz deadline</Typography.Title>}
+                    label={
+                      <Typography.Title level={5}>
+                        Quiz deadline
+                      </Typography.Title>
+                    }
                   >
                     <DatePicker.RangePicker
-                      className='w-full'
+                      className="w-full"
                       showTime={{
-                        format: 'HH:mm',
+                        format: "HH:mm",
                       }}
                       format="YYYY-MM-DD HH:mm"
-                      onChange={(value, dateString) => console.log(value, dateString)}
+                      onChange={(value, dateString) =>
+                        console.log(value, dateString)
+                      }
                       onOk={(value) => console.log(value)}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
                   <Form.Item
-                    name={"totalMarks"}
-                    label={<Typography.Title level={5}>Total marks</Typography.Title>}
+                    name={"course"}
+                    label={
+                      <Typography.Title level={5}>Course</Typography.Title>
+                    }
                   >
-                    <InputNumber className='w-full' min={1} changeOnWheel />
-
+                    <Select
+                      showSearch
+                      placeholder="Select a course"
+                      optionFilterProp="children"
+                      filterOption={filterOption}
+                      options={course}
+                      size="large"
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
                   <Form.Item
-                    name={"passMarks"}
-                    label={<Typography.Title level={5}>Pass marks</Typography.Title>}
+                    name={"section"}
+                    label={
+                      <Typography.Title level={5}>Section</Typography.Title>
+                    }
                   >
-                    <InputNumber className='w-full' min={1} changeOnWheel />
-
+                    <Select
+                      showSearch
+                      placeholder="Select a course"
+                      optionFilterProp="children"
+                      filterOption={filterOption}
+                      options={course}
+                      size="large"
+                    />
                   </Form.Item>
                 </Col>
               </Row>
             </Col>
             <Col span={16}>
-              <Row className='shadow-md border bg-white p-8'>
-                <Form.List name={"questions"}
-                >
+              <Row className="shadow-md border bg-white p-8">
+                <Form.List name={"questions"}>
                   {(fields, { add, remove }) => (
-                    <Row gutter={[12, 12]} className='w-full'>
+                    <Row gutter={[12, 12]} className="w-full">
                       <Col span={24}>
-                        <Flex align='center' justify='space-between'>
-                          <Button htmlType='submit' className='bg-[#754FFE] text-white' size='large'>Save</Button>
-                          <Button className='' size='large' onClick={() => add()}>Add a new question</Button>
+                        <Flex align="center" justify="space-between">
+                          <Button
+                            htmlType="submit"
+                            className="bg-[#754FFE] text-white"
+                            size="large"
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            className=""
+                            size="large"
+                            onClick={() => add()}
+                          >
+                            Add a new question
+                          </Button>
                         </Flex>
                       </Col>
                       {fields.map((field, index) => (
                         <Fragment key={index}>
-                          <Col span={24} >
-                            <Flex align='center' justify='space-between' style={{ marginBottom: 12 }}>
-                              <Flex align='center' gap={8} flex={1}>
-                                <Typography.Title style={{ marginBottom: 0 }} level={5}>Question {index + 1}:</Typography.Title>
-                                <Form.Item style={{ marginBottom: 0 }} name={[field.name, "title"]}>
-                                  <Input placeholder='Title here' style={{ width: '400px' }} />
+                          <Col span={24}>
+                            <Flex
+                              align="center"
+                              justify="space-between"
+                              style={{ marginBottom: 12 }}
+                            >
+                              <Flex align="center" gap={8} flex={1}>
+                                <Typography.Title
+                                  style={{ marginBottom: 0 }}
+                                  level={5}
+                                >
+                                  Question {index + 1}:
+                                </Typography.Title>
+                                <Form.Item
+                                  style={{ marginBottom: 0 }}
+                                  name={[field.name, "title"]}
+                                >
+                                  <Input
+                                    placeholder="Title here"
+                                    style={{ width: "400px" }}
+                                  />
                                 </Form.Item>
                               </Flex>
                               <Flex gap={4}>
                                 <Form.Item
                                   name={[field.name, "type"]}
-                                  initialValue={'mcq'}
+                                  initialValue={"mcq"}
                                   noStyle
                                 >
-                                  <Select placeholder='Select question type' >
-                                    <Select.Option value='mcq' >Multiple choice</Select.Option>
-                                    <Select.Option value='scq'>Single choice and True/False</Select.Option>
-                                    <Select.Option value='fill'>Fill in the blank</Select.Option>
+                                  <Select placeholder="Select question type">
+                                    <Select.Option value="mcq">
+                                      Multiple choice
+                                    </Select.Option>
+                                    <Select.Option value="scq">
+                                      Single choice and True/False
+                                    </Select.Option>
+                                    <Select.Option value="fill">
+                                      Fill in the blank
+                                    </Select.Option>
                                   </Select>
                                 </Form.Item>
-                                <Button onClick={() => remove(field.name)} danger icon={<DeleteOutlined />}></Button>
+                                <Button
+                                  onClick={() => remove(field.name)}
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                ></Button>
                               </Flex>
                             </Flex>
                             <Form.Item>
-                              <Form.List name={[field.name, 'options']}
+                              <Form.List
+                                name={[field.name, "options"]}
                                 initialValue={[
                                   {
                                     isSelected: true,
-                                    label: ''
-                                  }
+                                    label: "",
+                                  },
                                 ]}
                               >
                                 {(subFields, subOpt) => (
                                   <div
                                     style={{
-                                      display: 'flex',
-                                      flexDirection: 'column',
+                                      display: "flex",
+                                      flexDirection: "column",
                                       rowGap: 16,
                                     }}
                                   >
                                     {subFields.map((subField) => (
                                       <Flex key={subField.key}>
-                                        <Flex align='center' justify='space-between' className='w-full'>
-                                          <Flex align='center' gap={12}>
+                                        <Flex
+                                          align="center"
+                                          justify="space-between"
+                                          className="w-full"
+                                        >
+                                          <Flex align="center" gap={12}>
                                             <ConfigProvider
                                               theme={{
                                                 components: {
                                                   Switch: {
                                                     // handleBg: '#ccc'
-                                                  }
+                                                  },
                                                 },
                                                 token: {
-                                                  colorPrimary: '#754FFE'
+                                                  colorPrimary: "#754FFE",
                                                   /* here is your global tokens */
                                                 },
                                               }}
                                             >
-                                              <Form.Item noStyle name={[subField.name, 'isSelected']} valuePropName="checked">
-                                                <Switch onChange={() => handleSetAsDefaultChange(field.key, subField.key)} checked></Switch>
+                                              <Form.Item
+                                                noStyle
+                                                name={[
+                                                  subField.name,
+                                                  "isSelected",
+                                                ]}
+                                                valuePropName="checked"
+                                              >
+                                                <Switch
+                                                  onChange={() =>
+                                                    handleSetAsDefaultChange(
+                                                      field.key,
+                                                      subField.key
+                                                    )
+                                                  }
+                                                  checked
+                                                ></Switch>
                                               </Form.Item>
                                             </ConfigProvider>
-                                            <Form.Item noStyle name={[subField.name, 'label']}>
-                                              <Input placeholder="Question title" style={{ width: 400 }} />
+                                            <Form.Item
+                                              noStyle
+                                              name={[subField.name, "label"]}
+                                            >
+                                              <Input
+                                                placeholder="Question title"
+                                                style={{ width: 400 }}
+                                              />
                                             </Form.Item>
                                           </Flex>
-                                          {subField.name === 0 && 
-                                            <Button icon={<PlusOutlined />} onClick={() => {
-                                              subOpt.add();
-                                            }}></Button>
-                                          }
-                                          {subField.name !== 0 && 
-                                            <Button danger icon={<DeleteOutlined />} onClick={() => {
-                                              subOpt.remove(subField.name);
-                                            }}></Button>
-                                          }
+                                          {subField.name === 0 && (
+                                            <Button
+                                              icon={<PlusOutlined />}
+                                              onClick={() => {
+                                                subOpt.add();
+                                              }}
+                                            ></Button>
+                                          )}
+                                          {subField.name !== 0 && (
+                                            <Button
+                                              danger
+                                              icon={<DeleteOutlined />}
+                                              onClick={() => {
+                                                subOpt.remove(subField.name);
+                                              }}
+                                            ></Button>
+                                          )}
                                         </Flex>
                                       </Flex>
                                     ))}
@@ -220,7 +362,7 @@ const AddQuiz = () => {
         </Form>
       </div>
     </Spring>
-  )
-}
+  );
+};
 
-export default AddQuiz
+export default AddQuiz;

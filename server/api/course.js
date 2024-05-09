@@ -11,7 +11,7 @@ api.get('/course/category', use(courseController.getByCategory))
 
 api.get('/course/title', use(courseController.getByTitle))
 
-api.get('/course/instructor', use(courseController.getByInstructorId))
+api.get('/course/instructor/:instructorId', use(courseController.getByInstructorId))
 
 api.get('/course/:courseId', use(courseController.getById))
 

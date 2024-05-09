@@ -18,37 +18,17 @@ const Header = () => {
     const navigate = useNavigate()
     const items = [
         {
-            key: '/courses',
-            label: <Link to={`/courses`}>Web Design</Link>,
+            key: 'Web Design',
+            label: 'Web Design',
             icon: <LaptopOutlined />,
-            children: [
-                {
-                    key: '2-1',
-                    label: '3rd menu item',
-                },
-                {
-                    key: '2-2',
-                    label: '4th menu item',
-                },
-            ],
         },
         {
-            key: '2',
+            key: 'Graphic Design',
             label: 'Graphic Design',
             icon: <EditOutlined />,
-            children: [
-                {
-                    key: '3-1',
-                    label: '5d menu item',
-                },
-                {
-                    key: '3-2',
-                    label: '6th menu item',
-                },
-            ],
         },
         {
-            key: '2',
+            key: 'Graphic Design',
             label: 'Graphic Design',
             icon: <EditOutlined />,
         },
@@ -125,8 +105,8 @@ const Header = () => {
     const handleClickCourses =(props) => {
         console.log(props);
         // navigate(key)
-        const path = props.keyPath.reverse().join('/')
-        // navigate(path, {replace: true})
+        // const path = props.keyPath.reverse().join('/')
+        navigate(`/courses?categoryname=${props.key}`, {replace: true})
     }
 
     return (

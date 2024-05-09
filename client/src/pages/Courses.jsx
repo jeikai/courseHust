@@ -4,9 +4,84 @@ import book from '../assets/brd-book.png'
 import { Breadcrumb, Col, ConfigProvider, Radio, Rate, Row, Segmented, Space, Typography } from "antd";
 import { AppstoreOutlined, BarsOutlined, HomeOutlined } from "@ant-design/icons";
 import Course from "../components/Course";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getCategories } from '../api/category';
+import { useLocation } from 'react-router-dom'
+
 const Courses = () => {
   const [list, setList] = useState('List')
+
+  const location = useLocation();
+  const [categories, setCategories] = useState([])
+  const [courses, setCourses] = useState()
+  const [param, setParam] = useState({
+    categoryname: "all",
+    price: "all",
+    level: "all",
+    rating: "all",
+  })
+  useEffect(() => {
+    getCategories().then(categories => {
+
+      setCategories(categories);
+
+    })
+  }, [])
+
+  const handleGetCourses = () => {
+    
+  }
+
+  useEffect(() => {
+    debugger
+    const urlParams = new URLSearchParams(window.location.search)
+    let newParam = param
+    if(urlParams.get('categoryname')) {
+      newParam.categoryname = urlParams.get('categoryname')
+    }
+
+    if(urlParams.get('price')) {
+      newParam.price = urlParams.get('price')
+    }
+
+    if(urlParams.get('level')) {
+      newParam.level = urlParams.get('level')
+    }
+
+    if(urlParams.get('rating')) {
+      newParam.rating = parseInt(urlParams.get('rating'))
+    }
+
+    setParam(newParam)
+
+    // Call Api filter function
+  }, [location])
+
+
+  const handleChangeParams = (type, value) => {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has(type)) {
+      // Param đã tồn tại, thay đổi giá trị
+      urlParams.set(type, value);
+
+      if(value === "all") {
+        urlParams.delete(type);
+      }
+    } else {
+      // Param không tồn tại, thêm mới
+      urlParams.append(type, value);
+    }
+  
+    // Cập nhật URL mới
+    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+    window.history.replaceState(null, null, newUrl);
+  
+    // Cập nhật state của ứng dụng
+    setParam({ ...param, [type]: value });
+  }
+
+
   return (
     <>
       <section style={{ backgroundImage: `url(${breadcramb})` }} className="my-6">
@@ -41,43 +116,46 @@ const Courses = () => {
               <Space direction="vertical">
                 <Space direction="vertical" className="p-4">
                   <Typography.Title level={4} className="border-b-2 border-purple-400">Categories</Typography.Title>
-                  <Radio.Group>
+                  <Radio.Group onChange={(e) => handleChangeParams("categoryname", e.target.value)} value={param.categoryname}>
                     {/* <Typography.Paragraph ellipsis={ellipsis}> */}
                       <Space direction="vertical">
-                        <Radio className="text-base" value={1}>Option A</Radio>
-                        <Radio className="text-base" value={2}>Option B</Radio>
-                        <Radio className="text-base" value={3}>Option C</Radio>
+                        <Radio className="text-base" value={"all"}>{"All"}</Radio>
+                        {categories.map(category => {
+                          return (
+                            <Radio className="text-base" value={category.title}>{category.title}</Radio>
+                          )
+                        })}
                       </Space>
                     {/* </Typography.Paragraph> */}
                   </Radio.Group>
                 </Space>
                 <Space direction="vertical" className="p-4">
                   <Typography.Title level={4} className="border-b-2 border-purple-400">Price</Typography.Title>
-                  <Radio.Group>
+                  <Radio.Group onChange={(e) => handleChangeParams("price", e.target.value)} value={param.price}>
                       <Space direction="vertical">
-                        <Radio className="text-base" value={1}>All</Radio>
-                        <Radio className="text-base" value={2}>Free</Radio>
-                        <Radio className="text-base" value={3}>Paid</Radio>
+                        <Radio className="text-base" value={"all"}>All</Radio>
+                        <Radio className="text-base" value={"free"}>Free</Radio>
+                        <Radio className="text-base" value={"paid"}>Paid</Radio>
                       </Space>
                   </Radio.Group>
                 </Space>
                 <Space direction="vertical" className="p-4">
                   <Typography.Title level={4} className="border-b-2 border-purple-400">Level</Typography.Title>
-                  <Radio.Group>
+                  <Radio.Group onChange={(e) => handleChangeParams("level", e.target.value)} value={param.level}>
                       <Space direction="vertical">
-                        <Radio className="text-base" value={1}>All</Radio>
-                        <Radio className="text-base" value={2}>Beginner</Radio>
-                        <Radio className="text-base" value={3}>Intermediate</Radio>
-                        <Radio className="text-base" value={3}>Advanced</Radio>
+                        <Radio className="text-base" value={"all"}>All</Radio>
+                        <Radio className="text-base" value={"begginer"}>Beginner</Radio>
+                        <Radio className="text-base" value={"intermediate"}>Intermediate</Radio>
+                        <Radio className="text-base" value={"advanced"}>Advanced</Radio>
                       </Space>
                   </Radio.Group>
                 </Space>
                 <Space direction="vertical" className="p-4">
                   <Typography.Title level={4} className="border-b-2 border-purple-400">Rating</Typography.Title>
-                  <Radio.Group>
+                  <Radio.Group onChange={(e) => handleChangeParams("rating", e.target.value)} value={param.rating}>
                       <Space direction="vertical">
-                        <Radio className="text-base" value={1}>All</Radio>
-                        <Radio className="text-base" value={0}>
+                        <Radio className="text-base" value={"all"}>All</Radio>
+                        <Radio className="text-base" value={1}>
                           <Rate disabled defaultValue={1} />
                         </Radio>
                         <Radio className="text-base" value={2}>

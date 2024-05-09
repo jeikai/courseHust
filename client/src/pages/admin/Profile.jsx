@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Bread from '../../components/Bread'
 import { Avatar, Button, Col, Flex, Form, Input, Row, Typography, Upload } from 'antd'
 import { Editor } from '@tinymce/tinymce-react'
 import { UploadOutlined } from '@ant-design/icons'
 import Spring from '../../components/Spring'
+import { getUserById } from '../../api/user'
 
 const Profile = () => {
     
@@ -18,7 +19,23 @@ const Profile = () => {
     ]
     const [formProfile] = Form.useForm()
     const [formPassword] = Form.useForm()
-
+    const [initialForm, setInitialForm] = useState({})
+    const [isLoading, setIsLoading] = useState(true)
+    useEffect(() => {
+        getUserById(1).then(res => {
+            console.log(res);
+            setInitialForm(res)
+            setIsLoading(false)
+        }).catch(err => {
+            console.log(err);
+            setIsLoading(false)
+        })
+    }, [])
+    if(isLoading) {
+        return (
+            <div>Loading...</div>
+        )
+    }
   return (
     <section>
         <Spring>
@@ -32,6 +49,7 @@ const Profile = () => {
                         <Form
                             form={formProfile}
                             layout='vertical'
+                            initialValues={initialForm}
                         >
                             <Form.Item
                                 name={"firstName"}
@@ -75,12 +93,12 @@ const Profile = () => {
                             >
                                 <Input.TextArea placeholder='Enter your short title' size='large' />
                             </Form.Item>
-                            <Form.Item
+                            {/* <Form.Item
                                 name={"skill"}
                                 label={<Typography.Title level={5} style={{ marginBottom: 0 }}>Skill</Typography.Title>}
                             >
                                 <Input placeholder='Enter your skill' size='large' />
-                            </Form.Item>
+                            </Form.Item> */}
                             <Form.Item
                                 name={"description"}
                                 label={<Typography.Title level={5} style={{ marginBottom: 0 }}>Descriptioin</Typography.Title>}

@@ -14,7 +14,7 @@ const Category = () => {
     ]
   return (
     <Spring>
-        <Bread title="Cateogries" items={breadcrumb} label={"Add new category"} link={'/add_category'} />
+        <Bread title="Categries" items={breadcrumb} label={"Add new category"} link={'/admin/add_category'} />
 
     </Spring>
   )

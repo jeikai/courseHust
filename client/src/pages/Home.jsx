@@ -1,4 +1,4 @@
-import { Button, Carousel, Col, Collapse, Flex, Input, Row, Space, Typography } from "antd"
+import { Button, Carousel, Col, Collapse, Flex, Form, Input, Row, Space, Typography } from "antd"
 // import Layout from "../layout/AppLayout"
 import { ArrowRightOutlined, BarcodeOutlined, BulbOutlined, CameraOutlined, CodeOutlined, EditOutlined, FilePdfFilled, FileWordOutlined, FontColorsOutlined, Html5Filled, LeftCircleOutlined, LeftOutlined, MobileOutlined, PaperClipOutlined, PictureFilled, PictureOutlined, RightOutlined, SearchOutlined } from "@ant-design/icons"
 import banner from '../assets/home-3.png'
@@ -11,7 +11,9 @@ import think3 from '../assets/think-3.png'
 import bgcategories from '../assets/bgcategories.png'
 import faq2 from '../assets/faq2.jpg'
 import Course from "../components/Course"
-import { useRef } from "react"
+import { useRef, useState } from "react"
+import { useNavigate } from 'react-router-dom'
+
 const Home = () => {
   const categories = [
     {
@@ -104,6 +106,13 @@ const Home = () => {
     },
   ];
   const carousel = useRef()
+
+  const navigate = useNavigate()
+  const handleSearch = (e) => {
+    const { search } = e
+    navigate(`/courses?q=${search}`,)
+  }
+
   return (
     <>
       <section className="max-w-screen-xl m-auto py-24">
@@ -119,14 +128,19 @@ const Home = () => {
             </Typography.Text>
 
             <div className="mt-12">
-              <form action="">
-                <Space.Compact style={{ width: '90%' }} className="bg-[#F8F7FF] p-1 border">
-                  <Input size="large" placeholder="What do you want to learn?" variant="borderless" />;
-                  <Button size="large" type="primary" className="bg-[#754FFE]" icon={<SearchOutlined />}>
-                    Search
-                  </Button>
-                </Space.Compact>
-              </form>
+              <Form
+                layout="horizontal"
+                onFinish={handleSearch}
+              >
+                <Form.Item name={"search"}>
+                  <Space.Compact style={{ width: '90%' }} className="bg-[#F8F7FF] p-1 border">
+                    <Input size="large" placeholder="What do you want to learn?" variant="borderless" />;
+                    <Button htmlType="submit" size="large" type="primary" className="bg-[#754FFE]" icon={<SearchOutlined />}>
+                      Search
+                    </Button>
+                  </Space.Compact>
+                </Form.Item>
+              </Form>
             </div>
 
             <div className="mt-12">
@@ -192,7 +206,7 @@ const Home = () => {
           <Row className="mt-12" gutter={[16, 24]}>
             {categories.map((category, index) => {
               return (
-                <Col span={6} key={index}>
+                <Col span={6} key={index} onClick={() => navigate(`/courses?categoryname=${category.name}`)}>
                   <Space direction="vertical" className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500">
                     <a href="" className="mb-8 block">
                       <category.icon className="p-2 text-xl group-hover:text-white group-hover:border-white text-[#FB6871] border-2 border-[#FB6871] rounded-full" />

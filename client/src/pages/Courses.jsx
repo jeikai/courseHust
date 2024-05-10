@@ -15,6 +15,7 @@ const Courses = () => {
   const [categories, setCategories] = useState([])
   const [courses, setCourses] = useState()
   const [param, setParam] = useState({
+    q: '',
     categoryname: "all",
     price: "all",
     level: "all",
@@ -36,6 +37,11 @@ const Courses = () => {
     debugger
     const urlParams = new URLSearchParams(window.location.search)
     let newParam = param
+
+    if(urlParams.get('q')) {
+      newParam.q = urlParams.get('q')
+    }
+    
     if(urlParams.get('categoryname')) {
       newParam.categoryname = urlParams.get('categoryname')
     }
@@ -55,6 +61,9 @@ const Courses = () => {
     setParam(newParam)
 
     // Call Api filter function
+
+    handleGetCourses()
+
   }, [location])
 
 

@@ -5,8 +5,8 @@ const sectionModel = require('./Section')
 const LessonSchema = new Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
-    videoURL: { type: String, required: true },
-    docURL: { type: String },
+    videoURL: { type: String, default: '' },
+    docURL: { type: String, default: '' },
     duration: { type: Number, required: true },
     date_created: Date,
     date_updated: Date
@@ -15,8 +15,8 @@ const LessonSchema = new Schema({
 const Lesson = mongoose.model('Lesson', LessonSchema, 'lessons')
 exports.schema = Lesson
 
-exports.create = async function(data){
-    try{
+exports.create = async function (data) {
+    try {
         const lessonData = {
             title: data.title,
             content: data.content,
@@ -30,7 +30,25 @@ exports.create = async function(data){
         await newLesson.save()
         await sectionModel.addSpec(data.sectionId, newLesson._id, "lesson")
         return newLesson
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }
+
+exports.getById = async function (id) {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new Error('Invalid lesson ID');
+        }
+
+        const lesson = await Lesson.findById(id);
+        if (!lesson) {
+            return null;
+        }
+
+        return lesson;
+    } catch (err) {
+        console.error(err);  
+        throw err;        
+    }
+};

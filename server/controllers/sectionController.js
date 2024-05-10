@@ -15,7 +15,7 @@ exports.create = async function(req, res){
     }catch(e){
         return res.status(500).json({message: e.message})
     }
-}
+} 
 
 exports.getById = async function(req, res){
     try{

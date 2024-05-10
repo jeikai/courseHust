@@ -10,15 +10,8 @@ import PrivateRoute from './components/PrivateRoute'
 import { AuthContext, AuthProvider } from './context/Auth'
 import Axios from 'axios';
 
+import routes from "./routes";
 
-const routes = [
-
-  ...websiteRoutes,
-  ...authRoutes,
-  ...appRoutes,
-  ...adminRoutes,
-
-]
 function App() {
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -55,7 +48,7 @@ function App() {
     </AuthProvider>
     // <Login />
     // <Logout />
-    // <Home />
+    // <Home /> 
     // <Courses />
     // <CourseDetail />
     // <Instructor />

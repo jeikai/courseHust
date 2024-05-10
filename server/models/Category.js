@@ -14,7 +14,7 @@ exports.create = async function(data){
         const categoryData = {
             title: data.title,
             description: data.description
-        }
+        } 
         const newCategory = Category(categoryData)
         await newCategory.save()
         return newCategory

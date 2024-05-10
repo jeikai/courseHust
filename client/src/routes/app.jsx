@@ -1,5 +1,5 @@
 import Account from "../pages/Account"
-import Affiliate from "../pages/Affiliate"
+// import Affiliate from "../pages/Affiliate"
 import Bootcamp from "../pages/Bootcamp"
 import BootcampDetail from "../pages/BootcampDetail"
 import Cart from "../pages/Cart"
@@ -9,6 +9,7 @@ import Mywishlist from "../pages/Mywishlist"
 import NotFound from "../pages/NotFound"
 import Profile from "../pages/Profile"
 import Purchase from "../pages/Purchase"
+// import Affiliate from "../pages/Affiliate"
 
 const Routes = [
     {
@@ -45,13 +46,13 @@ const Routes = [
         // permission: 'student',
         title: 'Funbug - My whishlist | E-Learning'
     },
-    {
-        path: '/home/affiliate_course',
-        view: Affiliate,
-        layout: 'app',
-        // permission: 'student',
-        title: 'Funbug - Affiliate course | E-Learning'
-    },
+    // {
+    //     path: '/home/affiliate_course',
+    //     view: Affiliate,
+    //     layout: 'app',
+    //     // permission: 'student',
+    //     title: 'Funbug - Affiliate course | E-Learning'
+    // },
     {
         path: '/home/purchase_course',
         view: Purchase,
@@ -62,7 +63,7 @@ const Routes = [
     {
         path: '/home/user_profile',
         view: Profile,
-        layout: 'app',
+        layout: 'app', 
         // permission: 'student',
         title: 'Funbug - Profile | E-Learning'
     },
@@ -81,8 +82,8 @@ const Routes = [
         title: 'Funbug - Lesson | E-Learning'
     },
     {
-        path: '/home/notfound',
-        view: NotFound,
+        path: '/notfound',
+        view: NotFound, 
         layout: 'app',
         // permission: 'student',
         title: 'Funbug - 404 Not Found | E-Learning'

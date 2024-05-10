@@ -7,4 +7,4 @@ api.post('/section/:courseId', use(sectionController.create))
 
 api.get('/section', use(sectionController.getById))
 
-module.exports = api
+module.exports = api 

@@ -55,5 +55,6 @@ exports.delete = async function(req, res){
         return res.status(200).json(result)
     }catch(e){
         return res.status(500).json({message: e.message})
-    }
+    } 
 }
+

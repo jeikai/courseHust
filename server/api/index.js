@@ -3,7 +3,13 @@ module.exports = [
   require('./token'),
   require('./category'),
   require('./course'),
+  require('./enrollment'),
+  require('./instructor'),
+  require('./bill'),
   require('./section'),
   require('./upload'),
-  require('./lesson')
+  require('./lesson'),
+  require('./quiz'),
+  require('./calendar'),
+  require('./recommendation')
 ]

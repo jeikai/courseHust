@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import Axios from 'axios';
 import { ViewContext } from '../context/View';
 
-export function useAPI(url, method){
+export function useAPI(url, method, onError){
 
   // wrap in useRef to prevent triggering useEffect multiple times  
   const context = useRef(useContext(ViewContext));
@@ -19,12 +19,19 @@ export function useAPI(url, method){
 
       }
       // setState({ loading: true });
-      const res = await Axios({
+      let res;
+      await Axios({
 
         url: url,
         method: method || 'get',
-        
-      })
+
+      }).then((response) => {
+        res = response;
+      }).catch((err) => {
+        console.log(err);
+        if (onError) onError(err);
+        //throw err;
+      });
     // const data = {
     //     name: 'Cuong',
     //     email: 'dvc@gmail.com',
@@ -32,7 +39,6 @@ export function useAPI(url, method){
     //     token: 'token',
     //     permission: 'user'
     // }
-      console.log(res);
       // setState({ data: data, loading: false });
       setState({ data: res.data, loading: false });
 
@@ -52,5 +58,4 @@ export function useAPI(url, method){
   }, [fetch]);
 
   return state
-
 }

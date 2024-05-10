@@ -15,7 +15,7 @@ const Courses = () => {
             <Space direction="vertical">
               <Breadcrumb className="z-10 text-2xl"
                 items={[
-                  {
+                  { 
                     href: '',
                     title: <>
                       <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />

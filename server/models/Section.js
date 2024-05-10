@@ -21,13 +21,13 @@ const SectionSchema = new Schema({
 const Section = mongoose.model('Section', SectionSchema, 'sections')
 exports.schema = Section
 
-exports.create = async function(data){
-    try{
-        const course = await courseModel.get({courseId: data.courseId})
+exports.create = async function (data) {
+    try {
+        const course = await courseModel.get({ courseId: data.courseId })
         const sections = course.sections
         const checkSection = sections.some(item => item.title === data.title)
-        if(checkSection) {
-            return {error: "section existed in course"}
+        if (checkSection) {
+            return { error: "section existed in course" }
         }
         const sectionData = {
             title: data.title,
@@ -39,23 +39,23 @@ exports.create = async function(data){
         await newSection.save()
         await courseModel.addSection(data.courseId, newSection._id)
         return newSection
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }
 
-exports.addSpec = async function(sectionId ,id, type){
-    try{
+exports.addSpec = async function (sectionId, id, type) {
+    try {
         const section = await Section.findById(sectionId)
-        if(!section) return {error:'section not found'}
+        if (!section) return { error: 'section not found' }
 
         section.specs.push({_id: id, type: type})
         section.date_updated = new Date()
         section.markModified("specs")
         section.markModified("date_updated")
         await section.save()
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }
 
@@ -67,5 +67,5 @@ exports.get = async function(data){
         return {error: err}
     }
 }
-
+ 
 

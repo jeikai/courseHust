@@ -46,12 +46,13 @@ const AddQuiz = () => {
   ];
   const [formQuiz] = Form.useForm();
   const [course, setCourse] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
   const userId = JSON.parse(localStorage.getItem("user")).account;
   const courseResponseApi = useAPI(
     `/api/course/instructor/${userId._id}`,
     null
   ).data;
-  console.log(courseResponseApi);
   useEffect(() => {
     if (courseResponseApi) {
       setCourse(
@@ -62,6 +63,20 @@ const AddQuiz = () => {
       );
     }
   }, [courseResponseApi]);
+  useEffect(() => {
+    if (selectedCourseId) {
+      setSections([]);
+      const selectedCourse = courseResponseApi.find(
+        (c) => c._id === selectedCourseId
+      );
+      if (selectedCourse) {
+        setSections(selectedCourse.sections);
+      } else {
+        setSections([]);
+      }
+    }
+    formQuiz.setFieldsValue({ section: null });
+  }, [selectedCourseId, courseResponseApi]);
 
   const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
     const fieldQuiz = formQuiz.getFieldsValue();
@@ -91,6 +106,9 @@ const AddQuiz = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+  const handleCourseChange = (value) => {
+    setSelectedCourseId(value);
   };
   const filterOption = (input, option) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
@@ -162,6 +180,7 @@ const AddQuiz = () => {
                       optionFilterProp="children"
                       filterOption={filterOption}
                       options={course}
+                      onChange={handleCourseChange}
                       size="large"
                     />
                   </Form.Item>
@@ -175,11 +194,15 @@ const AddQuiz = () => {
                   >
                     <Select
                       showSearch
-                      placeholder="Select a course"
+                      placeholder="Select a section"
                       optionFilterProp="children"
                       filterOption={filterOption}
-                      options={course}
+                      options={sections.map((section) => ({
+                        label: section.title,
+                        value: section._id,
+                      }))}
                       size="large"
+                      disabled={!selectedCourseId}
                     />
                   </Form.Item>
                 </Col>

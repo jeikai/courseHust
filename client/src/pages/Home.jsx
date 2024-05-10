@@ -122,7 +122,6 @@ const Home = () => {
                     placeholder="What do you want to learn?"
                     variant="borderless"
                   />
-                  ;
                   <Button
                     size="large"
                     type="primary"

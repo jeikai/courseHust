@@ -9,7 +9,7 @@ const QuestionSchema = new Schema({
     mark: { type: Number, default: 0 },
     date_created: Date,
     date_updated: Date
-})
+}) 
 
 const Question = mongoose.model('Question', QuestionSchema, 'questions')
 exports.schema = Question

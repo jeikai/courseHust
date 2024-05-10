@@ -1,12 +1,16 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const sectionModel = require('./Section')
+const { duration } = require('@mui/material')
 
 const QuizSchema = new Schema({
     title: { type: String, required: true },
+    duration: { type: String, default: '' },
     ques: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Question'
     }],
+    startTime: { type: String, default: '' },
+    endTime: { type: String, default: '' },
     date_created: Date,
     date_updated: Date
 })
@@ -14,11 +18,14 @@ const QuizSchema = new Schema({
 const Quiz = mongoose.model('Quiz', QuizSchema, 'quizs')
 exports.schema = Quiz
 
-exports.create = async function  (data) {
+exports.create = async function (data) {
     try {
         const quizData = {
             title: data.title,
-            ques: data.ques, 
+            duration: data.duration,
+            ques: data.ques,
+            startTime: data.startTime,
+            endTime: data.endTime,
             date_created: new Date(),
             date_updated: new Date()
         }

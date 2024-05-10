@@ -34,7 +34,7 @@ import Course from "../components/Course";
 import { useRef, useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom'
 import { useAPI } from "../hooks/api.jsx";
-
+import {Form} from "antd"
 const Home = () => {
   const courses = useAPI("/api/course");
 
@@ -127,7 +127,7 @@ const Home = () => {
               >
                 <Form.Item name={"search"}>
                   <Space.Compact style={{ width: '90%' }} className="bg-[#F8F7FF] p-1 border">
-                    <Input size="large" placeholder="What do you want to learn?" variant="borderless" />;
+                    <Input size="large" placeholder="What do you want to learn?" variant="borderless" />
                     <Button htmlType="submit" size="large" type="primary" className="bg-[#754FFE]" icon={<SearchOutlined />}>
                       Search
                     </Button>

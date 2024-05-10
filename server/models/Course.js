@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const categoryModel = require('./Category')
-
+const quizModel = require('./Quiz')
 const courseSchema = new Schema({
     instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     title: { type: String, required: true, unique: true },
@@ -52,17 +52,37 @@ exports.get = async function (query) {
         if (!query)
             return await Course.find({}).populate(['sections', 'instructorId', 'categoryId']).populate({
                 path: 'sections',
-                populate: { path: 'specs._id' }
             })
                 .populate('instructorId')
                 .populate('categoryId');
         if (query.hasOwnProperty('courseId')) {
-            return await Course.findById(query.courseId).populate(['sections', 'instructorId', 'categoryId']).populate({
-                path: 'sections',
-                populate: { path: 'specs._id' }
-            })
+            let courseResponse = await Course.findById(query.courseId)
+                .populate({
+                    path: 'sections',
+                    populate: { path: 'specs._id' }
+                })
                 .populate('instructorId')
                 .populate('categoryId');
+
+            // courseResponse.sections.forEach((section, sectionIndex) => {
+            //     section.specs.forEach((spec, specIndex) => {
+            //         if (spec.type === 'quiz') {
+            //             quizModel.getById(spec._id)
+            //                 .then(quiz => {
+            //                     courseResponse.sections[sectionIndex].specs[specIndex]._id = quiz;
+            //                     console.log(courseResponse.sections[sectionIndex])
+            //                 })
+            //                 .catch(error => {
+            //                     console.error('Error fetching quiz:', error);
+            //                     // Handle errors appropriately (e.g., log, return default value)
+            //                 });
+            //         }
+                    
+            //     });
+
+            // });
+            
+            return courseResponse
         } else if (query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')) {
             const category = await categoryModel.get(query)
             if (category) {

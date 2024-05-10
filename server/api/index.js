@@ -11,5 +11,6 @@ module.exports = [
   require('./lesson'),
   require('./quiz'),
   require('./calendar'),
-  require('./recommendation')
+  require('./recommendation'),
+  require('./question')
 ]

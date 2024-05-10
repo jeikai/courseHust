@@ -9,8 +9,8 @@ const QuizSchema = new Schema({
     ques: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Question'
     }],
-    startTime: { type: String, default: '' },
-    endTime: { type: String, default: '' },
+    startTime: { type: Date, default: '' },
+    endTime: { type: Date, default: '' },
     date_created: Date,
     date_updated: Date
 })
@@ -18,22 +18,23 @@ const QuizSchema = new Schema({
 const Quiz = mongoose.model('Quiz', QuizSchema, 'quizs')
 exports.schema = Quiz
 
-exports.create = async function (data) {
+exports.create = async function (sectionId, data) {
     try {
         const quizData = {
             title: data.title,
             duration: data.duration,
             ques: data.ques,
-            startTime: data.startTime,
-            endTime: data.endTime,
+            startTime: data.startTime || '',
+            endTime: data.endTime || '',
             date_created: new Date(),
             date_updated: new Date()
         }
         const newQuiz = Quiz(quizData)
         await newQuiz.save()
-        await sectionModel.addSpec(data.sectionId, newQuiz._id, "lesson")
+        await sectionModel.addSpec(sectionId, newQuiz._id, "quiz")
         return newQuiz
     } catch (error) {
+        console.log(error)
         return { error: error }
     }
 }
@@ -42,6 +43,21 @@ exports.getById = async function (data) {
     try {
         const quiz = await Quiz.findById(data).populate('ques');
         return quiz
+    } catch (error) {
+        return { error: error }
+    }
+}
+
+exports.addQuiz = async function (quizId, questionId) {
+    try {
+        const quiz = await Quiz.findById(quizId)
+        if (!quiz) return { error: "quiz not found" }
+
+        quiz.ques.push(questionId)
+        quiz.date_updated = new Date();
+        quiz.markModified("ques")
+        quiz.markModified("date_updated")
+        await quiz.save()
     } catch (error) {
         return { error: error }
     }

@@ -5,15 +5,15 @@ const courseModel = require('./Course')
 const SectionSchema = new Schema({
     title: { type: String, required: true },
     specs: [
-            {
-                _id: {type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }, 
-                type: { type: String, enum: ['lesson', 'quiz'], default: 'lesson'}
-            }, 
-            { 
-                _id: {type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
-                type: { type: String, enum: ['lesson', 'quiz'], default: 'quiz'}
-            }
-            ],
+        {
+            _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },
+            type: { type: String, enum: ['lesson', 'quiz'], default: 'lesson' }
+        },
+        {
+            _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
+            type: { type: String, enum: ['lesson', 'quiz'], default: 'quiz' }
+        }
+    ],
     date_created: Date,
     date_updated: Date
 })
@@ -49,7 +49,7 @@ exports.addSpec = async function (sectionId, id, type) {
         const section = await Section.findById(sectionId)
         if (!section) return { error: 'section not found' }
 
-        section.specs.push({_id: id, type: type})
+        section.specs.push({ _id: id, type: type })
         section.date_updated = new Date()
         section.markModified("specs")
         section.markModified("date_updated")
@@ -59,13 +59,13 @@ exports.addSpec = async function (sectionId, id, type) {
     }
 }
 
-exports.get = async function(data){
-    try{
+exports.get = async function (data) {
+    try {
         console.log(data)
         return await Section.findById(data.sectionId).populate('specs._id')
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }
- 
+
 

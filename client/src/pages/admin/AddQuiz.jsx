@@ -34,6 +34,8 @@ import fill from "../../assets/fill.svg";
 import FormItem from "antd/es/form/FormItem";
 import { createQuiz } from "../../api/quiz";
 import { useAPI } from "../../hooks/api";
+import { ViewContext } from "../../context/View";
+import { useContext } from "react";
 const AddQuiz = () => {
   const breadcrumb = [
     {
@@ -44,6 +46,7 @@ const AddQuiz = () => {
       title: "Quiz",
     },
   ];
+  const viewContext = useContext(ViewContext);
   const [formQuiz] = Form.useForm();
   const [course, setCourse] = useState([]);
   const [sections, setSections] = useState([]);
@@ -81,7 +84,7 @@ const AddQuiz = () => {
   const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
-    if (questions[indexQuestion].type === "scq") {
+
       questions[indexQuestion].options = questions[indexQuestion].options.map(
         (option, i) => {
           if (indexOption === i) {
@@ -92,7 +95,7 @@ const AddQuiz = () => {
           return option;
         }
       );
-    }
+    
     formQuiz.setFieldsValue({ questions });
   };
 
@@ -101,10 +104,18 @@ const AddQuiz = () => {
 
     createQuiz(data)
       .then((res) => {
-        console.log(res);
+        if(res == true) {
+          viewContext.handleSuccess("Create quiz successfully!")
+        } else if( res == false) {
+        viewContext.handleError("Create quiz failed")
+        } else {
+          viewContext.handleError(res.error)
+        }
+        
       })
       .catch((err) => {
         console.log(err);
+        viewContext.handleError(err)
       });
   };
   const handleCourseChange = (value) => {
@@ -259,18 +270,21 @@ const AddQuiz = () => {
                               <Flex gap={4}>
                                 <Form.Item
                                   name={[field.name, "type"]}
-                                  initialValue={"mcq"}
+                                  initialValue={"perception"}
                                   noStyle
                                 >
                                   <Select placeholder="Select question type">
-                                    <Select.Option value="mcq">
-                                      Multiple choice
+                                    <Select.Option value="perception">
+                                      Perception
                                     </Select.Option>
-                                    <Select.Option value="scq">
-                                      Single choice and True/False
+                                    <Select.Option value="comprehension">
+                                      Comprehension
                                     </Select.Option>
-                                    <Select.Option value="fill">
-                                      Fill in the blank
+                                    <Select.Option value="application">
+                                      Application
+                                    </Select.Option>
+                                    <Select.Option value="advanced application">
+                                      Advanced application
                                     </Select.Option>
                                   </Select>
                                 </Form.Item>

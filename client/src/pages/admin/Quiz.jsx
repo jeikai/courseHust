@@ -53,7 +53,7 @@ const Quiz = () => {
       <Bread
         title="Quiz"
         items={breadcrumb}
-        label={"AI Quiz"}
+        label={"Add new quiz"}
         link={"/admin/add_quiz"}
       />
       <div className="shadow-md border bg-white p-8">

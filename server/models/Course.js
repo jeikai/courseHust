@@ -5,11 +5,11 @@ const quizModel = require('./Quiz')
 const courseSchema = new Schema({
     instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     title: { type: String, required: true, unique: true },
-    shortDes: { type: String, default: '' },
+    shortDes: { type: String },
     description: { type: String, required: true },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
-    courseVideo: { type: String },
+    courseVideo: { type: String},
     tags: [{ type: String }],
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true },
@@ -52,28 +52,37 @@ exports.get = async function (query) {
         if (!query)
             return await Course.find({}).populate(['sections', 'instructorId', 'categoryId']).populate({
                 path: 'sections',
-                populate: { path: 'lesson' }
             })
-                .populate({
-                    path: 'sections',
-                    populate: { path: 'quiz' }
-                })
                 .populate('instructorId')
                 .populate('categoryId');
         if (query.hasOwnProperty('courseId')) {
             let courseResponse = await Course.findById(query.courseId)
                 .populate({
                     path: 'sections',
-                    populate: { path: 'lesson' }
-                })
-                .populate({
-                    path: 'sections',
-                    populate: { path: 'quiz' }
+                    populate: { path: 'specs._id' }
                 })
                 .populate('instructorId')
                 .populate('categoryId');
-            return courseResponse;
 
+            // courseResponse.sections.forEach((section, sectionIndex) => {
+            //     section.specs.forEach((spec, specIndex) => {
+            //         if (spec.type === 'quiz') {
+            //             quizModel.getById(spec._id)
+            //                 .then(quiz => {
+            //                     courseResponse.sections[sectionIndex].specs[specIndex]._id = quiz;
+            //                     console.log(courseResponse.sections[sectionIndex])
+            //                 })
+            //                 .catch(error => {
+            //                     console.error('Error fetching quiz:', error);
+            //                     // Handle errors appropriately (e.g., log, return default value)
+            //                 });
+            //         }
+                    
+            //     });
+
+            // });
+            
+            return courseResponse
         } else if (query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')) {
             const category = await categoryModel.get(query)
             if (category) {
@@ -85,14 +94,10 @@ exports.get = async function (query) {
             // const regex = new RegExp(query.title, 'i')
             return await Course.find({ title: { $regex: query.title, $options: 'i' } })
         } else if (query.hasOwnProperty('instructorId')) {
-            return await Course.find({ instructorId: query.instructorId }).populate({
+            return await Course.find({ instructorId: query.instructorId }).populate(['sections', 'instructorId', 'categoryId']).populate({
                 path: 'sections',
-                populate: { path: 'lesson' }
+                populate: { path: 'specs._id' }
             })
-                .populate({
-                    path: 'sections',
-                    populate: { path: 'quiz' }
-                })
                 .populate('instructorId')
                 .populate('categoryId');
         }
@@ -118,12 +123,12 @@ exports.addSection = async function (courseId, sectionId) {
 }
 
 
-exports.update = async function (courseId, data) {
-    try {
+exports.update = async function(courseId, data){
+    try{
         const result = await Course.findByIdAndUpdate(courseId, data)
         return await Course.findById(result._id)
-    } catch (err) {
-        return { error: err }
+    }catch(err){
+        return {error: err}
     }
 }
 

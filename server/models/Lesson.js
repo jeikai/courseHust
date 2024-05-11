@@ -28,7 +28,7 @@ exports.create = async function (data) {
         }
         const newLesson = Lesson(lessonData)
         await newLesson.save()
-        await sectionModel.addLesson(data.sectionId, newLesson._id, "lesson")
+        await sectionModel.addSpec(data.sectionId, newLesson._id, "lesson")
         return newLesson
     } catch (err) {
         return { error: err }

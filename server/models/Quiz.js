@@ -31,7 +31,7 @@ exports.create = async function (sectionId, data) {
         }
         const newQuiz = Quiz(quizData)
         await newQuiz.save()
-        await sectionModel.addQuiz(sectionId, newQuiz._id, "quiz")
+        await sectionModel.addSpec(sectionId, newQuiz._id, "quiz")
         return newQuiz
     } catch (error) {
         console.log(error)
@@ -58,15 +58,6 @@ exports.addQuiz = async function (quizId, questionId) {
         quiz.markModified("ques")
         quiz.markModified("date_updated")
         await quiz.save()
-    } catch (error) {
-        return { error: error }
-    }
-}
-
-exports.getByInstructorId = async function (quizId) {
-    try {
-        const quiz = await Quiz.findById(quizId).populate('ques');
-        return quiz
     } catch (error) {
         return { error: error }
     }

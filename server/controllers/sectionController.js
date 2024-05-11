@@ -20,7 +20,7 @@ exports.create = async function(req, res){
 exports.getById = async function(req, res){
     try{
         const data = req.body
-        utility.validate(data, ['sectionId'])
+        utility.validate(data, ['sectionId', 'specType'])
 
         const section = await sectionModel.get(data)
         if(!section)  return res.status(500).json({message: 'bad request'})

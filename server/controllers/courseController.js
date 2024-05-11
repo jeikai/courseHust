@@ -12,7 +12,7 @@ exports.create = async function (req, res) {
         const newCourse = await courseModel.create(data)
         if (newCourse.hasOwnProperty('error')) return res.status(500).json({ message: newCourse.error })
 
-        if (data.sections) { 
+        if (data.sections) {
             for (const section of data.sections) {
                 try {
                     utility.validate(section, ['title'])

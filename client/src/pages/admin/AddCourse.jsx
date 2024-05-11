@@ -41,7 +41,7 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
-import { v4 as uuidv4 } from "uuid";
+import { parse, v4 as uuidv4 } from "uuid";
 
 import {
   DndContext,
@@ -60,6 +60,8 @@ import { CSS } from "@dnd-kit/utilities";
 import RowSection from "../../components/admin/RowSection";
 import Spring from "../../components/Spring";
 import { useAPI } from "../../hooks/api";
+import Axios from "axios";
+import { uploadFile } from "../../helpers";
 
 const AddCourse = () => {
   const [form] = Form.useForm();
@@ -108,9 +110,9 @@ const AddCourse = () => {
   ];
 
   useEffect(() => {
-    if (optionResponseApi?.response) {
+    if (optionResponseApi) {
       setOptions(
-        optionResponseApi.response.map((category) => ({
+        optionResponseApi.map((category) => ({
           label: category.title,
           value: category._id,
         }))
@@ -203,8 +205,8 @@ const AddCourse = () => {
         if (item.id === id) {
           formEditLesson.setFieldValue("name", item.name);
           formEditLesson.setFieldValue(
-            "lessonDescription",
-            item.lessonDescription
+            "content",
+            item.content
           );
           formEditLesson.setFieldValue("file", item.file);
           formEditLesson.setFieldValue("sectionId", item.sectionId);
@@ -243,8 +245,8 @@ const AddCourse = () => {
   const handleEditSection = () => {
     data.sections.forEach((section) => {
       if (section.id === idEditSection) {
-        let newName = formEditSection.getFieldValue("sectionName");
-        section.sectionName = newName;
+        let newName = formEditSection.getFieldValue("title");
+        section.title = newName;
         setData(data);
 
         formEditSection.resetFields();
@@ -258,7 +260,7 @@ const AddCourse = () => {
     data.sections.forEach((section) => {
       if (section.id === id) {
         console.log(data.sections);
-        formEditSection.setFieldValue("sectionName", section.sectionName);
+        formEditSection.setFieldValue("title", section.title);
         setIdEditSection(id);
         setOpenEditSections(true);
       }
@@ -325,13 +327,37 @@ const AddCourse = () => {
     onSuccess("ok");
   };
 
-  const handleSubmit = async (data) => {
-    console.log(data);
+  const handleSubmit = async () => {
+    // console.log(data.thumbnail);
+    let thumbnail = await uploadFile(data.thumbnail.file.originFileObj)
+    data.thumbnail = thumbnail.file_url
+    // data.thumbnail = "img.png"
+    setData({...data})
+    let {sections} = data
+    for (let section of sections){
+      let {specials} = section
+      for(let spec of specials){
+        let uploadVid = await uploadFile(spec.file[0].originFileObj)
+        spec.videoURL = uploadVid.file_url,
+        spec.duration = uploadVid.duration
+        // spec.videoURL = "vid.mp4",
+        // spec.duration = 30
+      }
+    }
+    // console.log(data);
+    let user = localStorage.getItem("user")
+    user = JSON.parse(user)
+    // console.log(user.authenticated);
     try {
-      // const resCourse = await Axios({
-      //     url: "/api/course",
-      //     method: "POST",
-      // })
+      const resCourse = await Axios({
+          url: "/api/course",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.authenticated}`
+          },
+          data: data
+      })
+      console.log(resCourse.data);
     } catch (error) {
       console.log(error);
       viewContext.handleError(error);
@@ -361,7 +387,7 @@ const AddCourse = () => {
             label={
               <Typography.Title level={5}>Courses category</Typography.Title>
             }
-            name="category"
+            name="categoryId"
           >
             <Select
               showSearch
@@ -848,7 +874,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item
-                      name="name"
+                      name="title"
                       rules={[
                         {
                           required: true,
@@ -866,7 +892,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item
-                      name="lessonDescription"
+                      name="content"
                       rules={[
                         {
                           required: true,
@@ -889,7 +915,7 @@ const AddCourse = () => {
                     <Form.Item name="file" getValueFromEvent={getFile}>
                       <Upload
 
-                      // fileList={video}
+                      fileList={video}
                       >
                         <Button icon={<UploadOutlined />}>
                           Upload your file
@@ -936,7 +962,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item
-                      name="name"
+                      name="title"
                       rules={[
                         {
                           required: true,
@@ -954,7 +980,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item
-                      name="lessonDescription"
+                      name="content"
                       rules={[
                         {
                           required: true,
@@ -1055,7 +1081,7 @@ const AddCourse = () => {
                       </Typography.Title>
                     </Col>
                     <Col span={24}>
-                      <Form.Item name="sectionName">
+                      <Form.Item name="title">
                         <Input />
                       </Form.Item>
                     </Col>
@@ -1076,7 +1102,7 @@ const AddCourse = () => {
                       </Typography.Title>
                     </Col>
                     <Col span={24}>
-                      <Form.Item name="sectionName">
+                      <Form.Item name="title">
                         <Input />
                       </Form.Item>
                     </Col>

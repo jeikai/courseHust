@@ -6,4 +6,11 @@ const use = require('../helper/utility').use
 api.post('/category', authMiddleware.protectAdmin, use(categoryController.create))
 api.get('/category', use(categoryController.get))
 
-module.exports = api 
+// api.get('/category', use(categoryController.get))
+
+api.put('/category/:categoryId', use(categoryController.update))
+
+api.delete('/category/:categoryId', use(categoryController.delete))
+
+module.exports = api
+

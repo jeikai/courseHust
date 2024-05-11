@@ -9,7 +9,7 @@ const courseSchema = new Schema({
     description: { type: String, required: true },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
-    courseVideo: { type: String, required: true },
+    courseVideo: { type: String},
     tags: [{ type: String }],
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true },
@@ -32,7 +32,7 @@ exports.create = async function (data) {
             description: data.description,
             categoryId: data.categoryId,
             level: data.level || "basic",
-            courseVideo: data.courseVideo,
+            courseVideo: data.courseVideo || '',
             tags: data.tags || [],
             price: parseFloat(data.price),
             thumbnail: data.thumbnail || '',
@@ -121,3 +121,14 @@ exports.addSection = async function (courseId, sectionId) {
         return { error: err }
     }
 }
+
+
+exports.update = async function(courseId, data){
+    try{
+        const result = await Course.findByIdAndUpdate(courseId, data)
+        return await Course.findById(result._id)
+    }catch(err){
+        return {error: err}
+    }
+}
+

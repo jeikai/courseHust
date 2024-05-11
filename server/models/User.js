@@ -6,10 +6,11 @@ const bcrypt = require('bcryptjs');
 const UserSchema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    name: { type: String, required: true },
-    avatar: { type: String },
-    role: { type: String, enum: ['student', 'teacher', 'admin'], default: 'student' },
-    is_verified: { type: Boolean, require: true, default: false },
+    first_name: { type: String, required: true },
+    last_name: { type: String, required: true },
+    avatar: {type: String},
+    role: { type: String, enum: ['student', 'teacher', 'admin'], default: 'student'},
+    is_verified: {type: Boolean, require: true, default: false},
     date_created: Date,
     date_updated: Date
 })
@@ -23,7 +24,8 @@ exports.create = async function (data) {
         const userData = {
             email: data.email,
             password: hashedPassword,
-            name: data.name,
+            first_name: data.first_name,
+            last_name: data.last_name,
             avatar: data.avatar || '',
             role: data.role,
             date_created: new Date(),

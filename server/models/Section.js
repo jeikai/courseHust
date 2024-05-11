@@ -59,12 +59,12 @@ exports.addSpec = async function (sectionId, id, type) {
     }
 }
 
-exports.get = async function (data) {
-    try {
-        console.log(data)
-        return await Section.findById(data.sectionId).populate('specs._id')
-    } catch (err) {
-        return { error: err }
+exports.get = async function(data){
+    try{
+        const section = await Section.findById(data.sectionId).populate('specs._id').where('specs.type').equals(data.specType)
+        return section
+    }catch(err){
+        return {error: err}
     }
 }
 

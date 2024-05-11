@@ -57,12 +57,36 @@ exports.get = async function (query) {
                 .populate('instructorId')
                 .populate('categoryId');
         if (query.hasOwnProperty('courseId')) {
-            return await Course.findById(query.courseId).populate(['sections', 'instructorId', 'categoryId']).populate({
+            const course1 =  await Course.findById(query.courseId)
+            .populate(['sections', 'instructorId', 'categoryId'])
+            .populate({
                 path: 'sections',
-                populate: { path: 'specs._id' }
+                populate: [
+                  { path: 'specs._id', model: 'Lesson' },
+                //   { path: 'specs._id', model: 'Quiz' }
+                ]
             })
-                .populate('instructorId')
-                .populate('categoryId');
+            const course2 =  await Course.findById(query.courseId)
+            .populate(['sections', 'instructorId', 'categoryId'])
+            .populate({
+                path: 'sections',
+                populate: [
+                //   { path: 'specs._id', model: 'Lesson' },
+                  { path: 'specs._id', model: 'Quiz' }
+                ]
+            })
+            course1.sections.forEach(section1 => {
+                course2.sections.forEach(section2 => {
+                    if (section1._id.toString() === section2._id.toString()) {
+                        section1.specs.forEach((spec, index) => {
+                            if (section2.specs[index].type === 'quiz') {
+                                section1.specs[index] = section2.specs[index];
+                            }
+                        });
+                    }
+                });
+            });
+            return course1
         } else if (query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')) {
             const category = await categoryModel.get(query)
             if (category) {

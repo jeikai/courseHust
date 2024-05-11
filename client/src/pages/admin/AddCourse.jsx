@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState, useContext } from "react";
 import Bread from "../../components/Bread";
 import {
   Avatar,
@@ -42,7 +42,7 @@ import {
 import { Link } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
 import { parse, v4 as uuidv4 } from "uuid";
-
+import { ViewContext } from "../../context/View";
 import {
   DndContext,
   MouseSensor,
@@ -64,6 +64,8 @@ import Axios from "axios";
 import { uploadFile } from "../../helpers";
 
 const AddCourse = () => {
+  const viewContext = useContext(ViewContext);
+
   const [form] = Form.useForm();
   const [current, setCurrent] = useState(0);
   const [formLesson] = Form.useForm();
@@ -358,6 +360,7 @@ const AddCourse = () => {
           data: data
       })
       console.log(resCourse.data);
+      viewContext.handleSuccess("Create course successfully")
     } catch (error) {
       console.log(error);
       viewContext.handleError(error);

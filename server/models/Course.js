@@ -63,24 +63,6 @@ exports.get = async function (query) {
                 })
                 .populate('instructorId')
                 .populate('categoryId');
-
-            // courseResponse.sections.forEach((section, sectionIndex) => {
-            //     section.specs.forEach((spec, specIndex) => {
-            //         if (spec.type === 'quiz') {
-            //             quizModel.getById(spec._id)
-            //                 .then(quiz => {
-            //                     courseResponse.sections[sectionIndex].specs[specIndex]._id = quiz;
-            //                     console.log(courseResponse.sections[sectionIndex])
-            //                 })
-            //                 .catch(error => {
-            //                     console.error('Error fetching quiz:', error);
-            //                     // Handle errors appropriately (e.g., log, return default value)
-            //                 });
-            //         }
-                    
-            //     });
-
-            // });
             
             return courseResponse
         } else if (query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')) {

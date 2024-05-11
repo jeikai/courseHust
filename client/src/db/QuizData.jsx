@@ -10,7 +10,7 @@ const QuizData = [
         totalMarks: faker.number.int({ max: 10 }),
         passMarks: faker.number.int({ max: 10 }),
         questions: [
-            {
+            { 
                 id: faker.string.uuid(),
                 title: faker.commerce.productName(),
                 type: faker.helpers.enumValue({mcq: "mcq", scq: "scq"}), 

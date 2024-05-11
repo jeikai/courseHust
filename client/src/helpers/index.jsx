@@ -21,6 +21,7 @@ export const filterArray = (arr, e) => {
 
 export const uploadFile = async (file) => {
   // debugger
+  console.log(file)
   const res = await Axios.post('/api/upload', {file},
   {
     headers: {

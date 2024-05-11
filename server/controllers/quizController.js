@@ -1,5 +1,5 @@
 const quizModel = require('../models/Quiz')
-
+const courseModel = require('../models/Course')
 exports.getById = async function(req, res){
     try{
         const {quizId} = req.params
@@ -22,5 +22,21 @@ exports.create = async function(req, res) {
         return res.status(200).json({data: result})
     } catch (error) {
         return res.status(500).json({message: error.message})
+    }
+}
+
+exports.getByInstructorId = async function(req, res){
+    try{
+        const {instructorId} = req.params
+        const query = { instructorId: instructorId }
+
+        const courseResult = await courseModel.get(query)
+        
+        const result = await quizModel.getById(quizId)
+
+        return res.status(200).json({data: result})
+        
+    }catch(e){
+        return res.status(500).json({message: e.message})
     }
 }

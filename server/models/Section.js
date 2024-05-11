@@ -4,16 +4,15 @@ const courseModel = require('./Course')
 
 const SectionSchema = new Schema({
     title: { type: String, required: true },
-    specs: [
+    lesson: [
         {
             _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },
-            type: { type: String, enum: ['lesson', 'quiz'], default: 'lesson' }
-        },
-        {
-            _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
-            type: { type: String, enum: ['lesson', 'quiz'], default: 'quiz' }
+
         }
     ],
+    quiz: [{
+        type: mongoose.Schema.Types.ObjectId, ref: 'Quiz'
+    }],
     date_created: Date,
     date_updated: Date
 })
@@ -44,14 +43,14 @@ exports.create = async function (data) {
     }
 }
 
-exports.addSpec = async function (sectionId, id, type) {
+exports.addLesson = async function (sectionId, id, type) {
     try {
         const section = await Section.findById(sectionId)
         if (!section) return { error: 'section not found' }
 
-        section.specs.push({ _id: id, type: type })
+        section.lesson.push(id)
         section.date_updated = new Date()
-        section.markModified("specs")
+        section.markModified("lesson")
         section.markModified("date_updated")
         await section.save()
     } catch (err) {
@@ -59,12 +58,27 @@ exports.addSpec = async function (sectionId, id, type) {
     }
 }
 
-exports.get = async function(data){
-    try{
-        const section = await Section.findById(data.sectionId).populate('specs._id').where('specs.type').equals(data.specType)
+exports.addQuiz = async function (sectionId, id, type) {
+    try {
+        const section = await Section.findById(sectionId)
+        if (!section) return { error: 'section not found' }
+
+        section.quiz.push(id)
+        section.date_updated = new Date()
+        section.markModified("quiz")
+        section.markModified("date_updated")
+        await section.save()
+    } catch (err) {
+        return { error: err }
+    }
+}
+
+exports.get = async function (data) {
+    try {
+        const section = await Section.findById(data.sectionId).populate('lesson').populate('quiz')
         return section
-    }catch(err){
-        return {error: err}
+    } catch (err) {
+        return { error: err }
     }
 }
 

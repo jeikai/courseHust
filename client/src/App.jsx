@@ -10,6 +10,8 @@ import PrivateRoute from './components/PrivateRoute'
 import { AuthContext, AuthProvider } from './context/Auth'
 import Axios from 'axios';
 
+import 'devextreme/dist/css/dx.light.css';
+
 import routes from "./routes";
 
 function App() {

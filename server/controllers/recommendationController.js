@@ -1,7 +1,7 @@
 const { ApiClient, requests } = require('recombee-api-client');
 
 const client = new ApiClient(
-    "funbug-dev",
+    "FunCourse-dev",
     "oDz6sh7lEyVTbtLWW9Uu7sX1SjBtODsTjJtKsvDGXtKP9rd0SfmGMij9gN8Bghhm",
     { region: "us-west" }
 );

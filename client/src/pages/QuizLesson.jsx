@@ -13,60 +13,67 @@ import {
 import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import ReactPlayer from "react-player";
-import Video from "../components/Video";
-import Quiz from "../components/Quiz";
-import Questions from "../components/Questions";
-import { getQuizById } from "../api/quiz";
+import Video from "../components/Video.jsx";
+import Quiz from "../components/Quiz.jsx";
+import Questions from "../components/Questions.jsx";
+import { getQuizById } from "../api/quiz.jsx";
 import { ViewContext } from "../context/View.jsx";
-import { useAPI } from "../hooks/api";
+import { useAPI } from "../hooks/api.jsx";
 import Loader from "../components/Loader.jsx";
 import { useNavigate, useParams } from "react-router-dom";
+import { Axios } from "axios";
 
-const Lesson = () => {
+const QuizLesson = () => {
   const { id } = useParams();
   const viewContext = useContext(ViewContext);
-  let responseAPI =  useAPI(`/api/lesson/${id}`, null);
-  console.log(responseAPI)
-  
-  let toggle = false;
-  if (responseAPI.loading) return <Loader />;
-  const handleDoneLesson = async () => {
-    try {
-      console.log("Done")
-    } catch (error) {
-      console.log(error)
-      viewContext(error)
-    }
-  }
-  // const [lesson, setLesson] = useState(null);
-  // const [start, setStart] = useState(localStorage.getItem("time") || null);
-  // const handleStartQuiz = () => {
-  //   console.log("Start quiz");
-  //   // let duaration = lesson.duaration
-  //   let duration = "01-00-00";
-  //   let startTime = new Date().getTime();
-  //   let durationParts = duration.split("-");
-  //   let hours = parseInt(durationParts[0]);
-  //   let minutes = parseInt(durationParts[1]);
-  //   let seconds = parseInt(durationParts[2]);
-  //   let endTime = new Date(
-  //     startTime + hours * 3600000 + minutes * 60000 + seconds * 1000
-  //   ).getTime();
-  //   localStorage.setItem("time", endTime);
-  //   setStart(endTime);
-  // };
-
+  console.log(id);
+  let responseAPI;
   // useEffect(() => {
-  //   // fetchQuestions()
-  //   getQuizById(1)
-  //     .then((res) => {
-  //       console.log(res);
-  //       setLesson(res);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, []);
+  //   async function getData() {
+  //     try {
+  //       console.log("hiiii")
+  //       responseAPI = await Axios({ url: `/api/quiz/${id}`, method: "GET" });
+  //       console.log(responseAPI);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   getData().then(() => {
+  //     console.log("hi")
+  //   });
+  // }, [id]);
+
+  // let toggle = false;
+
+  const [lesson, setLesson] = useState(null);
+  const [start, setStart] = useState(localStorage.getItem("time") || null);
+  const handleStartQuiz = () => {
+    console.log("Start quiz");
+    // let duaration = lesson.duaration
+    let duration = "01-00-00";
+    let startTime = new Date().getTime();
+    let durationParts = duration.split("-");
+    let hours = parseInt(durationParts[0]);
+    let minutes = parseInt(durationParts[1]);
+    let seconds = parseInt(durationParts[2]);
+    let endTime = new Date(
+      startTime + hours * 3600000 + minutes * 60000 + seconds * 1000
+    ).getTime();
+    localStorage.setItem("time", endTime);
+    setStart(endTime);
+  };
+
+  useEffect(() => {
+    // fetchQuestions()
+    getQuizById(id)
+      .then((res) => {
+        console.log(res);
+        setLesson(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [id]);
 
   return (
     <div className="py-16 px-4">
@@ -82,7 +89,7 @@ const Lesson = () => {
                   className="w-full hover:text-[#754FFE]"
                   level={5}
                 >
-                  {responseAPI.data.title}
+                  {responseAPI?.data.title}
                 </Typography.Title>
               }
               key="1"
@@ -94,12 +101,12 @@ const Lesson = () => {
                     <Flex justify="space-between">
                       <Flex vertical>
                         <p className="font-semibold text-base group-hover:text-[#754FFE]">
-                        {responseAPI.data.content}
+                          {responseAPI?.data?.content}
                         </p>
                         <span className="text-[#6c757d]">Jan-04-2024</span>
                       </Flex>
                       <p className="text-[#6c757d] text-base font-medium">
-                        {responseAPI.data.duration} second
+                        {responseAPI?.data?.duration}
                       </p>
                     </Flex>
                   </Link>
@@ -112,12 +119,12 @@ const Lesson = () => {
         <Col span={16} pull={8}>
           <div className="mb-4 mt-2">
             {/* <TimePicker onChange={(value) => console.log(value.format('hh-mm-ss'))} /> */}
-            <Video video={responseAPI.data.videoURL}/>
-            {/* {!start ? (
+            {/* <Video video={responseAPI.data.videoURL}/> */}
+            {!start ? (
               <Quiz handleStartQuiz={handleStartQuiz} />
             ) : (
               lesson && <Questions lesson={lesson} />
-            )} */}
+            )}
           </div>
         </Col>
       </Row>
@@ -125,4 +132,4 @@ const Lesson = () => {
   );
 };
 
-export default Lesson;
+export default QuizLesson;

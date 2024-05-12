@@ -98,6 +98,8 @@ const createQuiz = async (data) => {
 const getQuizById = async (id) => {
   // const res = await Axios.post('../config/users.json', id)
   // const data = await res.json();
+  const responseAPI = await Axios({ url: `/api/quiz/${id}`, method: "GET" });
+        console.log(responseAPI);
   const data = QuizData[0];
   return data;
 };

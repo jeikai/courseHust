@@ -7,19 +7,19 @@ const Routes = [
         path: 'instructor_m/create_quiz',
         view: UploadQuiz,
         layout: 'instructor',
-        title: 'Funbug - Upload Quiz | E-Learning'
+        title: 'FunCourse - Upload Quiz | E-Learning'
     },
     {
         path: 'instructor_m/create_course',
         view: CreateCourse,
         layout: 'instructor',
-        title: 'Funbug - Create Course | E-Learning'
+        title: 'FunCourse - Create Course | E-Learning'
     },
     {
         path: 'instructor_m/create_lesson',
         view: CreateLesson,
         layout: 'instructor',
-        title: 'Funbug - Create Lesson | E-Learning'
+        title: 'FunCourse - Create Lesson | E-Learning'
     }
 ]
  

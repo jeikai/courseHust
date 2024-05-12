@@ -23,7 +23,8 @@ const createQuiz = async (data) => {
 const getQuizById = async (id) => {
     // const res = await Axios.post('../config/users.json', id)
     // const data = await res.json();
-    const data = QuizData[0]
+    const responseAPI = await Axios({url: `/api/quiz/${id}`, method: "GET"})
+    const data = responseAPI.data.data
     return data;
 }
 

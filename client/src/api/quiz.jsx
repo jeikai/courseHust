@@ -96,12 +96,11 @@ const createQuiz = async (data) => {
 };
 
 const getQuizById = async (id) => {
-  // const res = await Axios.post('../config/users.json', id)
-  // const data = await res.json();
-  const responseAPI = await Axios({ url: `/api/quiz/${id}`, method: "GET" });
-        console.log(responseAPI);
-  const data = QuizData[0];
-  return data;
-};
+    // const res = await Axios.post('../config/users.json', id)
+    // const data = await res.json();
+    const responseAPI = await Axios({url: `/api/quiz/${id}`, method: "GET"})
+    const data = responseAPI.data.data
+    return data;
+}
 
 export { getQuizs, deleteQuiZ, createQuiz, getQuizById };

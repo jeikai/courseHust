@@ -96,11 +96,38 @@ const createQuiz = async (data) => {
 };
 
 const getQuizById = async (id) => {
-    // const res = await Axios.post('../config/users.json', id)
-    // const data = await res.json();
-    const responseAPI = await Axios({url: `/api/quiz/${id}`, method: "GET"})
-    const data = responseAPI.data.data
-    return data;
-}
+  const responseAPI = (await Axios({ url: `/api/quiz/${id}`, method: "GET" }))
+    .data.data;
+  const formatData = {
+    id: responseAPI._id,
+    passMarks: 5,
+    numberOfQuestions: responseAPI.ques.length,
+    title: responseAPI.title,
+    duration: responseAPI.duration,
+    totalMarks: 10,
+    deadline: responseAPI.endTime,
+    startTime: responseAPI.startTime,
+    questions: [],
+  };
+  for (const question of responseAPI.ques) {
+    const formatQues = {
+      id: question._id,
+      title: question.question,
+      level: question.level,
+      answer: question.answer,
+      type: "scq",
+      options: [],
+    };
+    for (const option of question.options) {
+      formatQues.options.push({
+        isSelected: option == formatQues.answer,
+        label: option,
+      });
+    }
+    formatData.questions.push(formatQues);
+  }
+
+  return formatData;
+};
 
 export { getQuizs, deleteQuiZ, createQuiz, getQuizById };

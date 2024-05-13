@@ -108,6 +108,25 @@ const Curriculum = ({ course }) => {
 
     return totalLectures;
   };
+  function formatTime(timeString) {
+    const timeRegex = /^(?:[0-2]\d):([0-5]\d):([0-5]\d)$/;
+    const match = timeRegex.exec(timeString);
+    if (match) {
+      return timeString;
+    }
+
+    let seconds = parseFloat(timeString);
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    const formattedHours = hours.toString().padStart(2, "0");
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+    const formattedSeconds = remainingSeconds.toString().padStart(2, "0");
+
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  }
 
   const totalLectures = calculateTotalLectures();
 
@@ -116,9 +135,11 @@ const Curriculum = ({ course }) => {
     label: (
       <Flex align="center" justify="space-between">
         <h5 className="font-semibold text-[18px]">{section.title}</h5>
-        <Flex gap={12} align="center" className="text-base text-[#676C7D]">
-
-        </Flex>
+        <Flex
+          gap={12}
+          align="center"
+          className="text-base text-[#676C7D]"
+        ></Flex>
       </Flex>
     ),
     children: (
@@ -131,7 +152,9 @@ const Curriculum = ({ course }) => {
                 align="center"
                 justify="space-between"
                 onClick={() => {
-                  spec?.type == "lesson" ? navigate("/home/lesson/" + spec?._id?._id) : navigate("/home/quiz/" + spec?._id?._id)
+                  spec?.type == "lesson"
+                    ? navigate("/home/lesson/" + spec?._id?._id)
+                    : navigate("/home/quiz/" + spec?._id?._id);
                 }}
               >
                 <Flex align="center" gap={12}>
@@ -144,7 +167,9 @@ const Curriculum = ({ course }) => {
                     {spec?._id?.title ? spec._id.title : ""}
                   </span>
                 </Flex>
-                <span className="text-[#676C7D">{spec._id.duration}</span>
+                <span className="text-[#676C7D">
+                  {formatTime(spec._id.duration)}
+                </span>
               </Flex>
               {/* </a> */}
             </li>
@@ -308,7 +333,7 @@ const CourseDetail = () => {
   const course = useAPI(`/api/course/${courseId}`, null);
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
-  
+
   if (course.loading) return <Loader />;
 
   const scheduleData = [
@@ -540,9 +565,7 @@ const CourseDetail = () => {
                 <div className="p-3 w-full border-b">
                   <Flex align="center" className="w-full">
                     <BookOutlined className="text-2xl mr-2 text-red-500" />
-                    <span className="font-semibold text-base">
-                      Sections
-                    </span>
+                    <span className="font-semibold text-base">Sections</span>
                     <div className="ml-auto text-base font-semibold">
                       {totalSections}
                     </div>

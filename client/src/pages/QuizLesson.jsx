@@ -28,20 +28,6 @@ const QuizLesson = () => {
   const viewContext = useContext(ViewContext);
   console.log(id);
   let responseAPI;
-  // useEffect(() => {
-  //   async function getData() {
-  //     try {
-  //       console.log("hiiii")
-  //       responseAPI = await Axios({ url: `/api/quiz/${id}`, method: "GET" });
-  //       console.log(responseAPI);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   getData().then(() => {
-  //     console.log("hi")
-  //   });
-  // }, [id]);
 
   // let toggle = false;
 
@@ -50,9 +36,9 @@ const QuizLesson = () => {
   const handleStartQuiz = () => {
     console.log("Start quiz");
     // let duaration = lesson.duaration
-    let duration = "01-00-00";
+    let duration = lesson?.duration;
     let startTime = new Date().getTime();
-    let durationParts = duration.split("-");
+    let durationParts = duration.split(":");
     let hours = parseInt(durationParts[0]);
     let minutes = parseInt(durationParts[1]);
     let seconds = parseInt(durationParts[2]);
@@ -80,7 +66,7 @@ const QuizLesson = () => {
       <Row gutter={24}>
         <Col span={8} push={16} className="py-2 shadow-lg h-fit">
           <Typography.Title level={4} className="text-center">
-            Course content
+            Quiz
           </Typography.Title>
           <Collapse ghost expandIconPosition={"end"}>
             <Collapse.Panel
@@ -89,7 +75,7 @@ const QuizLesson = () => {
                   className="w-full hover:text-[#754FFE]"
                   level={5}
                 >
-                  {responseAPI?.data.title}
+                  {lesson?.title}
                 </Typography.Title>
               }
               key="1"

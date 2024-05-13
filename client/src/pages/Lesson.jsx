@@ -25,19 +25,19 @@ import { useNavigate, useParams } from "react-router-dom";
 const Lesson = () => {
   const { id } = useParams();
   const viewContext = useContext(ViewContext);
-  let responseAPI =  useAPI(`/api/lesson/${id}`, null);
-  console.log(responseAPI)
-  
+  let responseAPI = useAPI(`/api/lesson/${id}`, null);
+  console.log(responseAPI);
+
   let toggle = false;
   if (responseAPI.loading) return <Loader />;
   const handleDoneLesson = async () => {
     try {
-      console.log("Done")
+      console.log("Done");
     } catch (error) {
-      console.log(error)
-      viewContext(error)
+      console.log(error);
+      viewContext(error);
     }
-  }
+  };
   // const [lesson, setLesson] = useState(null);
   // const [start, setStart] = useState(localStorage.getItem("time") || null);
   // const handleStartQuiz = () => {
@@ -94,9 +94,9 @@ const Lesson = () => {
                     <Flex justify="space-between">
                       <Flex vertical>
                         <p className="font-semibold text-base group-hover:text-[#754FFE]">
-                        {responseAPI.data.content}
+                          {responseAPI.data.content}
                         </p>
-                        <span className="text-[#6c757d]">Jan-04-2024</span>
+                        <span className="text-[#6c757d]">{responseAPI?.data?.date_created}</span>
                       </Flex>
                       <p className="text-[#6c757d] text-base font-medium">
                         {responseAPI.data.duration} second
@@ -112,7 +112,7 @@ const Lesson = () => {
         <Col span={16} pull={8}>
           <div className="mb-4 mt-2">
             {/* <TimePicker onChange={(value) => console.log(value.format('hh-mm-ss'))} /> */}
-            <Video video={responseAPI.data.videoURL}/>
+            <Video video={responseAPI.data.videoURL} />
             {/* {!start ? (
               <Quiz handleStartQuiz={handleStartQuiz} />
             ) : (

@@ -15,7 +15,7 @@ const Question = ({ question, answers, current, setAnswers }) => {
     console.log(answers);
     let newAnswers = answers;
     newAnswers[current - 1].choices = [e.target.value];
-    setAnswers([...newAnswers]);
+    setAnswers([...newAnswers]); 
   };
 
   const handleMultipleChoice = (e, value) => {
@@ -36,7 +36,7 @@ const Question = ({ question, answers, current, setAnswers }) => {
 
   return (
     <Space direction="vertical w-full min-h-72">
-      <Typography.Title level={3}>{question.title}</Typography.Title>
+      <Typography.Title level={3}>{question.title} ({question.level})</Typography.Title>
       <ConfigProvider
         theme={{
           components: {

@@ -147,12 +147,10 @@ const Header = () => {
           <div className="bg-[#754ffe58] px-4 py-2 rounded cursor-pointer">
             <a href="/">
               <Flex align="center" gap={8} className="text-base text-[#754FFE]">
-               
-                  <Space>
-                    <MenuOutlined />
-                    <span>Home</span>
-                  </Space>
-      
+                <Space>
+                  <MenuOutlined />
+                  <span>Home</span>
+                </Space>
               </Flex>
             </a>
           </div>
@@ -217,31 +215,29 @@ const Header = () => {
               )}
 
               <div className="py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2}>
-                  <Dropdown
-                    menu={{
-                      items: itemCart,
-                    }}
-                    placement="bottomRight"
-                  >
-                    <Badge count={0}>
-                      <ShoppingCartOutlined className="text-2xl" />
-                    </Badge>
-                  </Dropdown>
+                <Flex
+                  align="center"
+                  gap={2}
+                  onClick={() => {
+                    navigate("/home/purchase_course");
+                  }}
+                >
+                  <Badge count={0}>
+                    <ShoppingCartOutlined className="text-2xl" />
+                  </Badge>
                 </Flex>
               </div>
               <div className="px-2 py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2}>
-                  <Dropdown
-                    menu={{
-                      items: itemCart,
-                    }}
-                    placement="bottomRight"
-                  >
-                    <Badge count={0}>
-                      <HeartOutlined className="text-2xl" />
-                    </Badge>
-                  </Dropdown>
+                <Flex
+                  align="center"
+                  gap={2}
+                  onClick={() => {
+                    navigate("/home/my_whishlist");
+                  }}
+                >
+                  <Badge count={0}>
+                    <HeartOutlined className="text-2xl" />
+                  </Badge>
                 </Flex>
               </div>
 
@@ -261,20 +257,6 @@ const Header = () => {
             </>
           ) : (
             <>
-              <div className="px-4 py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2}>
-                  <Dropdown
-                    menu={{
-                      items: itemCart,
-                    }}
-                    placement="bottomRight"
-                  >
-                    <Badge count={0}>
-                      <ShoppingCartOutlined className="text-2xl" />
-                    </Badge>
-                  </Dropdown>
-                </Flex>
-              </div>
               <div className="px-4 py-2 rounded cursor-pointer">
                 <Flex align="center" gap={2} className="text-black">
                   <Link to={"/login"} className="text-base font-semibold">

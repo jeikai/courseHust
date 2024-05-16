@@ -28,9 +28,11 @@ import {
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/Auth";
+import { useAPI } from "../../hooks/api";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
+
   let user;
   const itemCart = [
     {
@@ -73,7 +75,6 @@ const Header = () => {
   let itemProfile = [];
   if (temp != null) {
     user = JSON.parse(temp);
-    console.log(user.account);
     itemProfile = [
       {
         key: "1",
@@ -120,7 +121,7 @@ const Header = () => {
       },
     ];
   }
-
+  const enrollmentAPI = useAPI(`/api/enrollment/${user.account._id}`, null);
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());
@@ -204,7 +205,7 @@ const Header = () => {
               </div>
               {user.account.role == "teacher" ? (
                 <div className="px-4 py-2 rounded cursor-pointer">
-                  <Flex align="center" gap={2} className="text-black">
+                  <Flex align="center" gap={0} className="text-black">
                     <Link to={"/admin"} className="text-base font-semibold">
                       Instructor
                     </Link>
@@ -217,13 +218,14 @@ const Header = () => {
               <div className="py-2 rounded cursor-pointer">
                 <Flex
                   align="center"
-                  gap={2}
+                  gap={0}
                   onClick={() => {
                     navigate("/home/purchase_course");
                   }}
                 >
                   <Badge count={0}>
-                    <ShoppingCartOutlined className="text-2xl" />
+                    <ShoppingCartOutlined className="text-2xl" /> ({" "}
+                    {enrollmentAPI?.data?.length} )
                   </Badge>
                 </Flex>
               </div>

@@ -7,4 +7,4 @@ api.post('/bill', use(billController.create))
 
 api.get('/bill/:userId', use(billController.getById))
 
-module.exports = api 
+module.exports = api  

@@ -8,4 +8,4 @@ api.post('/enrollment', use(enrollController.create))
 api.get('/enrollment/:userId', use(enrollController.getById))
 
 api.delete('/enrollment/:userId/:courseId', use(enrollController.delete))
-module.exports = api 
+module.exports = api  

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 // bảng này dành cho hoá đơn
 const BillSchema = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    listOfCourse: [{type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    listOfCourse: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
     price: { type: Number },
     date_created: Date,
     date_updated: Date
@@ -51,3 +51,23 @@ exports.getById = async function (data) {
         return { error: error }
     }
 }
+
+exports.getByUserIdAndCourseId = async function (userId, courseId) {
+    try {
+
+        const bill = await Bill.find({ userId: userId })
+        let isFound = false;
+        bill.forEach((bill) => {
+            bill.listOfCourse.forEach((course) => {
+                if(course == courseId) {
+                    isFound = true;
+                    return;
+                }
+            })
+        })
+        return isFound;
+    } catch (error) {
+        console.log(error)
+        return { error: error.message };
+    }
+};

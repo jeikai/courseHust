@@ -190,7 +190,7 @@ function Purchase() {
           </Col>
           <Col span={18}>
             <Spring className="bg-white shadow-lg border rounded-lg px-6 py-8">
-              <Typography.Title level={3}>Your cart</Typography.Title>
+              <Typography.Title level={3}>My cart</Typography.Title>
               <Button
                 className="bg-[#754FFE]"
                 type="primary"

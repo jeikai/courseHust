@@ -22,3 +22,15 @@ exports.getById = async function (req, res) {
         return res.status(500).json({ message: error.message })
     }
 }
+
+exports.getByUserIdAndCourseId = async function(req, res) {
+    try {
+        const userId = req.params.userId
+        const courseId = req.params.courseId
+
+        const result = await billModel.getByUserIdAndCourseId(userId, courseId)
+        return res.status(200).json(result)
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}

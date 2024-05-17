@@ -35,6 +35,7 @@ import {
   TagsOutlined,
   TwitterOutlined,
   UserOutlined,
+  LockOutlined
 } from "@ant-design/icons";
 import breadcramb from "../assets/course-breadcramb.png";
 import item1 from "../assets/item-1.jpg";
@@ -88,8 +89,9 @@ const Overview = ({ course }) => {
   );
 };
 
-const Curriculum = ({ course }) => {
+const Curriculum = ({ course, isBill }) => {
   const navigate = useNavigate();
+  console.log(isBill)
   let totalSections = 0;
   const calculateTotalLectures = () => {
     if (!course || !course.sections) {
@@ -147,19 +149,28 @@ const Curriculum = ({ course }) => {
         {section.specs.map((spec) => {
           return (
             <li key={spec?._id?._id} className="hover:bg-slate-100 px-1 py-3">
-              {/* <a href={"/home/lesson/" + spec?._id?._id} className="group"> */}
               <Flex
                 align="center"
                 justify="space-between"
-                onClick={() => {
-                  spec?.type == "lesson"
-                    ? navigate("/home/lesson/" + spec?._id?._id)
-                    : navigate("/home/quiz/" + spec?._id?._id);
-                }}
+                onClick={
+                  !isBill
+                    ? () => {}
+                    : () => {
+                        spec?.type === "lesson"
+                          ? navigate("/home/lesson/" + spec?._id?._id)
+                          : navigate("/home/quiz/" + spec?._id?._id);
+                      }
+                }
               >
                 <Flex align="center" gap={12}>
-                  {spec.type == "lesson" ? (
-                    <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                  {spec.type === "lesson" ? (
+                    !isBill ? (
+                      <LockOutlined className="text-xl text-[#ccc]" />
+                    ) : (
+                      <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                    )
+                  ) : !isBill ? (
+                    <LockOutlined className="text-xl text-[#ccc]" />
                   ) : (
                     <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
                   )}
@@ -329,12 +340,15 @@ const Schedule = ({ sourceData }) => {
 };
 
 const CourseDetail = () => {
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const { courseId } = useParams();
   const course = useAPI(`/api/course/${courseId}`, null);
+  const checkBill = useAPI(`/api/bill/check/${userId}/${courseId}`, null);
+  console.log(checkBill);
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
 
-  if (course.loading) return <Loader />;
+  if (course.loading || checkBill.loading) return <Loader />;
 
   const scheduleData = [
     {
@@ -403,7 +417,7 @@ const CourseDetail = () => {
       icon: ProfileOutlined,
       name: "Curriculum",
       child: Curriculum,
-      props: { course: course.data, navigate },
+      props: { course: course.data, isBill: checkBill?.data, navigate },
     },
     {
       icon: UserOutlined,
@@ -586,21 +600,27 @@ const CourseDetail = () => {
                       },
                     }}
                   >
-                    <Button
-                      icon={<PlusOutlined />}
-                      size="large"
-                      className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500 mb-6"
-                      onClick={handleAddToCart}
-                    >
-                      Add to cart
-                    </Button>
-                    <Button
-                      icon={<CreditCardOutlined />}
-                      size="large"
-                      className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
-                    >
-                      Buy now
-                    </Button>
+                    {checkBill.data == true ? (
+                      <></>
+                    ) : (
+                      <>
+                        <Button
+                          icon={<PlusOutlined />}
+                          size="large"
+                          className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500 mb-6"
+                          onClick={handleAddToCart}
+                        >
+                          Add to cart
+                        </Button>
+                        <Button
+                          icon={<CreditCardOutlined />}
+                          size="large"
+                          className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
+                        >
+                          Buy now
+                        </Button>
+                      </>
+                    )}
                   </ConfigProvider>
                 </div>
               </Space>

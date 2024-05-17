@@ -22,11 +22,11 @@ const Sidenav = () => {
             name: 'Wishlist',
             icon: HeartOutlined,
             path: '/home/my_whishlist'
-        },
+        }, 
         {
             name: 'Purchase history',
             icon: HistoryOutlined,
-            path: '/home/affiliate_course'
+            path: '/home/bill'
         },
         {
             name: 'My cart',

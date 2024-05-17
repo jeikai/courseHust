@@ -9,7 +9,7 @@ import Mywishlist from "../pages/Mywishlist";
 import NotFound from "../pages/NotFound";
 import Profile from "../pages/Profile";
 import Purchase from "../pages/Purchase";
-// import Affiliate from "../pages/Affiliate"
+import Bill from "../pages/Bill"
 import QuizLesson from "../pages/QuizLesson";
 const Routes = [
   {
@@ -46,13 +46,13 @@ const Routes = [
     // permission: 'student',
     title: "FunCourse - My whishlist | E-Learning",
   },
-  // {
-  //     path: '/home/affiliate_course',
-  //     view: Affiliate,
-  //     layout: 'app',
-  //     // permission: 'student',
-  //     title: 'FunCourse - Affiliate course | E-Learning'
-  // },
+  {
+      path: '/home/bill',
+      view: Bill,
+      layout: 'app',
+      // permission: 'student',
+      title: 'FunCourse - Affiliate course | E-Learning'
+  },
   {
     path: "/home/purchase_course",
     view: Purchase,

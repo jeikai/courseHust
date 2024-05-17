@@ -1,4 +1,4 @@
-import { BarChartOutlined, HeartOutlined, HistoryOutlined, KeyOutlined, SolutionOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BilibiliOutlined, DollarCircleOutlined, HeartOutlined, HistoryOutlined, KeyOutlined, SolutionOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { Avatar, Col, Flex, Row, Space, Typography } from 'antd'
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -13,24 +13,24 @@ const Sidenav = () => {
             icon: SolutionOutlined,
             path: '/home/my_courses'
         },
-        {
-            name: 'Bootcamp',
-            icon: VideoCameraOutlined, 
-            path: '/home/my_bootcamp'
-        },
+        // {
+        //     name: 'Bootcamp',
+        //     icon: VideoCameraOutlined, 
+        //     path: '/home/my_bootcamp'
+        // },
         {
             name: 'Wishlist',
             icon: HeartOutlined,
             path: '/home/my_whishlist'
         },
         {
-            name: 'Affiliate history',
-            icon: BarChartOutlined,
+            name: 'Purchase history',
+            icon: HistoryOutlined,
             path: '/home/affiliate_course'
         },
         {
-            name: 'Purchase history',
-            icon: HistoryOutlined,
+            name: 'My cart',
+            icon: DollarCircleOutlined,
             path: '/home/purchase_course'
         },
         {

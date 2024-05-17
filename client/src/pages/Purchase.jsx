@@ -35,12 +35,16 @@ import { useState } from "react";
 import { to } from "@react-spring/web";
 import { Toast } from "devextreme-react";
 import Axios from "axios";
+import { ViewContext } from "../context/View.jsx";
+import { useContext } from "react";
+
 function Purchase() {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [enrollmentData, setEnrollment] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const viewContext = useContext(ViewContext);
+
   async function fetchData() {
     try {
       const enrollment = await Axios({
@@ -49,7 +53,7 @@ function Purchase() {
       });
       await setEnrollment(enrollment.data);
       console.log(enrollmentData, enrollment);
-      setIsLoading(true)
+      setIsLoading(true);
     } catch (error) {
       console.log(error);
     }
@@ -156,8 +160,22 @@ function Purchase() {
   const showModal = () => {
     setIsModalOpen(true);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const handleOk = async () => {
+    try {
+      const responseAPI = await Axios({
+        url: "/api/bill",
+        method: "POST",
+        data: {
+          userId: userId,
+        },
+      });
+      console.log(responseAPI);
+      fetchData();
+      viewContext.handleSuccess("Buy successfully")
+      setIsModalOpen(false);
+    } catch (error) {
+      viewContext.handleError("Buy fail!");
+    }
   };
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -172,7 +190,7 @@ function Purchase() {
           </Col>
           <Col span={18}>
             <Spring className="bg-white shadow-lg border rounded-lg px-6 py-8">
-              <Typography.Title level={3}>Purchase history</Typography.Title>
+              <Typography.Title level={3}>Your cart</Typography.Title>
               <Button
                 className="bg-[#754FFE]"
                 type="primary"

@@ -9,7 +9,7 @@ const Affiliate = () => {
     return (
         <>
             <Banner name='Affiliate course history' />
-            <section className='max-w-screen-xl m-auto my-12'>
+            <section className='max-w-screen-xl m-auto my-12'> 
                 <Row gutter={12}>
                     <Col span={6}>
                         <Sidenav />

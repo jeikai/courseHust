@@ -121,7 +121,10 @@ const Header = () => {
       },
     ];
   }
-  const enrollmentAPI = useAPI(`/api/enrollment/${user.account._id}`, null);
+  let enrollmentAPI
+  if(user) {
+    enrollmentAPI = useAPI(`/api/enrollment/${user?.account?._id}`, null);
+  }
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());

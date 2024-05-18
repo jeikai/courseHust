@@ -3,6 +3,7 @@ import AddCourse from "../pages/admin/AddCourse"
 import AddInstructor from "../pages/admin/AddInstructor"
 import AddQuiz from "../pages/admin/AddQuiz"
 import AddStudent from "../pages/admin/AddStudent"
+import AutoQuiz from "../pages/admin/AutoQuiz"
 import Category from "../pages/admin/Category"
 import Courses from "../pages/admin/Courses"
 import Dashboard from "../pages/admin/Dashboard"
@@ -125,6 +126,13 @@ const Routes = [
     {
         path: '/admin/add_quiz',
         view: AddQuiz,
+        layout: 'admin',
+        // permission: 'student',
+        title: 'FunCourse - Add a new quiz | E-Learning'
+    },
+    {
+        path: '/admin/auto_quiz',
+        view: AutoQuiz,
         layout: 'admin',
         // permission: 'student',
         title: 'FunCourse - Add a new quiz | E-Learning'

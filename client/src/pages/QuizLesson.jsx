@@ -37,7 +37,7 @@ const QuizLesson = () => {
     console.log("Start quiz");
     // let duaration = lesson.duaration
     let duration = lesson?.duration;
-    let startTime = new Date().getTime();
+    let startTime = new Date().getTime(); 
     let durationParts = duration.split(":");
     let hours = parseInt(durationParts[0]);
     let minutes = parseInt(durationParts[1]);

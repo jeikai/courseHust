@@ -2,16 +2,13 @@ import Axios from "axios";
 import QuizData from "../db/QuizData";
 import { da } from "@faker-js/faker";
 import { useAPI } from "../hooks/api";
-const getQuizs = async () => {
+const getQuizs = async (userId) => {
   const data = QuizData;
+  const responseAPI = (await useAPI(`/api/quiz/instructor/${userId}`, null)).data
   return data;
 };
 
 const deleteQuiZ = async (id) => {
-  // const res = await Axios.post('url', id)
-  // const data = await res.json();
-
-  // trả về status true or false
   return true;
 };
 

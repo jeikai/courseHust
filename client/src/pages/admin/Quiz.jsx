@@ -12,8 +12,13 @@ import { Link } from "react-router-dom";
 import Spring from "../../components/Spring";
 import { deleteQuiZ, getQuizs } from "../../api/quiz";
 import { da } from "@faker-js/faker";
+import Loader from "../../components/Loader";
+import { useAPI } from "../../hooks/api";
+import  Axios  from "axios";
 
 const Quiz = () => {
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
+  const [isLoading, setIsLoading] = useState(true);
   const breadcrumb = [
     {
       title: "Home",
@@ -24,19 +29,29 @@ const Quiz = () => {
     },
   ];
   const [data, setData] = useState([]);
-
-  useEffect(() => {
+  async function fetchData(userId) {
     try {
-      getQuizs().then((quizs) => {
-        setData(quizs);
-      });
-      console.log(data)
+      const responseAPI = await Axios({ url: `/api/quiz/instructor/${userId}`, method: "GET" })
+      const arrayFormatData = []
+      responseAPI.data.data.forEach(quiz => {
+        arrayFormatData.push({
+          id: quiz._id._id,
+          title: quiz._id.title,
+          numberOfQuestions: quiz._id.ques.length,
+          duration: quiz._id.duration
+        })
+      })
+      setData(arrayFormatData)
+      setIsLoading(false)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
+  }
+  useEffect(() => {
+    fetchData(userId)
   }, []);
+  if (isLoading) return <Loader />;
   const handleDeleteQuiz = async (id) => {
-    debugger;
     console.log(id);
     const status = await deleteQuiZ(id);
 
@@ -53,8 +68,8 @@ const Quiz = () => {
       <Bread
         title="Quiz"
         items={breadcrumb}
-        label={"Add new quiz"}
-        link={"/admin/add_quiz"}
+        label={"Auto Quiz"}
+        link={"/admin/auto_quiz"}
       />
       <div className="shadow-md border bg-white p-8">
         {data.map((quiz, index) => {
@@ -81,7 +96,7 @@ const Quiz = () => {
                         gap={4}
                       >
                         <ClockCircleOutlined />
-                        {/* <span>{quiz.duration} Minutes</span> */}
+                        <span>{quiz.duration}</span>
                       </Flex>
                       <Link className="group">
                         <Flex

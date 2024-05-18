@@ -80,7 +80,7 @@ function Purchase() {
         return (
           <Flex align="center" gap={8} className="w-[250px]">
             <Image
-              src={image}
+              src={record.courseId.thumbnail}
               width={90}
               height={90}
               className="object-cover rounded-lg"

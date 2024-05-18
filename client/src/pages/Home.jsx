@@ -262,6 +262,7 @@ const Home = () => {
           />
           <Carousel ref={carousel1} autoplay slidesToShow={4}>
             {courses.data?.map((course, index) => {
+              console.log(course)
               return <Course key={index} course={course} />;
             })}
           </Carousel>

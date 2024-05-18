@@ -54,7 +54,7 @@ const Bill = () => {
         return (
           <Flex align="center" gap={8} className="w-[250px]">
             <Image
-              src={image}
+              src={record.thumbnail}
               width={90}
               height={90}
               className="object-cover rounded-lg"

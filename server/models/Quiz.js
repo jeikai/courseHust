@@ -1,8 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const sectionModel = require('./Section')
-const { duration } = require('@mui/material')
-
+const courseModel = require('./Course')
 const QuizSchema = new Schema({
     title: { type: String, required: true },
     duration: { type: String, default: '' },
@@ -43,6 +42,25 @@ exports.getById = async function (data) {
     try {
         const quiz = await Quiz.findById(data).populate('ques');
         return quiz
+    } catch (error) {
+        return { error: error }
+    }
+}
+
+exports.getByInstructorId = async function (data) {
+    try {
+        const query = {
+            instructorId: data
+        }
+        const resultCourse = await courseModel.get(query)
+        const allSpecs = resultCourse.map((course) => course.sections)
+            .flat()
+            .map((section) => section.specs);
+
+        // Filter only quiz specs
+        const quizSpecs = allSpecs.flat().filter((spec) => spec.type === "quiz");
+
+        return quizSpecs;
     } catch (error) {
         return { error: error }
     }

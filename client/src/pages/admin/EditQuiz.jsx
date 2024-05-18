@@ -16,7 +16,7 @@ const timeFormat = 'HH:mm:ss';
 const EditQuiz = () => {
   const id = useParams().id
   const breadcrumb = [
-    {
+    { 
       title: 'Home',
       href: '',
     },

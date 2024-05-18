@@ -13,6 +13,19 @@ exports.getById = async function(req, res){
     }
 }
 
+exports.getByInstructorId = async function(req, res){
+    try{
+        const {instructorId} = req.params
+
+        const result = await quizModel.getByInstructorId(instructorId)
+
+        return res.status(200).json({data: result})
+        
+    }catch(e){
+        return res.status(500).json({message: e.message})
+    }
+}
+
 exports.create = async function(req, res) {
     try {
         const data = req.body;

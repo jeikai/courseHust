@@ -26,18 +26,17 @@ import { Axios } from "axios";
 const QuizLesson = () => {
   const { id } = useParams();
   const viewContext = useContext(ViewContext);
-  console.log(id);
   let responseAPI;
 
   // let toggle = false;
 
   const [lesson, setLesson] = useState(null);
-  const [start, setStart] = useState(localStorage.getItem("time") || null);
+  const [start, setStart] = useState(localStorage.getItem(`${id}_time`) || null);
   const handleStartQuiz = () => {
     console.log("Start quiz");
     // let duaration = lesson.duaration
     let duration = lesson?.duration;
-    let startTime = new Date().getTime(); 
+    let startTime = new Date().getTime();
     let durationParts = duration.split(":");
     let hours = parseInt(durationParts[0]);
     let minutes = parseInt(durationParts[1]);
@@ -45,7 +44,7 @@ const QuizLesson = () => {
     let endTime = new Date(
       startTime + hours * 3600000 + minutes * 60000 + seconds * 1000
     ).getTime();
-    localStorage.setItem("time", endTime);
+    localStorage.setItem(`${id}_time`, endTime);
     setStart(endTime);
   };
 
@@ -109,7 +108,7 @@ const QuizLesson = () => {
             {!start ? (
               <Quiz handleStartQuiz={handleStartQuiz} />
             ) : (
-              lesson && <Questions lesson={lesson} />
+              lesson && <Questions lesson={lesson} quizId={id}/>
             )}
           </div>
         </Col>

@@ -7,7 +7,7 @@ const Quiz = ({handleStartQuiz}) => {
         <Image
             src={svgquiz}
             preview={false}
-            width={400}
+            width={400} 
             height={400}
         />
         <Typography.Title level={1}>Welcome to Quiz</Typography.Title>

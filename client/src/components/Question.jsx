@@ -10,7 +10,6 @@ import {
 import React from "react";
 
 const Question = ({ question, answers, current, setAnswers }) => {
-  console.log(question);
   const handleSingleChoice = (e) => {
     console.log(answers);
     let newAnswers = answers;
@@ -56,7 +55,7 @@ const Question = ({ question, answers, current, setAnswers }) => {
           >
             <Space direction="vertical" size={12} className="w-full">
               {question?.options.map((option, index) => {
-                console.log(option);
+                // console.log(option);
                 return (
                   <Radio
                     key={index}

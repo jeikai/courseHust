@@ -10,16 +10,24 @@ import {
   Radio,
   Space,
   Typography,
+  Modal,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import Question from "./Question";
 import { getQuizById } from "../api/quiz";
+import { ViewContext } from "../context/View";
+import { useContext } from "react";
 
-const Questions = ({ lesson }) => {
+const Questions = ({ lesson, quizId }) => {
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState([]);
   const [duration, setDuration] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const viewContext = useContext(ViewContext);
+
   useEffect(() => {
     // fetchQuestions()
     console.log(lesson);
@@ -33,7 +41,9 @@ const Questions = ({ lesson }) => {
     setAnswers(newListAnswers);
     setQuiz(lesson);
   }, []);
-
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
   const handlePrev = () => {
     if (currentQuestion > 1) {
       setCurrentQuestion(currentQuestion - 1);
@@ -46,33 +56,44 @@ const Questions = ({ lesson }) => {
     }
   };
 
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
   const showPopconfirm = () => {
     setOpen(true);
   };
   const handleOk = () => {
-    console.log(answers)
+    console.log(lesson);
+    console.log(answers);
+    showModal()
     setConfirmLoading(true);
     setOpen(false);
     setConfirmLoading(false);
-    
   };
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
   };
 
+  const handleOkModal = async () => {
+    try {
+      
+      setIsModalOpen(false);
+    } catch (error) {
+      viewContext.handleError(error.toString());
+    }
+  };
+  const handleCancelModal = () => {
+    setIsModalOpen(false);
+  };
   const handleGetTime = () => {
-    let endTime = localStorage.getItem("time");
+    let endTime = localStorage.getItem(`${quizId}_time`);
+    console.log(endTime);
     let now = new Date().getTime();
     let time = endTime - now;
 
-    if (time === 0) {
+    if (time.toString() === "00:00:00") {
       // handleSubmit Question
       // handleOk()
 
-      localStorage.removeItem("time");
+      localStorage.removeItem(`${quizId}_time`);
       return;
     }
 
@@ -84,10 +105,11 @@ const Questions = ({ lesson }) => {
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
-    console.log(formattedTime);
     setDuration(formattedTime);
   };
-
+  const handleResult = () => {
+    
+  }
   useEffect(() => {
     const interval = setInterval(() => {
       handleGetTime();
@@ -111,7 +133,9 @@ const Questions = ({ lesson }) => {
           Question {currentQuestion} out of {quiz?.questions?.length}{" "}
         </p>
       </Flex>
-      <Progress percent={(currentQuestion / quiz?.questions.length) * 100} />
+      <Progress
+        percent={(currentQuestion / quiz?.questions.length).toFixed(2) * 100}
+      />
       {quiz && (
         <Question
           question={quiz?.questions[currentQuestion - 1]}
@@ -120,6 +144,14 @@ const Questions = ({ lesson }) => {
           setAnswers={setAnswers}
         />
       )}
+      <Modal
+        title="My score"
+        open={isModalOpen}
+        onOk={handleOkModal}
+        onCancel={handleCancelModal}
+      >
+        <p>/10</p>
+      </Modal>
       <Flex justify="space-between" align="center" className="mt-4">
         <Button
           onClick={() => handlePrev()}

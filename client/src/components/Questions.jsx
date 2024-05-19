@@ -59,10 +59,32 @@ const Questions = ({ lesson, quizId }) => {
   const showPopconfirm = () => {
     setOpen(true);
   };
+
+  const handleCalculateScore = (lesson, answers) => {
+    try {
+      let diemSo = 0;
+      let soCauDung = 0;
+      const soCauHoi = lesson.length;
+      for (const cauHoiLesson of lesson) {
+        for (const cauTraLoiAnswer of answers) {
+          if (cauHoiLesson.id === cauTraLoiAnswer.id) {
+            if (cauTraLoiAnswer.choices[0] === cauHoiLesson.answer) {
+              soCauDung++;
+              break;
+            }
+          }
+        }
+      }
+
+      diemSo = (soCauDung / soCauHoi) * 10;
+      return diemSo.toFixed(2);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleOk = () => {
-    console.log(lesson);
-    console.log(answers);
-    showModal()
+    handleCalculateScore(lesson.questions, answers);
+    showModal();
     setConfirmLoading(true);
     setOpen(false);
     setConfirmLoading(false);
@@ -74,7 +96,6 @@ const Questions = ({ lesson, quizId }) => {
 
   const handleOkModal = async () => {
     try {
-      
       setIsModalOpen(false);
     } catch (error) {
       viewContext.handleError(error.toString());
@@ -107,9 +128,6 @@ const Questions = ({ lesson, quizId }) => {
 
     setDuration(formattedTime);
   };
-  const handleResult = () => {
-    
-  }
   useEffect(() => {
     const interval = setInterval(() => {
       handleGetTime();
@@ -150,7 +168,7 @@ const Questions = ({ lesson, quizId }) => {
         onOk={handleOkModal}
         onCancel={handleCancelModal}
       >
-        <p>/10</p>
+        <p>{handleCalculateScore(lesson.questions, answers)}/10</p>
       </Modal>
       <Flex justify="space-between" align="center" className="mt-4">
         <Button

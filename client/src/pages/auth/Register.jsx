@@ -24,9 +24,10 @@ import Axios from "axios";
 import { ViewContext } from "../../context/View";
 import axios from "axios";
 import Spring from "../../components/Spring";
+import { uploadFile } from "../../helpers";
 const Register = () => {
   const [checked, setChecked] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const authContext = useContext(AuthContext);
   const viewContext = useContext(ViewContext);
 
@@ -39,7 +40,6 @@ const Register = () => {
   };
   const [imageFilesList, setImageFilesList] = useState([]);
   const serverUpload = async (options) => {
-    debugger;
     const { onSuccess, file, onError, onProgress } = options;
     console.log("imageFilesList: ", imageFilesList);
     setImageFilesList([...imageFilesList, file]);
@@ -74,16 +74,16 @@ const Register = () => {
         console.log(info.file, info.fileList);
       }
       if (info.file.status === "done") {
+        viewContext.handleSuccess("Upload successfully");
         console.log(`${info.file.name} file uploaded successfully`);
       } else if (info.file.status === "error") {
+        viewContext.handleError("Upload failed");
         console.log(`${info.file.name} file upload failed.`);
       }
 
       // setImageFilesList(info.fileList);
     },
     onRemove(file) {
-      debugger;
-
       console.log(file);
       const updateFileList = imageFilesList.filter(
         (item) => item.uid !== file.uid
@@ -106,28 +106,36 @@ const Register = () => {
   //   }
   //   return e?.fileList;
   // };
-
-  const handleSubmit = async (data) => {
-    console.log(data);
-    try {
-      const res = await Axios({
-        url: "/api/user/register",
-        method: "POST",
-        data: data,
-      });
-      viewContext.handleSuccess("Sign up successfully")
-      navigate(authContext.signin(res));
-    } catch (error) {
-      console.log(error);
-      viewContext.handleError(error);
-    }
-  };
-
   useEffect(() => {
     if (authContext?.user) {
       navigate("/", { replace: true });
     }
   }, []);
+  if (isLoading) return <Loader />;
+  const handleSubmit = async (data) => {
+    try {
+      setIsLoading(true);
+      if (data.phone) {
+        data.role = "teacher";
+      }
+      let document = await uploadFile(data.upload.file.originFileObj);
+      data.upload = document.file_url;
+      console.log(data)
+      const res = await Axios({
+        url: "/api/user/register",
+        method: "POST",
+        data: data,
+      });
+      setIsLoading(false)
+      viewContext.handleSuccess("Sign up successfully")
+      navigate(authContext.signin(res));
+    } catch (error) {
+      setIsLoading(false)
+      console.log(error);
+      viewContext.handleError(error);
+    }
+  };
+
   return (
     <Spring className="max-w-screen-xl m-auto py-24">
       <Row>
@@ -272,19 +280,6 @@ const Register = () => {
                     <Upload {...props} customRequest={serverUpload}>
                       <Button icon={<UploadOutlined />}>Click to Upload</Button>
                     </Upload>
-                  </Form.Item>
-
-                  <Form.Item
-                    name="message"
-                    label={
-                      <Typography.Title level={5}>Messages</Typography.Title>
-                    }
-                  >
-                    <Input.TextArea
-                      placeholder="Input your message..."
-                      autoSize={{ minRows: 4, maxRows: 6 }}
-                      className="p-4"
-                    />
                   </Form.Item>
                 </>
               )}

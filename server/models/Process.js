@@ -5,6 +5,7 @@ const ProcessSchema = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     lessonId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+    quizScores: [{ quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }, score: Number }],
     date_created: Date,
     date_updated: Date
 })
@@ -18,6 +19,7 @@ exports.create = async function (data) {
             userId: data.userId,
             courseId: data.courseId,
             lessonId: [],
+            quizScores: [],
             date_created: new Date(),
             date_updated: new Date()
         }

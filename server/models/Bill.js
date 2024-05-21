@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Enrollment = require('../models/Enrollment')
+const Process = require('../models/Process')
 const Schema = mongoose.Schema
 // bảng này dành cho hoá đơn
 const BillSchema = new Schema({

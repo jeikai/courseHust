@@ -42,7 +42,7 @@ function Purchase() {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [enrollmentData, setEnrollment] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const viewContext = useContext(ViewContext);
 
   async function fetchData() {
@@ -53,7 +53,7 @@ function Purchase() {
       });
       await setEnrollment(enrollment.data);
       console.log(enrollmentData, enrollment);
-      setIsLoading(true);
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -61,7 +61,7 @@ function Purchase() {
   useEffect(() => {
     fetchData();
   }, []);
-  if (!isLoading) return <Loader />;
+  if (isLoading) return <Loader />;
 
   const totalPrice = () => {
     let total = 0;
@@ -162,6 +162,7 @@ function Purchase() {
   };
   const handleOk = async () => {
     try {
+      setIsLoading(true)
       const responseAPI = await Axios({
         url: "/api/bill",
         method: "POST",
@@ -170,7 +171,9 @@ function Purchase() {
         },
       });
       console.log(responseAPI);
+      setIsLoading(false)
       fetchData();
+      
       viewContext.handleSuccess("Buy successfully")
       setIsModalOpen(false);
     } catch (error) {

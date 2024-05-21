@@ -4,7 +4,7 @@ const use = require('../helper/utility').use
 const validation = require('../middlewares/validation')
 const authMiddleware = require('../middlewares/authMiddleware')
 
-api.post('/user/register', validation.registerValidate, use(userController.register))
+api.post('/user/register', use(userController.register))
 
 api.post('/user/login', validation.loginValidate, use(userController.login))
 

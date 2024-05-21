@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Banner from '../components/Banner'
 import { Alert, Avatar, Button, Col, Flex, Image, Progress, Rate, Row, Space, Typography } from 'antd'
 import Sidenav from '../components/sidenav/Sidenav'
 import { Link } from 'react-router-dom'
 import { PlayCircleOutlined } from '@ant-design/icons'
 import Spring from '../components/Spring'
-
+import { ViewContext } from "../context/View";
+import { useContext } from "react";
+import { useAPI } from '../hooks/api'
 const Course = () => {
     return (
         <Col span={24}>
@@ -81,6 +83,16 @@ const Course = () => {
 }
 
 const Mycourses = () => {
+    const [myCourse, setMyCourse] = useState();
+    const viewContext = useContext(ViewContext);
+
+    async function fetchData() {
+        try {
+            const responseAPI = await useAPI(`/api/`)
+        } catch (error) {
+            viewContext.handleError(error.toString())
+        }
+    }
     return (
         <>
             <Banner name='My courses' />

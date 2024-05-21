@@ -612,13 +612,13 @@ const CourseDetail = () => {
                         >
                           Add to cart
                         </Button>
-                        <Button
+                        {/* <Button
                           icon={<CreditCardOutlined />}
                           size="large"
                           className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
                         >
                           Buy now
-                        </Button>
+                        </Button> */}
                       </>
                     )}
                   </ConfigProvider>

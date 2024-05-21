@@ -88,14 +88,14 @@ const Questions = ({ lesson }) => {
 
   return (
     <div className='p-8 shadow-lg text-base'>
-      <Row>
+      <Row gutter={12}>
         <Col span={16}>
           <Flex align='center' justify='space-between'>
             <Typography.Title level={3}>{quiz?.title}</Typography.Title>
-            <Flex align='center' justify='center' gap={6} className='text-red-500'>
+            {/* <Flex align='center' justify='center' gap={6} className='text-red-500'>
               <ClockCircleOutlined />
               <p>{duration}</p>
-            </Flex>
+            </Flex> */}
           </Flex>
           <Divider />
           <Flex align='center' justify='space-between' className='mb-2'>
@@ -130,31 +130,40 @@ const Questions = ({ lesson }) => {
             }
           </Flex>
         </Col>
-        <Col span={8} className='p-4'>
-          <Flex align='start'>
-            <ul className='ant-pagination css-dev-only-do-not-override-1xg9z9n flex items-start flex-wrap'>
-              {/* <li title="Previous Page" class="ant-pagination-prev" aria-disabled="false">
-                <button class="ant-pagination-item-link" type="button" tabindex="-1" disabled="">
-                  <span role="img" aria-label="left" class="anticon anticon-left">
-                    <svg viewBox="64 64 896 896" focusable="false" data-icon="left" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 000 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z"></path></svg>
-                  </span>
-                </button>
-              </li> */}
-              {quiz?.questions?.map((q, index) => {
-                return (
-                  <li key={index} class={`inline-block min-w-[32px] h-[32px] mr-2 leading-[30px] text-center list-none bg-transparent border border-transparent rounded-md cursor-pointer outline-none select-none hover:bg-[rgba(0, 0, 0, 0.06)] ant-pagination-item-${index + 1} mb-2 ${currentQuestion === index + 1 ? 'ant-pagination-item-active text-[#1677ff] border-[#1677ff]' : ''}`}
-                    onClick={() => setCurrentQuestion(index + 1)}
-                  >
-                    <a rel="nofollow">{index + 1}</a>
-                  </li>
-                )
-              })}
-              {/* <li title="Next Page" tabindex="0" class="ant-pagination-next" aria-disabled="false">
-                <button class="ant-pagination-item-link" type="button" tabindex="-1"><span role="img" aria-label="right" class="anticon anticon-right"><svg viewBox="64 64 896 896" focusable="false" data-icon="right" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M765.7 486.8L314.9 134.7A7.97 7.97 0 00302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 000-50.4z"></path></svg></span></button>
-              </li> */}
-            </ul>
-            {/* <Pagination style={{ marginBottom: 0 }} onChange={(e) => setCurrentQuestion(e)} total={quiz?.questions?.length} defaultPageSize={currentQuestion} current={currentQuestion} /> */}
-          </Flex>
+        <Col span={8}>
+          <div className='border p-4'>
+            <Flex align='center' justify='space-between' className='mb-4'>
+              <Typography.Title level={5}>Thời gian làm bài: </Typography.Title>
+              <Flex align='center' justify='center' gap={6} className='text-red-500'>
+                <ClockCircleOutlined />
+                <p>{duration}</p>
+              </Flex>
+            </Flex>
+            <Flex align='start'>
+              <ul className='ant-pagination css-dev-only-do-not-override-1xg9z9n flex items-start flex-wrap'>
+                {/* <li title="Previous Page" class="ant-pagination-prev" aria-disabled="false">
+                  <button class="ant-pagination-item-link" type="button" tabindex="-1" disabled="">
+                    <span role="img" aria-label="left" class="anticon anticon-left">
+                      <svg viewBox="64 64 896 896" focusable="false" data-icon="left" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 000 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z"></path></svg>
+                    </span>
+                  </button>
+                </li> */}
+                {quiz?.questions?.map((q, index) => {
+                  return (
+                    <li key={index} class={`inline-block min-w-[32px] h-[32px] mr-2 leading-[30px] text-center list-none bg-transparent border rounded-md cursor-pointer outline-none select-none hover:bg-[rgba(0, 0, 0, 0.06)] ant-pagination-item-${index + 1} mb-2 ${currentQuestion === index + 1 ? 'ant-pagination-item-active text-[#1677ff] border-[#1677ff]' : ''}`}
+                      onClick={() => setCurrentQuestion(index + 1)}
+                    >
+                      <a rel="nofollow">{index + 1}</a>
+                    </li>
+                  )
+                })}
+                {/* <li title="Next Page" tabindex="0" class="ant-pagination-next" aria-disabled="false">
+                  <button class="ant-pagination-item-link" type="button" tabindex="-1"><span role="img" aria-label="right" class="anticon anticon-right"><svg viewBox="64 64 896 896" focusable="false" data-icon="right" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M765.7 486.8L314.9 134.7A7.97 7.97 0 00302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 000-50.4z"></path></svg></span></button>
+                </li> */}
+              </ul>
+              {/* <Pagination style={{ marginBottom: 0 }} onChange={(e) => setCurrentQuestion(e)} total={quiz?.questions?.length} defaultPageSize={currentQuestion} current={currentQuestion} /> */}
+            </Flex>
+          </div>
         </Col>
       </Row>
     </div>

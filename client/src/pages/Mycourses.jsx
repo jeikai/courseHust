@@ -26,20 +26,20 @@ import Axios from "axios";
 const Course = ({ course }) => {
   return (
     <Col span={24}>
-      <Link to={"/"}>
+      <Link to={`/courses/${course?.courseId?._id}`}>
         <Row className="cursor-pointer">
           <Col span={7}>
             <img
-              src="https://demo.creativeitem.com/academy/uploads/thumbnails/course_thumbnails/optimized/course_thumbnail_default-new_121701001881.jpg"
+              src={course?.courseId?.thumbnail}
               className="w-[245px] h-[145px] cursor-pointer rounded-lg"
             />
           </Col>
           <Col span={17}>
             <Space direction="vertical" className="w-full">
               <Typography.Title level={5} style={{ color: "#676C7D" }}>
-                WordPress Theme Development with Bootstrap
+                {course.courseId.title}
               </Typography.Title>
-              <Flex align="center" gap={30}>
+              {/* <Flex align="center" gap={30}>
                 <Flex align="center" gap={6} style={{ color: "#676C7D" }}>
                   <PlayCircleOutlined />
                   <span>Lectures 22</span>
@@ -52,20 +52,10 @@ const Course = ({ course }) => {
                   <PlayCircleOutlined />
                   <span>Lectures 22</span>
                 </Flex>
-              </Flex>
+              </Flex> */}
               <div className="pr-10">
-                <Progress percent={30} size="small" />
+                <Progress percent={course.process} size="small" />
               </div>
-              <Alert
-                message={
-                  <>
-                    <span>Up coming live class</span>
-                    <span className="font-semibold"> 8:00 PM, 13 Dec 2022</span>
-                  </>
-                }
-                type="success"
-                className="text-center text-base text-[#0a3622] bg-[#d1e7dd] border-[#a3cfbb]"
-              />
               <Flex align="end" justify="space-between" className="mt-2">
                 <Space direction="vertical">
                   <Flex align="center" gap={8}>
@@ -73,16 +63,13 @@ const Course = ({ course }) => {
                       shape="circle"
                       src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
                     />
-                    <span className="text-[#676C7D]">John Doe</span>
-                    <span>
-                      <Rate className="text-base" disabled defaultValue={2} />
-                    </span>
+                    <span className="text-[#676C7D]">{course.courseId.instructorId.name}</span>
                   </Flex>
                   <div>
                     <span className="text-[#676C7D]">
-                      Expiry period -{" "}
+                      Level -{" "}
                       <span className="text-[#198754] font-semibold">
-                        LIFETIME ACCESS
+                        {course.courseId.level}
                       </span>
                     </span>
                   </div>

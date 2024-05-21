@@ -26,7 +26,7 @@ const RowSection = ({ section, openModalEditSection, handleRemoveSection, openMo
         <div key={section.id} ref={setNodeRef} style={style} {...attributes} {...listeners} className="border border-[#e2e8f0] item rounded text-nowrap bg-white text-[#64748b] p-4">
             <div>
                 <Flex align='center' justify='space-between' className='mb-4'>
-                    <Typography.Title level={5}>{section.sectionName}</Typography.Title>
+                    <Typography.Title level={5}>{section.title}</Typography.Title>
                     <Space className='text-base'>
                         <EditOutlined
                             onClick={() => openModalEditSection(section.id)}
@@ -51,10 +51,6 @@ const RowSection = ({ section, openModalEditSection, handleRemoveSection, openMo
                     formLesson.setFieldValue("sectionId", section.id)
                     setOpenInputLesson(true)
                 }} icon={<PlusOutlined />}>Lesson</Button>
-                <Button onClick={() => {
-                    formQuiz.setFieldValue("sectionId", section.id)
-                    setOpenInputQuiz(true)
-                }} icon={<PlusOutlined />}>Quiz</Button>
             </Space>
         </div>
     )

@@ -120,17 +120,17 @@ const Register = () => {
       }
       let document = await uploadFile(data.upload.file.originFileObj);
       data.upload = document.file_url;
-      console.log(data)
+      console.log(data);
       const res = await Axios({
         url: "/api/user/register",
         method: "POST",
         data: data,
       });
-      setIsLoading(false)
-      viewContext.handleSuccess("Sign up successfully")
+      setIsLoading(false);
+      viewContext.handleSuccess("Sign up successfully");
       navigate(authContext.signin(res));
     } catch (error) {
-      setIsLoading(false)
+      setIsLoading(false);
       console.log(error);
       viewContext.handleError(error);
     }

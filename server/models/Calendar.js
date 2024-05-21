@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const CalendarSchema = new Schema({
+  //instructorId
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
   title: { type: String, default: '' },

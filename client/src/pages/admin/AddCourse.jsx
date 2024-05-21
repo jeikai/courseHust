@@ -1,4 +1,10 @@
-import React, { Fragment, useEffect, useRef, useState, useContext } from "react";
+import React, {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+} from "react";
 import Bread from "../../components/Bread";
 import {
   Avatar,
@@ -12,7 +18,7 @@ import {
   Dropdown,
   Flex,
   Form,
-  Input,  
+  Input,
   Modal,
   Progress,
   Row,
@@ -62,6 +68,7 @@ import Spring from "../../components/Spring";
 import { useAPI } from "../../hooks/api";
 import Axios from "axios";
 import { uploadFile } from "../../helpers";
+import Loader from "../../components/Loader";
 
 const AddCourse = () => {
   const viewContext = useContext(ViewContext);
@@ -86,6 +93,7 @@ const AddCourse = () => {
   const [openEditQuiz, setOpenEditQuiz] = useState(false);
   const optionResponseApi = useAPI("/api/category", null).data;
   const [options, setOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState({
     title: "",
     category: "",
@@ -160,6 +168,7 @@ const AddCourse = () => {
     }));
 
     setOpenInputLesson(false);
+    viewContext.handleSuccess("Upload successfully");
     formLesson.resetFields();
 
     console.log("data", data);
@@ -206,10 +215,7 @@ const AddCourse = () => {
       section?.specials?.forEach((item) => {
         if (item.id === id) {
           formEditLesson.setFieldValue("name", item.name);
-          formEditLesson.setFieldValue(
-            "content",
-            item.content
-          );
+          formEditLesson.setFieldValue("content", item.content);
           formEditLesson.setFieldValue("file", item.file);
           formEditLesson.setFieldValue("sectionId", item.sectionId);
 
@@ -327,42 +333,46 @@ const AddCourse = () => {
     console.log(file);
     callback([file]);
     onSuccess("ok");
+    viewContext.handleSuccess("Upload successfully");
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     // console.log(data.thumbnail);
-    let thumbnail = await uploadFile(data.thumbnail.file.originFileObj)
-    data.thumbnail = thumbnail.file_url
+    let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
+    data.thumbnail = thumbnail.file_url;
     // data.thumbnail = "img.png"
-    setData({...data})
-    let {sections} = data
-    for (let section of sections){
-      let {specials} = section
-      for(let spec of specials){
-        let uploadVid = await uploadFile(spec.file[0].originFileObj)
-        spec.videoURL = uploadVid.file_url,
-        spec.duration = uploadVid.duration
+    setData({ ...data });
+    let { sections } = data;
+    for (let section of sections) {
+      let { specials } = section;
+      for (let spec of specials) {
+        let uploadVid = await uploadFile(spec.file[0].originFileObj);
+        (spec.videoURL = uploadVid.file_url),
+          (spec.duration = uploadVid.duration);
         // spec.videoURL = "vid.mp4",
         // spec.duration = 30
       }
     }
-    // console.log(data);
-    let user = localStorage.getItem("user")
-    user = JSON.parse(user)
+    console.log(data);
+    let user = localStorage.getItem("user");
+    user = JSON.parse(user);
     // console.log(user.authenticated);
     try {
       const resCourse = await Axios({
-          url: "/api/course",
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${user.authenticated}`
-          },
-          data: data
-      })
+        url: "/api/course",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.authenticated}`,
+        },
+        data: data,
+      });
       console.log(resCourse.data);
-      viewContext.handleSuccess("Create course successfully")
+      setIsLoading(false);
+      viewContext.handleSuccess("Create course successfully");
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
       viewContext.handleError(error);
     }
   };
@@ -382,6 +392,7 @@ const AddCourse = () => {
               size="large"
               showCount
               maxLength={60}
+              required={true}
             />
           </Form.Item>
         </Col>
@@ -632,7 +643,11 @@ const AddCourse = () => {
             </Col>
             <Col span={18}>
               <Form.Item className="w-full" name="price">
-                <Input placeholder="Enter course price" size="large" />
+                <Input
+                  placeholder="Enter course price"
+                  size="large"
+                  type="number"
+                />
               </Form.Item>
             </Col>
           </>
@@ -678,7 +693,7 @@ const AddCourse = () => {
             </Upload>
           </Form.Item>
         </Col>
-        <Col span={8}>
+        {/* <Col span={8}>
           <Typography.Title level={5}>Course video</Typography.Title>
         </Col>
         <Col span={16}>
@@ -691,7 +706,7 @@ const AddCourse = () => {
               <Button icon={<UploadOutlined />}>Upload your short video</Button>
             </Upload>
           </Form.Item>
-        </Col>
+        </Col> */}
       </Row>
     </Spring>
   );
@@ -810,6 +825,8 @@ const AddCourse = () => {
 
   const sensors = useSensors(mouseSensor, touchSensor);
 
+  if (isLoading) return <Loader />;
+
   const Curriculum = ({ index }) => {
     return (
       <div className={`${current === index ? "block" : "hidden"}`}>
@@ -916,10 +933,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload
-
-                      fileList={video}
-                      >
+                      <Upload fileList={video}>
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>
@@ -1025,32 +1039,7 @@ const AddCourse = () => {
                 </Row>
               </Form>
             </Drawer>
-            <Modal
-              title={<Typography.Title level={5}>Add a quiz</Typography.Title>}
-              open={openInputQuiz}
-              onCancel={() => setOpenInputQuiz(false)}
-            >
-              <Form form={formQuiz} layout="vertical">
-                <Form.Item
-                  label={
-                    <Typography.Title level={5}>Select quiz</Typography.Title>
-                  }
-                >
-                  <Select placeholder="Select question type">
-                    <Select.Option value="mcq">Multiple choice</Select.Option>
-                    <Select.Option value="scq">
-                      Single choice and True/False
-                    </Select.Option>
-                    <Select.Option value="fill">
-                      Fill in the blank
-                    </Select.Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item name="sectionId">
-                  <Input />
-                </Form.Item>
-              </Form>
-            </Modal>
+
             <ConfigProvider
               theme={{
                 components: {
@@ -1115,120 +1104,6 @@ const AddCourse = () => {
             </ConfigProvider>
           </div>
         </div>
-      </div>
-    );
-  };
-
-  const progressData = [
-    {
-      id: 1,
-      photo:
-        "https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png",
-      name: "Signe Thomson",
-      email: "signeiner@gmail.com",
-      enrolledDate: "11 Now 2020",
-      completeOn: "Not completed yet",
-      quizDone: 1,
-      quizs: 10,
-    },
-  ];
-
-  const ProgressAcademy = ({ index }) => {
-    return (
-      <div className={`${current === index ? "block" : "hidden"}`}>
-        <Table dataSource={progressData}>
-          <Table.Column
-            width={50}
-            title="Avatar"
-            render={(_, record) => {
-              return (
-                <div>
-                  <Avatar size={48} shape="circle" src={record.photo} />
-                </div>
-              );
-            }}
-          />
-          <Table.Column
-            title="Student"
-            render={(_, record) => {
-              return (
-                <Flex vertical>
-                  <Typography.Title level={5}>{record.name}</Typography.Title>
-                  <Typography.Text className="p-1 shadow bg-[#e3eaef] w-fit rounded">
-                    {record.email}
-                  </Typography.Text>
-                </Flex>
-              );
-            }}
-          />
-          <Table.Column
-            title="Date"
-            render={(_, record) => {
-              return (
-                <Flex vertical>
-                  <Typography.Text>
-                    <span className="font-semibold">Enroll from: </span>
-                    {record.enrolledDate}
-                  </Typography.Text>
-                  <Typography.Text>
-                    <span className="font-semibold">Last seen on: </span>
-                    {record.completeOn}
-                  </Typography.Text>
-                </Flex>
-              );
-            }}
-          />
-          <Table.Column
-            title="Progress"
-            render={(_, record) => {
-              return (
-                <Flex vertical className="w-[85%]">
-                  <Progress percent={20} />
-                  <Typography.Text>
-                    <span className="font-semibold">Complete quiz: </span>
-                    {record.quizDone}
-                    <span> out of </span>
-                    {record.quizs}
-                  </Typography.Text>
-                </Flex>
-              );
-            }}
-          />
-          <Table.Column
-            title="Actions"
-            render={(_, record) => {
-              return (
-                <Flex align="center">
-                  <Button icon={<CreditCardOutlined />}></Button>
-                </Flex>
-              );
-            }}
-          />
-        </Table>
-
-        <Table>
-          <Table.Column title="#" key={"id"} dataIndex={"id"} />
-          <Table.Column
-            title="Student"
-            render={(_, record) => {
-              return (
-                <Flex vertical>
-                  <Typography.Title level={5}>{record.name}</Typography.Title>
-                  <Typography.Text className="p-1 shadow bg-[#e3eaef] w-fit rounded">
-                    {record.email}
-                  </Typography.Text>
-                </Flex>
-              );
-            }}
-          />
-          <Table.Column title="Mark" key={"mark"} dataIndex={"mark"} />
-          <Table.Column title="Status" key={"status"} dataIndex={"status"} />
-          {/* <Table.Column
-                        title="#"
-                        key={"id"}
-                        dataIndex={"id"}
-                    /> */}
-        </Table>
       </div>
     );
   };
@@ -1357,11 +1232,21 @@ const AddCourse = () => {
                 return <Fragment key={index}>{step.content}</Fragment>;
               })}
               <div style={{ marginTop: 24 }}>
+                {current > 0 && (
+                  <Button
+                    onClick={() => setCurrent(current - 1)}
+                    className="text-[#754FFE] font-semibold ml-2"
+                    size="large"
+                  >
+                    Previous
+                  </Button>
+                )}
                 {current < steps.length - 1 && (
                   <Button
                     onClick={() => setCurrent(current + 1)}
                     className="bg-[#754FFE] text-white font-semibold"
                     size="large"
+                    style={{ marginLeft: 10 }}
                   >
                     Next
                   </Button>
@@ -1372,17 +1257,9 @@ const AddCourse = () => {
                     type="submit"
                     className="bg-[#754FFE] text-white font-semibold"
                     size="large"
+                    style={{ marginLeft: 10 }}
                   >
                     Done
-                  </Button>
-                )}
-                {current > 0 && (
-                  <Button
-                    onClick={() => setCurrent(current - 1)}
-                    className="text-[#754FFE] font-semibold ml-2"
-                    size="large"
-                  >
-                    Previous
                   </Button>
                 )}
               </div>

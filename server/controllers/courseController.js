@@ -6,6 +6,7 @@ const lessonModel = require('../models/Lesson')
 exports.create = async function (req, res) {
     try {
         const data = req.body
+        console.log(data)
         utility.validate(data, ['instructorId', 'title', 'description',
             'categoryId', 'level', 'price'])
 
@@ -14,10 +15,15 @@ exports.create = async function (req, res) {
 
         if (data.sections) {
             for (const section of data.sections) {
+                console.log(section)
                 try {
                     utility.validate(section, ['title'])
                     const newSection = await sectionModel.create({ ...section, courseId: newCourse._id })
-                    if (newSection.hasOwnProperty('error')) return res.status(500).json({ message: newSection.error })
+                    if (newSection.hasOwnProperty('error')) {
+                        console.log("Lỗi khi tạo section")
+                        console.log(newSection.error)
+                        return res.status(500).json({ message: newSection.error })
+                    }
 
                     if (section.specials) {
                         for (const spec of section.specials) {
@@ -27,15 +33,23 @@ exports.create = async function (req, res) {
                                 if (checkSpec.type === "lesson") {
                                     utility.validate(spec, ['sectionId', 'title', 'content', 'videoURL', 'duration'])
                                     const newLesson = await lessonModel.create(spec)
-                                    if (newLesson.hasOwnProperty('error')) return res.status(500).json({ message: newLesson.error })
+                                    if (newLesson.hasOwnProperty('error')) {
+                                        console.log("Lỗi tạo lesson")
+                                        console.log(newLesson.error)
+                                        return res.status(500).json({ message: newLesson.error })
+                                    }
                                 }
                                 //if checkSpec.type === "quiz"
                             } catch (error) {
+                                console.log("lỗi gì gì đó trong này")
+                                console.log(error)
                                 return res.status(500).json({ message: error.message })
                             }
                         }
                     }
                 } catch (error) {
+                    console.log("inside for")
+                    console.log(error)
                     return res.status(500).json({ message: error.message })
                 }
             }
@@ -44,6 +58,7 @@ exports.create = async function (req, res) {
         const response = await courseModel.get(query)
         return res.status(200).json({ message: "Course created successfully", data: response })
     } catch (e) {
+        console.log(e)
         return res.status(500).json({ message: e.message })
     }
 }
@@ -55,7 +70,7 @@ exports.getById = async function (req, res) {
         const data = { courseId: courseId }
         const result = await courseModel.get(data)
 
-        if(!result || result.error) return res.status(500).json({message: "fail to find"})
+        if (!result || result.error) return res.status(500).json({ message: "fail to find" })
 
         if (result.hasOwnProperty('error')) return res.status(500).json({ message: result.error })
 
@@ -72,7 +87,7 @@ exports.getByCategory = async function (req, res) {
         query.categoryTitle = req.body.categoryTitle || ''
 
         const courses = await courseModel.get(query)
-        if(courses.hasOwnProperty('error')) return res.status(500).json({message: courses.error})
+        if (courses.hasOwnProperty('error')) return res.status(500).json({ message: courses.error })
         if (courses.hasOwnProperty('error')) return res.status(500).json({ message: courses.error })
 
         return res.status(200).json(courses)
@@ -124,14 +139,14 @@ exports.getByInstructorId = async function (req, res) {
 }
 
 
-exports.update = async function(req, res){
-    try{
+exports.update = async function (req, res) {
+    try {
         const courseId = req.params.courseId
         const data = req.body
         const result = await courseModel.update(courseId, data)
-        if(result.error) return res.status(500).json({message: "Failed to update", data: result.error})
+        if (result.error) return res.status(500).json({ message: "Failed to update", data: result.error })
         return res.status(200).json(result)
-    }catch(e){
-        return res.status(500).json({message: e.message})
+    } catch (e) {
+        return res.status(500).json({ message: e.message })
     }
 }

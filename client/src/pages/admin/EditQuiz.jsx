@@ -36,7 +36,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 const dateFormat = "YYYY-MM-DD";
-const timeFormat = "HH:mm:ss";
+const timeFormat = "HH:mm:ss"; 
 
 const EditQuiz = () => {
   const id = useParams().id;

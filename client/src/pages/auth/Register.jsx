@@ -117,9 +117,10 @@ const Register = () => {
       setIsLoading(true);
       if (data.phone) {
         data.role = "teacher";
+        let document = await uploadFile(data.upload.file.originFileObj);
+        data.upload = document.file_url;
       }
-      let document = await uploadFile(data.upload.file.originFileObj);
-      data.upload = document.file_url;
+
       console.log(data);
       const res = await Axios({
         url: "/api/user/register",

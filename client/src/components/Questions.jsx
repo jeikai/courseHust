@@ -142,7 +142,7 @@ const Questions = ({ lesson }) => {
               </li> */}
               {quiz?.questions?.map((q, index) => {
                 return (
-                  <li key={index} class={`ant-pagination-item ant-pagination-item-${index + 1} mb-2 ${currentQuestion === index + 1 ? 'ant-pagination-item-active' : ''}`}
+                  <li key={index} class={`inline-block min-w-[32px] h-[32px] mr-2 leading-[30px] text-center list-none bg-transparent border border-transparent rounded-md cursor-pointer outline-none select-none hover:bg-[rgba(0, 0, 0, 0.06)] ant-pagination-item-${index + 1} mb-2 ${currentQuestion === index + 1 ? 'ant-pagination-item-active text-[#1677ff] border-[#1677ff]' : ''}`}
                     onClick={() => setCurrentQuestion(index + 1)}
                   >
                     <a rel="nofollow">{index + 1}</a>

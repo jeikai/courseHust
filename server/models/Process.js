@@ -47,6 +47,22 @@ exports.getById = async function (id) {
         return lesson;
     } catch (err) {
         console.error(err);
-        throw err;
+        return { error: err }
     }
 };
+
+exports.getByUserId = async function (userId) {
+    try {
+        const process = await Process.find({userId: userId}).populate('courseId')
+            .populate({
+                path: 'courseId',
+                populate: [{
+                    path: 'instructorId'
+                }]
+            })
+        return process;
+    } catch (error) {
+        console.log(error)
+        return { error: err }
+    }
+}

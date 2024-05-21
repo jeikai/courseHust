@@ -11,7 +11,7 @@ const BillSchema = new Schema({
     date_updated: Date
 })
 
-const Bill = mongoose.model('Bill', BillSchema, 'bills')
+const Bill = mongoose.model('Bill', BillSchema, 'bills') 
 exports.schema = Bill
 
 exports.create = async function (data) {
@@ -29,6 +29,13 @@ exports.create = async function (data) {
         enrollments.forEach((enrollment) => {
             Enrollment.delete(enrollment.userId, enrollment.courseId._id)
         })
+        courseIds.forEach((courseId) => {
+            const dataForProcess = {
+                userId: data.userId,
+                courseId: courseId
+            }
+            Process.create(dataForProcess)
+        })
         const billData = {
             userId: data.userId,
             listOfCourse: courseIds,
@@ -40,6 +47,7 @@ exports.create = async function (data) {
         await newBill.save()
         return newBill
     } catch (error) {
+        console.log(error)
         return { error: error }
     }
 }

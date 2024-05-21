@@ -6,6 +6,7 @@ const ProcessSchema = new Schema({
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     lessonId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
     quizScores: [{ quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }, score: Number }],
+    process: { type: Number, default: 0 },
     date_created: Date,
     date_updated: Date
 })
@@ -15,11 +16,12 @@ exports.schema = Process
 
 exports.create = async function (data) {
     try {
-        const lessonData = { 
+        const lessonData = {
             userId: data.userId,
             courseId: data.courseId,
             lessonId: [],
             quizScores: [],
+            process: 0,
             date_created: new Date(),
             date_updated: new Date()
         }
@@ -44,7 +46,7 @@ exports.getById = async function (id) {
 
         return lesson;
     } catch (err) {
-        console.error(err);  
-        throw err;        
+        console.error(err);
+        throw err;
     }
 };

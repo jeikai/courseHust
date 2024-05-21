@@ -68,10 +68,10 @@ exports.get = async function (query) {
             const course2 = await Course.findById(query.courseId)
                 .populate(['sections', 'instructorId', 'categoryId'])
                 .populate({
-                    path: 'sections',
+                    path: 'sections', 
                     populate: [
                         //   { path: 'specs._id', model: 'Lesson' },
-                        { path: 'specs._id', model: 'Quiz' }
+                        { path: 'specs._id', model: 'Quiz' } 
                     ]
                 })
             course1.sections.forEach(section1 => {

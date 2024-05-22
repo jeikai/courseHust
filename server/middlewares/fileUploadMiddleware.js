@@ -4,7 +4,7 @@ const multer = require('multer');
 
 // Create a custom storage engine for Multer
 const storage = multer.diskStorage({
-    destination: '/temp/questions', // Temporary storage directory
+    destination: 'temp/questions', // Temporary storage directory
     filename: (req, file, cb) => {
         // Extract the file extension from the original name
         const fileExtension = file.originalname.split('.').pop();

@@ -31,16 +31,29 @@ import think3 from "../assets/think-3.png";
 import bgcategories from "../assets/bgcategories.png";
 import faq2 from "../assets/faq2.jpg";
 import Course from "../components/Course";
-import { useRef, useState, useEffect } from "react"
-import { useNavigate } from 'react-router-dom'
+import { useRef, useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAPI } from "../hooks/api.jsx";
-import {Form} from "antd"
+import { Form } from "antd";
+import { ViewContext } from "../context/View.jsx";
+import Loader from "../components/Loader.jsx";
 const Home = () => {
-  const courses = useAPI("/api/course");
+  const [courses, setCourse] = useState();
+  const [category, setCategory] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const viewContext = useContext(ViewContext);
+  
+  const coursesAPI = useAPI("/api/course", null);
+  const categoryAPI = useAPI("/api/category", null);
 
   useEffect(() => {
-    console.log(courses);
-  }, [courses]);
+    if (coursesAPI.data && categoryAPI.data) {
+      setIsLoading(true); 
+      setCourse(coursesAPI);
+      setCategory(categoryAPI);
+      setIsLoading(false);
+    }
+  }, [coursesAPI, categoryAPI]);
 
   const categories = [
     {
@@ -96,14 +109,20 @@ const Home = () => {
   ];
   const carousel1 = useRef();
   const carousel2 = useRef();
-  const carousel = useRef()
+  const carousel = useRef();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleSearch = (e) => {
-    const { search } = e
-    navigate(`/courses?q=${search}`,)
+    const { search } = e;
+    if (!search) {
+      viewContext.handleError("You need to insert something");
+    } else {
+      navigate(`/courses?q=${search}`);
+    }
+  };
+  if (isLoading) {
+    return <Loader />;
   }
-
   return (
     <>
       <section className="max-w-screen-xl m-auto py-24">
@@ -121,14 +140,24 @@ const Home = () => {
             </Typography.Text>
 
             <div className="mt-12">
-              <Form
-                layout="horizontal"
-                onFinish={handleSearch}
-              >
+              <Form layout="horizontal" onFinish={handleSearch}>
                 <Form.Item name={"search"}>
-                  <Space.Compact style={{ width: '90%' }} className="bg-[#F8F7FF] p-1 border">
-                    <Input size="large" placeholder="What do you want to learn?" variant="borderless" />
-                    <Button htmlType="submit" size="large" type="primary" className="bg-[#754FFE]" icon={<SearchOutlined />}>
+                  <Space.Compact
+                    style={{ width: "90%" }}
+                    className="bg-[#F8F7FF] p-1 border"
+                  >
+                    <Input
+                      size="large"
+                      placeholder="What do you want to learn?"
+                      variant="borderless"
+                    />
+                    <Button
+                      htmlType="submit"
+                      size="large"
+                      type="primary"
+                      className="bg-[#754FFE]"
+                      icon={<SearchOutlined />}
+                    >
                       Search
                     </Button>
                   </Space.Compact>
@@ -223,26 +252,33 @@ const Home = () => {
             Top categories
           </Typography.Title>
           <Row className="mt-12" gutter={[16, 24]}>
-            {categories.map((category, index) => {
-              return (
-                <Col span={6} key={index} onClick={() => navigate(`/courses?categoryname=${category.name}`)}>
-                  <Space direction="vertical" className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500">
-                    <a href="" className="mb-8 block">
-                      <category.icon className="p-2 text-xl group-hover:text-white group-hover:border-white text-[#FB6871] border-2 border-[#FB6871] rounded-full" />
-                    </a>
-                    <h5 className="font-bold group-hover:text-white">
-                      {category.name}
-                    </h5>
-                    <span className="text-base group-hover:text-white">
-                      {category.qty} Courses
-                    </span>
-                    <a href="" className="block mt-4 pb-6">
-                      <ArrowRightOutlined className="text-xl font-bold group-hover:text-white text-[#FB6871]" />
-                    </a>
-                  </Space>
-                </Col>
-              );
-            })}
+            {category?.data && category?.data.length > 0 ? (
+              category?.data.map((category, index) => {
+                return (
+                  <Col
+                    span={6}
+                    key={index}
+                    onClick={() =>
+                      navigate(`/courses?categoryname=${category?.title}`)
+                    }
+                  >
+                    <Space
+                      direction="vertical"
+                      className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500"
+                    >
+                      <h5 className="font-bold group-hover:text-white">
+                        {category?.title}
+                      </h5>
+                      <a href="" className="block mt-4 pb-6">
+                        <ArrowRightOutlined className="text-xl font-bold group-hover:text-white text-[#FB6871]" />
+                      </a>
+                    </Space>
+                  </Col>
+                );
+              })
+            ) : (
+              <p className="text-white">No categories available</p>
+            )}
           </Row>
         </div>
       </section>
@@ -261,8 +297,8 @@ const Home = () => {
             size="large"
           />
           <Carousel ref={carousel1} autoplay slidesToShow={4}>
-            {courses.data?.map((course, index) => {
-              console.log(course)
+            {courses?.data?.map((course, index) => {
+              console.log(course);
               return <Course key={index} course={course} />;
             })}
           </Carousel>
@@ -292,7 +328,7 @@ const Home = () => {
             size="large"
           />
           <Carousel ref={carousel2} autoplay slidesToShow={4}>
-            {courses.data?.map((course, index) => {
+            {courses?.data?.map((course, index) => {
               return <Course key={index} course={course} />;
             })}
           </Carousel>

@@ -21,39 +21,98 @@ import Course from "../components/Course";
 import { useEffect, useState } from "react";
 import { getCategories } from "../api/category";
 import { useLocation } from "react-router-dom";
-
+import { useAPI } from "../hooks/api";
+import Loader from "../components/Loader";
 const Courses = () => {
   const [list, setList] = useState("List");
-
   const location = useLocation();
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState();
   const [courses, setCourses] = useState();
+  const [search, setSearch] = useState();
+  const coursesAPI = useAPI("/api/course", null);
+  const categoryAPI = useAPI("/api/category", null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [param, setParam] = useState({
-    q: '',
+    q: "",
     categoryname: "all",
     price: "all",
     level: "all",
     rating: "all",
   });
   useEffect(() => {
-    getCategories().then((categories) => {
-      setCategories(categories);
-    });
-  }, []);
+    if (coursesAPI.data && categoryAPI.data) {
+      setIsLoading(true);
+      setCourses(coursesAPI);
+      setCategories(categoryAPI);
+      if (param.q) {
+        let filteredCourses = coursesAPI?.data;
+        filteredCourses = filteredCourses.filter((course) =>
+          course.title.toLowerCase().includes(param.q.toLowerCase())
+        );
+        setSearch(filteredCourses);
+      } else if (param.categoryname) {
+        let filteredCourses = coursesAPI?.data;
+        filteredCourses = filteredCourses.filter(
+          (course) => course.categoryId.title === param.categoryname
+        );
+        setSearch(filteredCourses);
+      }
+      setIsLoading(false);
+    }
+  }, [coursesAPI, categoryAPI]);
 
-  const handleGetCourses = () => {};
+  const handleGetCourses = async (param) => {
+    try {
+      console.log(param);
+      let filteredCourses = courses?.data;
+      if (filteredCourses) {
+        console.log(filteredCourses);
+        if (param?.q) {
+          console.log("search");
+          filteredCourses = filteredCourses.filter((course) =>
+            course.title.toLowerCase().includes(param.q.toLowerCase())
+          );
+        }
+
+        if (param.categoryname && param.categoryname != "all") {
+          console.log("category");
+          filteredCourses = filteredCourses.filter(
+            (course) => course.categoryId.title === param.categoryname
+          );
+        }
+
+        if (param.price && param.price != "all") {
+          console.log("price");
+          filteredCourses = filteredCourses.filter(
+            (course) => param.price === (course.price > 0 ? "paid" : "free")
+          );
+        }
+
+        if (param.level && param.level !== "all") {
+          console.log("level");
+          filteredCourses = filteredCourses.filter(
+            (course) => course.level === param.level.toLowerCase()
+          );
+        }
+      }
+      console.log(filteredCourses);
+      await setSearch(filteredCourses);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    debugger
-    const urlParams = new URLSearchParams(window.location.search)
-    let newParam = param
+    const urlParams = new URLSearchParams(window.location.search);
+    let newParam = param;
 
-    if(urlParams.get('q')) {
-      newParam.q = urlParams.get('q')
+    if (urlParams.get("q")) {
+      newParam.q = urlParams.get("q");
     }
-    
-    if(urlParams.get('categoryname')) {
-      newParam.categoryname = urlParams.get('categoryname')
+
+    if (urlParams.get("categoryname")) {
+      newParam.categoryname = urlParams.get("categoryname");
     }
 
     if (urlParams.get("price")) {
@@ -70,14 +129,10 @@ const Courses = () => {
 
     setParam(newParam);
 
-    // Call Api filter function
+    handleGetCourses(newParam);
+  }, []);
 
-    handleGetCourses()
-
-  }, [location])
-
-
-  const handleChangeParams = (type, value) => {
+  const handleChangeParams = async (type, value) => {
     const urlParams = new URLSearchParams(window.location.search);
 
     if (urlParams.has(type)) {
@@ -96,10 +151,35 @@ const Courses = () => {
     const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
     window.history.replaceState(null, null, newUrl);
 
-    // Cập nhật state của ứng dụng
-    setParam({ ...param, [type]: value });
-  };
+    let newParam = param;
 
+    if (urlParams.get("q")) {
+      newParam.q = urlParams.get("q");
+    }
+
+    if (urlParams.get("categoryname")) {
+      newParam.categoryname = urlParams.get("categoryname");
+    }
+
+    if (urlParams.get("price")) {
+      newParam.price = urlParams.get("price");
+    }
+
+    if (urlParams.get("level")) {
+      newParam.level = urlParams.get("level");
+    }
+
+    if (urlParams.get("rating")) {
+      newParam.rating = parseInt(urlParams.get("rating"));
+    }
+
+    setParam(newParam);
+
+    handleGetCourses(newParam);
+  };
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <>
       <section
@@ -113,7 +193,7 @@ const Courses = () => {
                 className="z-10 text-2xl"
                 items={[
                   {
-                    href: "",
+                    href: "/",
                     title: (
                       <>
                         <HomeOutlined
@@ -163,7 +243,7 @@ const Courses = () => {
                     <Radio className="text-base" value={"all"}>
                       {"All"}
                     </Radio>
-                    {categories.map((category) => {
+                    {categories?.data.map((category) => {
                       return (
                         <Radio className="text-base" value={category.title}>
                           {category.title}
@@ -293,18 +373,13 @@ const Courses = () => {
               </Col>
             </Row>
             <Row gutter={[16, 16]} className="mt-4">
-              <Col span={list === "List" ? 20 : 8}>
-                <Course list={list}></Course>
-              </Col>
-              <Col span={list === "List" ? 20 : 8}>
-                <Course list={list}></Course>
-              </Col>
-              <Col span={list === "List" ? 20 : 8}>
-                <Course list={list}></Course>
-              </Col>
-              <Col span={list === "List" ? 20 : 8}>
-                <Course list={list}></Course>
-              </Col>
+              {search?.map((search) => {
+                return (
+                  <Col span={list === "List" ? 20 : 8}>
+                    <Course list={list} course={search}></Course>
+                  </Col>
+                );
+              })}
             </Row>
           </Col>
         </Row>

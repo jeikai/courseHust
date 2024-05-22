@@ -42,7 +42,7 @@ const CategoryData = [
         title: 'Mobile App Design',
     },
     {
-        title: 'Bootstrap',
+        title: 'Bootstrap', 
     },
 ]
 

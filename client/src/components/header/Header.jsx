@@ -227,8 +227,9 @@ const Header = () => {
                   }}
                 >
                   <Badge count={0}>
-                    <ShoppingCartOutlined className="text-2xl" /> ({" "}
-                    {enrollmentAPI?.data?.length} )
+                    <ShoppingCartOutlined className="text-2xl" /> 
+                    {/* ({" "}
+                    {enrollmentAPI?.data?.length} ) */}
                   </Badge>
                 </Flex>
               </div>

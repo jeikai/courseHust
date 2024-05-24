@@ -99,7 +99,7 @@ const Lesson = () => {
                         <span className="text-[#6c757d]">{responseAPI?.data?.date_created}</span>
                       </Flex>
                       <p className="text-[#6c757d] text-base font-medium">
-                        {responseAPI.data.duration} second
+                        {(responseAPI.data.duration).toFixed(2)} second
                       </p>
                     </Flex>
                   </Link>

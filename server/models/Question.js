@@ -5,8 +5,9 @@ const QuestionSchema = new Schema({
     question: { type: String, required: true },
     level: { type: String, enum: ['perception', 'comprehension', 'application', 'advanced application'], required: true, default: 'perception' },
     options: [{ type: String, default: '' }],
-    answer: { type: String, default: '' },
-    // mark: { type: Number, default: 0 },
+    answer: [{type: String, default: '' }],
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'CategoryQuestion' },
+    type: { type: String, enum: ['single', 'multiple', 'text']}, // single là trắc nghiệm 1 đáp án, multiple là trắc nghiệm nhiều đáp án. Text là tự luận
     date_created: Date,
     date_updated: Date
 })
@@ -21,7 +22,8 @@ exports.create = async function (quizzId, data) {
             level: data.level,
             options: data.options,
             answer: data.answer,
-            // mark: data.mark,
+            categoryId: data.categoryId,
+            type: data.type,
             date_created: new Date(),
             date_updated: new Date()
         }

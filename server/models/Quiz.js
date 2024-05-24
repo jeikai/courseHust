@@ -106,3 +106,13 @@ exports.getAllQuestions = async function (quizId) {
 		return { error };
 	}
 };
+
+
+exports.deleteQuiz = async function (quizId) {
+	try {
+		const quiz = await Quiz.findByIdAndDelete(quizId);
+		return quiz;
+	} catch (error) {
+		return {error};
+	}
+}

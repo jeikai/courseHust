@@ -1,38 +1,22 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Bread from '../../components/Bread';
-
 import {
-	Avatar,
 	Button,
 	Col,
 	ConfigProvider,
-	Collapse,
 	DatePicker,
 	Flex,
 	Form,
 	Input,
-	InputNumber,
-	Modal,
-	Radio,
 	Row,
 	Select,
-	Space,
 	Switch,
 	TimePicker,
 	Typography,
 } from 'antd';
-import {
-	CloseOutlined,
-	DeleteOutlined,
-	MoreOutlined,
-	PlusOutlined,
-} from '@ant-design/icons';
-import Question from '../../components/Question';
+import Loader from '../../components/Loader';
+import { DeleteOutlined } from '@ant-design/icons';
 import Spring from '../../components/Spring';
-import scq from '../../assets/scq.svg';
-import mcq from '../../assets/mcq.svg';
-import fill from '../../assets/fill.svg';
-import FormItem from 'antd/es/form/FormItem';
 import { createQuiz } from '../../api/quiz';
 import { useAPI } from '../../hooks/api';
 import { ViewContext } from '../../context/View';
@@ -55,25 +39,18 @@ const AutoQuiz = () => {
 	const [selectedCourseId, setSelectedCourseId] = useState(null);
 	const [selectedSection, setSelectedSection] = useState('');
 	const [generatedQuestions, setGeneratedQuestions] = useState([]);
+	const [loadingGenQuiz, setLoadingGenQuiz] = useState(false);
 	const userId = JSON.parse(localStorage.getItem('user')).account;
 	const handleAutoGenQuiz = async () => {
-		// const quizzes = [
-		// 	{
-		// 		question: 'Question 2',
-		// 		level: 'application',
-		// 		options: ['Đáp án 1', 'Đáp án 2', 'Đáp án 3', 'Đáp án 4'],
-		// 		answer: 'Đáp án 4',
-		// 		date_created: '2024-05-18T04:32:51.585Z',
-		// 		date_updated: '2024-05-18T04:32:51.585Z',
-		// 		__v: 0,
-		// 	},
-		// ];
+		setLoadingGenQuiz(true);
 		const fetchQuiz = await axios.get(
-			`http://localhost:5001/api/section/${selectedSection}/random-questions`
+			`/api/section/${selectedSection}/random-questions`
 		);
 		const quizzes = fetchQuiz.data.randomQuestions;
 		console.log(quizzes);
 		setGeneratedQuestions(quizzes);
+		setLoadingGenQuiz(false);
+		console.log('Finish Loading');
 		return;
 	};
 	const courseResponseApi = useAPI(
@@ -106,27 +83,13 @@ const AutoQuiz = () => {
 		formQuiz.setFieldsValue({ section: null });
 	}, [selectedCourseId, courseResponseApi]);
 
-	const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
-		const fieldQuiz = formQuiz.getFieldsValue();
-		const { questions } = fieldQuiz;
-
-		questions[indexQuestion].options = questions[indexQuestion].options.map(
-			(option, i) => {
-				if (indexOption === i) {
-					option.isSelected = true;
-				} else {
-					option.isSelected = false;
-				}
-				return option;
-			}
-		);
-
-		formQuiz.setFieldsValue({ questions });
-	};
-
 	const handleFinish = (data) => {
 		console.log(data);
-
+		data = {
+			...data,
+			preProcessQues: true,
+			ques: generatedQuestions,
+		};
 		createQuiz(data)
 			.then((res) => {
 				if (res == true) {
@@ -147,6 +110,7 @@ const AutoQuiz = () => {
 	};
 	const filterOption = (input, option) =>
 		(option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
 	const QuizAnswer = ({ answer, correct }) => {
 		return (
 			<>
@@ -178,6 +142,7 @@ const AutoQuiz = () => {
 			</>
 		);
 	};
+
 	const Quiz = ({ quiz, index }) => {
 		return (
 			<>
@@ -215,15 +180,6 @@ const AutoQuiz = () => {
 						flexDirection: 'column',
 						rowGap: 16,
 					}}>
-					{/* {
-				question: 'Question 2',
-				level: 'application',
-				options: ['Đáp án 1', 'Đáp án 2', 'Đáp án 3', 'Đáp án 4'],
-				answer: 'Đáp án 4',
-				date_created: '2024-05-18T04:32:51.585Z',
-				date_updated: '2024-05-18T04:32:51.585Z',
-				__v: 0,
-			} */}
 					{quiz.options.map((option) => (
 						<QuizAnswer
 							answer={option}
@@ -240,11 +196,7 @@ const AutoQuiz = () => {
 		<Spring>
 			<Bread title="Add a new quiz" items={breadcrumb} />
 			<div>
-				<Form
-					form={formQuiz}
-					layout="vertical"
-					// onValuesChange={handleFormQuizChange}
-					onFinish={handleFinish}>
+				<Form form={formQuiz} layout="vertical" onFinish={handleFinish}>
 					<Row gutter={12}>
 						<Col span={8}>
 							<Row className="shadow-md border bg-white p-8">
@@ -354,6 +306,7 @@ const AutoQuiz = () => {
 										</Flex>
 									</Col>
 									<Col span={24}>
+										{loadingGenQuiz && <Loader />}
 										{generatedQuestions != [] ? (
 											generatedQuestions.map((quiz, index) => (
 												<Quiz quiz={quiz} index={index} key={index} />

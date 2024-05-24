@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
-const quizModel = require('./Quiz')
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const quizModel = require('./Quiz');
 const QuestionSchema = new Schema({
     question: { type: String, required: true },
     level: { type: String, enum: ['perception', 'comprehension', 'application', 'advanced application'], required: true, default: 'perception' },
@@ -12,8 +12,8 @@ const QuestionSchema = new Schema({
     date_updated: Date
 })
 
-const Question = mongoose.model('Question', QuestionSchema, 'questions')
-exports.schema = Question
+const Question = mongoose.model('Question', QuestionSchema, 'questions');
+exports.schema = Question;
 
 exports.create = async function (quizzId, data) {
     try {

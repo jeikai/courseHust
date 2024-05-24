@@ -27,14 +27,7 @@ export function useAPI(url, method, onError) {
           if (onError) onError(err);
           //throw err;
         });
-      // const data = {
-      //     name: 'Cuong',
-      //     email: 'dvc@gmail.com',
-      //     authenticated: true,
-      //     token: 'token',
-      //     permission: 'user'
-      // }
-      // setState({ data: data, loading: false });
+    
       setState({ data: res.data, loading: false });
     } catch (err) {
       context?.current && context.current.handleError(err);

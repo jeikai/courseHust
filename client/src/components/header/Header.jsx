@@ -105,8 +105,8 @@ const Header = () => {
         icon: <UngroupOutlined />,
       },
       {
-        key: "4",
-        label: "My messages",
+        key: "calendar",
+        label: "My calendar",
         icon: <MessageOutlined />,
       },
       {
@@ -128,6 +128,8 @@ const Header = () => {
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());
+    } else if( key === "calendar") {
+      navigate('/home/calendar')
     }
   };
 

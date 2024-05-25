@@ -29,20 +29,6 @@ const Courses = () => {
       title: "Application Center",
     },
   ];
-  const data = [
-    {
-      key: 1,
-      id: 1,
-      title: "WordPress Theme Development with Bootstrap",
-      instructor: "Mathew Anderson",
-      category: "WordPress Theme",
-      section: 12,
-      lesson: 13,
-      enrollment: 1,
-      status: "Approved",
-      price: 12.0,
-    },
-  ];
 
   const action = [
     {
@@ -263,7 +249,7 @@ const Courses = () => {
               /> */}
               <Table.Column
                 title="Price"
-                dataIndex={"price"}
+                dataIndex={"price"} 
                 key={"price"}
                 render={(_, record) => {
                   return (
@@ -273,21 +259,7 @@ const Courses = () => {
                   );
                 }}
               />
-              <Table.Column
-                title="Action"
-                key={"action"}
-                render={(_, record) => {
-                  return (
-                    <Dropdown
-                      menu={{
-                        items: action,
-                      }}
-                    >
-                      <Button icon={<MoreOutlined />} />
-                    </Dropdown>
-                  );
-                }}
-              />
+              
             </Table>
           </div>
         </div>

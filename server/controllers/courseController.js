@@ -7,8 +7,8 @@ exports.create = async function (req, res) {
     try {
         const data = req.body
         console.log(data)
-        utility.validate(data, ['instructorId', 'title', 'description',
-            'categoryId', 'level', 'price'])
+        utility.validate(data, ['instructorId', 'title',
+            'categoryId', 'level'])
 
         const newCourse = await courseModel.create(data)
         if (newCourse.hasOwnProperty('error')) return res.status(500).json({ message: newCourse.error })
@@ -31,7 +31,7 @@ exports.create = async function (req, res) {
                                 spec.sectionId = newSection._id
                                 const checkSpec = section.specialIds.find(item => item.id === spec.id)
                                 if (checkSpec.type === "lesson") {
-                                    utility.validate(spec, ['sectionId', 'title', 'content', 'videoURL', 'duration'])
+                                    // utility.validate(spec, ['sectionId', 'title', 'videoURL', 'duration'])
                                     const newLesson = await lessonModel.create(spec)
                                     if (newLesson.hasOwnProperty('error')) {
                                         console.log("Lỗi tạo lesson")

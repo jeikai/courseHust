@@ -13,6 +13,7 @@ import {
 import {
   BellOutlined,
   BookOutlined,
+  CalendarOutlined,
   DownOutlined,
   EditOutlined,
   HeartOutlined,
@@ -100,14 +101,14 @@ const Header = () => {
         icon: <BookOutlined />,
       },
       {
-        key: "3",
+        key: "my_course",
         label: "My courses",
         icon: <UngroupOutlined />,
       },
       {
-        key: "4",
-        label: "My messages",
-        icon: <MessageOutlined />,
+        key: "calendar",
+        label: "My calendar",
+        icon: <CalendarOutlined />,
       },
       {
         key: "5",
@@ -121,13 +122,17 @@ const Header = () => {
       },
     ];
   }
-  let enrollmentAPI
-  if(user) {
+  let enrollmentAPI;
+  if (user) {
     enrollmentAPI = useAPI(`/api/enrollment/${user?.account?._id}`, null);
   }
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());
+    } else if (key === "calendar") {
+      navigate("/home/calendar");
+    } else if (key === "my_course") {
+      navigate("/home/my_courses");
     }
   };
 
@@ -209,7 +214,10 @@ const Header = () => {
               {user.account.role == "teacher" ? (
                 <div className="px-4 py-2 rounded cursor-pointer">
                   <Flex align="center" gap={0} className="text-black">
-                    <Link to={"/admin"} className="text-base font-semibold">
+                    <Link
+                      to={"/admin/manage_courses"}
+                      className="text-base font-semibold"
+                    >
                       Instructor
                     </Link>
                   </Flex>
@@ -227,7 +235,7 @@ const Header = () => {
                   }}
                 >
                   <Badge count={0}>
-                    <ShoppingCartOutlined className="text-2xl" /> 
+                    <ShoppingCartOutlined className="text-2xl" />
                     {/* ({" "}
                     {enrollmentAPI?.data?.length} ) */}
                   </Badge>
@@ -246,7 +254,20 @@ const Header = () => {
                   </Badge>
                 </Flex>
               </div>
-
+              <div className="py-2 rounded cursor-pointer">
+                <Flex align="center" gap={2}>
+                  <Dropdown
+                    menu={{
+                      items: [],
+                    }}
+                    placement="bottomRight"
+                  >
+                    <Badge count={0}>
+                      <BellOutlined className="text-2xl" />
+                    </Badge>
+                  </Dropdown>
+                </Flex>
+              </div>
               <div className="px-4 py-2 rounded cursor-pointer">
                 <Flex align="center" gap={2} className="text-black">
                   <Dropdown

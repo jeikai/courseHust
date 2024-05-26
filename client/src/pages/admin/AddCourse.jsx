@@ -323,7 +323,6 @@ const AddCourse = () => {
 
   useEffect(() => {
     const field = form.getFieldsValue();
-    field.description = field.description?.level?.content;
     setData({ ...data, ...field });
     console.log(current);
   }, [current]);
@@ -353,6 +352,9 @@ const AddCourse = () => {
         // spec.videoURL = "vid.mp4",
         // spec.duration = 30
       }
+    }
+    if (data.free) {
+      data.price = 0;
     }
     console.log(data);
     let user = localStorage.getItem("user");
@@ -466,158 +468,18 @@ const AddCourse = () => {
             }
             name="description"
           >
-            <Editor
-              apiKey="by05nyt9dhljko786tzo81q4vzgsn5hrdjq81e4kb3wi5yyp"
-              init={{
-                plugins:
-                  "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
-                toolbar:
-                  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
-                placeholder: "Write something awesome",
-              }}
+            <Input.TextArea
+              className="py-2"
+              rows={6}
+              placeholder="Detail description for course"
+              maxLength={100}
             />
           </Form.Item>
         </Col>
-      </Row>
-    </Spring>
-  );
-
-  const Information = ({ index }) => (
-    <Spring className={`${current === index ? "block" : "hidden"}`}>
-      <Row>
-        <Col span={6}>
-          <Typography.Title level={5}>Course faq</Typography.Title>
-        </Col>
         <Col span={18}>
-          <Form.List name="faq">
-            {(fields, { add, remove }) =>
-              fields.map((field, index) => (
-                <Flex key={field.name} gap={12} name={[field.name, "name"]}>
-                  <div className="flex-1">
-                    <Form.Item
-                      className="w-full"
-                      name={[field.name, "question"]}
-                    >
-                      <Input
-                        placeholder="Faq question"
-                        size="large"
-                        showCount
-                        maxLength={60}
-                      />
-                    </Form.Item>
-                    <Form.Item className="w-full" name={[field.name, "answer"]}>
-                      <Input.TextArea placeholder="Answer" size="large" />
-                    </Form.Item>
-                  </div>
-                  {index === 0 ? (
-                    <div>
-                      <Button
-                        onClick={() => add()}
-                        classNames="bg-[#754FFE]"
-                        icon={<PlusOutlined />}
-                        size="large"
-                      ></Button>
-                    </div>
-                  ) : (
-                    <div>
-                      <Button
-                        onClick={() => remove(field.name)}
-                        classNames="bg-[#754FFE]"
-                        icon={<MinusOutlined />}
-                        size="large"
-                      ></Button>
-                    </div>
-                  )}
-                </Flex>
-              ))
-            }
-          </Form.List>
-        </Col>
-
-        <Divider />
-
-        <Col span={6}>
-          <Typography.Title level={5}>Requirements</Typography.Title>
-        </Col>
-        <Col span={18}>
-          <Form.List name="requirements">
-            {(fields, { add, remove }) =>
-              fields.map((field, index) => (
-                <Flex key={field.name} gap={12} name={[field.name, "name"]}>
-                  <div className="flex-1">
-                    <Form.Item
-                      className="w-full"
-                      name={[field.name, "requirement"]}
-                    >
-                      <Input placeholder="Provide requirements" size="large" />
-                    </Form.Item>
-                  </div>
-                  {index === 0 ? (
-                    <div>
-                      <Button
-                        onClick={() => add()}
-                        classNames="bg-[#754FFE]"
-                        icon={<PlusOutlined />}
-                        size="large"
-                      ></Button>
-                    </div>
-                  ) : (
-                    <div>
-                      <Button
-                        onClick={() => remove(field.name)}
-                        classNames="bg-[#754FFE]"
-                        icon={<MinusOutlined />}
-                        size="large"
-                      ></Button>
-                    </div>
-                  )}
-                </Flex>
-              ))
-            }
-          </Form.List>
-        </Col>
-
-        <Divider />
-
-        <Col span={6}>
-          <Typography.Title level={5}>Outcomes</Typography.Title>
-        </Col>
-        <Col span={18}>
-          <Form.List name="outcomes">
-            {(fields, { add, remove }) =>
-              fields.map((field, index) => (
-                <Flex key={field.name} gap={12} name={[field.name, "name"]}>
-                  <div className="flex-1">
-                    <Form.Item
-                      className="w-full"
-                      name={[field.name, "outcome"]}
-                    >
-                      <Input placeholder="Provide outcomes" size="large" />
-                    </Form.Item>
-                  </div>
-                  {index === 0 ? (
-                    <div>
-                      <Button
-                        onClick={() => add()}
-                        classNames="bg-[#754FFE]"
-                        icon={<PlusOutlined />}
-                        size="large"
-                      ></Button>
-                    </div>
-                  ) : (
-                    <div>
-                      <Button
-                        onClick={() => remove(field.name)}
-                        classNames="bg-[#754FFE]"
-                        icon={<MinusOutlined />}
-                        size="large"
-                      ></Button>
-                    </div>
-                  )}
-                </Flex>
-              ))
-            }
-          </Form.List>
+          <Form.Item className="w-full" name="isStream" valuePropName="checked">
+            <Checkbox>Check if you create a stream course</Checkbox>
+          </Form.Item>
         </Col>
       </Row>
     </Spring>

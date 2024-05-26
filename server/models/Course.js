@@ -7,11 +7,12 @@ const courseSchema = new Schema({
     title: { type: String, required: true, unique: true },
     shortDes: { type: String },
     description: { type: String, required: true },
+    isStream: {type: Boolean, required: true},
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
     courseVideo: { type: String },
     tags: [{ type: String }],
-    price: { type: Number, required: true },
+    price: { type: Number, required: true, default: 0 },
     thumbnail: { type: String, required: true },
     sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
     date_created: Date,
@@ -23,18 +24,19 @@ exports.schema = Course
 
 exports.create = async function (data) {
     try {
-        const checkCourse = await Course.findOne({ instructorId: data.instructorId, title: data.title })
-        if (checkCourse) return { error: 'Course existed' }
+        // const checkCourse = await Course.findOne({ instructorId: data.instructorId, title: data.title })
+        // if (checkCourse) return { error: 'Course existed' }
         const courseData = {
             instructorId: data.instructorId,
             title: data.title,
             shortDes: data.shortDes,
             description: data.description,
+            isStream: data.isStream,
             categoryId: data.categoryId,
             level: data.level || "basic",
             courseVideo: data.courseVideo || '',
             tags: data.tags || [],
-            price: parseFloat(data.price),
+            price: parseFloat(data.price || 0),
             thumbnail: data.thumbnail || '',
             date_created: new Date(),
             date_updated: new Date()

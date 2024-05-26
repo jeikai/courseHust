@@ -4,7 +4,7 @@ const sectionModel = require('./Section')
 
 const LessonSchema = new Schema({
     title: { type: String, required: true },
-    content: { type: String, required: true },
+    content: { type: String, default: '' },
     videoURL: { type: String, default: '' },
     docURL: { type: String, default: '' },
     duration: { type: Number, required: true },
@@ -19,7 +19,7 @@ exports.create = async function (data) {
     try {
         const lessonData = {
             title: data.title,
-            content: data.content,
+            content: data.content || '',
             videoURL: data.videoURL,
             docURL: data.docURL || '',
             duration: parseFloat(data.duration),
@@ -31,6 +31,7 @@ exports.create = async function (data) {
         await sectionModel.addSpec(data.sectionId, newLesson._id, "lesson")
         return newLesson
     } catch (err) {
+        console.log(err)
         return { error: err }
     }
 }

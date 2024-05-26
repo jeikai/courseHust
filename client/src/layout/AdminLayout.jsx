@@ -40,7 +40,6 @@ const AdminLayout = ({ children }) => {
     };
   }
   const items = [
-    getItem('Dashboard', '/admin', <AppstoreOutlined />),
     getItem('Courses', 'courses', <ShopOutlined />, [
       getItem('Manage courses', '/admin/manage_courses'),
       getItem('Add new course', '/admin/add_course'),

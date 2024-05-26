@@ -7,7 +7,7 @@ import Lesson from "../pages/Lesson";
 import Mycourses from "../pages/Mycourses";
 import Mywishlist from "../pages/Mywishlist";
 import NotFound from "../pages/NotFound";
-import Profile from "../pages/Profile";
+import Calendar from "../pages/Calendar";
 import Purchase from "../pages/Purchase";
 import Bill from "../pages/Bill"
 import QuizLesson from "../pages/QuizLesson";
@@ -61,11 +61,11 @@ const Routes = [
     title: "FunCourse - Purchase course | E-Learning",
   },
   {
-    path: "/home/user_profile",
-    view: Profile,
+    path: "/home/calendar",
+    view: Calendar,
     layout: "app",
     // permission: 'student',
-    title: "FunCourse - Profile | E-Learning",
+    title: "FunCourse - Calendar | E-Learning",
   },
   {
     path: "/home/user_credentials",

@@ -11,7 +11,7 @@ import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities'
 import RowSection from '../../components/admin/RowSection'
 import Spring from '../../components/Spring'
-
+ 
 const EditCourse = () => {
     const [form] = Form.useForm();
     const [current, setCurrent] = useState(0);
@@ -83,8 +83,6 @@ const EditCourse = () => {
 
 
     const handleOkLesson = () => {
-        // debugger
-        // callback()
         const fieldLessons = formLesson.getFieldsValue()
         let lessonId = uuidv4()
         let sectionId = fieldLessons.sectionId
@@ -174,7 +172,6 @@ const EditCourse = () => {
     }
 
     const handleOkSection = () => {
-        // debugger
 
         const fieldSections = formSection.getFieldsValue()
         let sectionId = uuidv4()

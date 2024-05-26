@@ -179,7 +179,7 @@ const Curriculum = ({ course, isBill }) => {
                   </span>
                 </Flex>
                 <span className="text-[#676C7D">
-                  {formatTime(spec._id.duration)}
+                  {formatTime(spec?._id?.duration)}
                 </span>
               </Flex>
               {/* </a> */}

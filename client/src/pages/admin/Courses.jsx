@@ -73,7 +73,7 @@ const NormalCourse = ({ course }) => {
             render={(_, record) => {
               return (
                 <Flex vertical>
-                  <Link className="font-semibold text-[#775FFE] text-line-1 w-[99%] block">
+                  <Link className="font-semibold text-[#775FFE] text-line-1 w-[99%] block" to={`/admin/edit_course/${record._id}`}>
                     {record.title}
                   </Link>
                   <span className="text-[#98a6ad]">

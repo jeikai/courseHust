@@ -46,6 +46,7 @@ const Bread = ({ title, items, label, link }) => {
 								{label}
 							</Button>
 						) : (
+							/* typeof label == array*/
 							<Flex gap={5}>
 								{label.map((l, index) => (
 									<Button

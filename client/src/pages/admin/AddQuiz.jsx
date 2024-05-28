@@ -118,7 +118,6 @@ const AddQuiz = () => {
 		setSelectedSuggestQues((prev) => [...prev, question]);
 		setFormattedQuestion((prev) => [...prev, formatQues]);
 	};
-	useEffect(() => {}, [formattedQuestion]);
 	useEffect(() => {
 		if (selectedCourseId) {
 			setSections([]);

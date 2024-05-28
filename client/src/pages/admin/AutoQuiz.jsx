@@ -46,11 +46,12 @@ const AutoQuiz = () => {
 		const fetchQuiz = await axios.get(
 			`/api/section/${selectedSection}/random-questions`
 		);
+		console.log('quiz fetch', fetchQuiz.data.randomQuestions);
 		const quizzes = fetchQuiz.data.randomQuestions;
-		console.log(quizzes);
+
 		setGeneratedQuestions(quizzes);
 		setLoadingGenQuiz(false);
-		console.log('Finish Loading');
+		console.log('Generated Quiz', generatedQuestions);
 		return;
 	};
 	const courseResponseApi = useAPI(
@@ -309,7 +310,7 @@ const AutoQuiz = () => {
 										{loadingGenQuiz && <Loader />}
 										{generatedQuestions != [] ? (
 											generatedQuestions.map((quiz, index) => (
-												<Quiz quiz={quiz} index={index} key={index} />
+												<Quiz quiz={quiz.data} index={index} key={index} />
 											))
 										) : (
 											<></>

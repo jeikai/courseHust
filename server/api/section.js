@@ -10,4 +10,5 @@ api.get(
 	'/section/:sectionId/random-questions',
 	use(sectionController.getRandomQuestions)
 );
+api.delete('/section/quiz/:quizId', use(sectionController.deleteQuiz));
 module.exports = api;

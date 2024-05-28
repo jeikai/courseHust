@@ -1,5 +1,6 @@
 const sectionModel = require('../models/Section');
 const utility = require('../helper/utility');
+const { message } = require('antd');
 
 exports.create = async function (req, res) {
 	try {
@@ -41,12 +42,20 @@ exports.getRandomQuestions = async function (req, res) {
 		const randomQuestions = await sectionModel.getAllQuestionsBySection(
 			sectionId
 		);
-		if (!randomQuestions)
-			return res.status(400).json({
-				message: 'Bad Request',
-			});
+		console.log(randomQuestions);
 		return res.status(200).json({ randomQuestions });
 	} catch (error) {
 		return res.status(500).json({ message: error.message });
+	}
+};
+exports.deleteQuiz = async (req, res) => {
+	try {
+		const { quizId } = req.params;
+		const result = await sectionModel.deleteQuiz(quizId);
+		return res.status(200).json({ data: result });
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
 	}
 };

@@ -65,7 +65,7 @@ exports.getByInstructorId = async function (data) {
 
 		// Filter only quiz specs
 		const quizSpecs = allSpecs.flat().filter((spec) => spec.type === 'quiz');
-
+		console.log(quizSpecs);
 		return quizSpecs;
 	} catch (error) {
 		return { error: error };
@@ -107,12 +107,27 @@ exports.getAllQuestions = async function (quizId) {
 	}
 };
 
-
+exports.updateQuiz = async (quizId, data) => {
+	console.log('quiz data', data);
+	const result = await Quiz.findByIdAndUpdate(
+		quizId,
+		{
+			title: data.title,
+			duration: data.duration,
+			ques: data.ques,
+			startTime: data.startTime || '',
+			endTime: data.endTime || '',
+			date_updated: new Date(),
+		},
+		{ new: true }
+	);
+	return result;
+};
 exports.deleteQuiz = async function (quizId) {
 	try {
 		const quiz = await Quiz.findByIdAndDelete(quizId);
 		return quiz;
 	} catch (error) {
-		return {error};
+		return { error };
 	}
-}
+};

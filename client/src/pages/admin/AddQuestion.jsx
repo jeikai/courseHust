@@ -158,46 +158,59 @@ const AddQuestion = () => {
 																		style={{ width: '400px' }}
 																	/>
 																</Form.Item>
-																<Flex gap={4}>
-																	<Form.Item
-																		name={[field.name, 'type']}
-																		initialValue={'perception'}
-																		noStyle>
-																		<Select placeholder="Select question type">
-																			<Select.Option value="perception">
-																				Perception
-																			</Select.Option>
-																			<Select.Option value="comprehension">
-																				Comprehension
-																			</Select.Option>
-																			<Select.Option value="application">
-																				Application
-																			</Select.Option>
-																			<Select.Option value="advanced application">
-																				Advanced application
-																			</Select.Option>
-																		</Select>
-																	</Form.Item>
-																	<Form.Item
-																		name={[field.name, 'category']}
-																		noStyle>
-																		<Select
-																			placeholder="Select category"
-																			className="capitalize"
-																			onSelect={(e) => console.log('event', e)}>
-																			{categories.map(({_id, title}, index) => (
-																				<Select.Option
-																					value={_id}
-																					key={index}>
-																					{title}
+																<Flex
+																	gap={20}
+																	vertical={false}
+																	justify="space-between">
+																	<Flex vertical={false} gap={5} align="center">
+																		<p className="font-bold">Category:</p>
+																		<Form.Item
+																			name={[field.name, 'category']}
+																			noStyle>
+																			<Select
+																				placeholder="Select category"
+																				className="capitalize"
+																				onSelect={(e) =>
+																					console.log('event', e)
+																				}>
+																				{categories.map(
+																					({ _id, title }, index) => (
+																						<Select.Option
+																							value={_id}
+																							key={index}>
+																							{title}
+																						</Select.Option>
+																					)
+																				)}
+																			</Select>
+																		</Form.Item>
+																	</Flex>
+																	<Flex vertical={false} gap={5} align="center">
+																		<p className="font-bold">Level:</p>
+																		<Form.Item
+																			name={[field.name, 'type']}
+																			initialValue={'perception'}
+																			noStyle>
+																			<Select placeholder="Select question type">
+																				<Select.Option value="perception">
+																					Perception
 																				</Select.Option>
-																			))}
-																		</Select>
-																	</Form.Item>
-																	<Button
-																		onClick={() => remove(field.name)}
-																		danger
-																		icon={<DeleteOutlined />}></Button>
+																				<Select.Option value="comprehension">
+																					Comprehension
+																				</Select.Option>
+																				<Select.Option value="application">
+																					Application
+																				</Select.Option>
+																				<Select.Option value="advanced application">
+																					Advanced application
+																				</Select.Option>
+																			</Select>
+																		</Form.Item>
+																		<Button
+																			onClick={() => remove(field.name)}
+																			danger
+																			icon={<DeleteOutlined />}></Button>
+																	</Flex>
 																</Flex>
 															</Flex>
 														</Flex>

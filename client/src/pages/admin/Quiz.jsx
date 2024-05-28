@@ -77,8 +77,11 @@ const Quiz = () => {
 			<Bread
 				title="Quiz"
 				items={breadcrumb}
-				label={'Auto Quiz'}
-				link={'/admin/auto_quiz'}
+				label={['Create Quiz', 'AutoQuiz']}
+				link={[
+					'/admin/add_quiz',
+					'/admin/auto_quiz'
+				]}
 			/>
 			<div className="shadow-md border bg-white p-8">
 				{data.map((quiz, index) => {

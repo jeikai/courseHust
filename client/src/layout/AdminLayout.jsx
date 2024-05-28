@@ -61,7 +61,7 @@ const AdminLayout = ({ children }) => {
     ]),
     getItem('Quizs', 'quiz', <QuestionOutlined />, [
       getItem('Manage Quiz', '/admin/quiz'),
-      getItem('Add new quiz', '/admin/add_quiz'),
+      getItem('Add new question', '/admin/add_question'),
   ]),
     getItem('Manage Profile', '/admin/profile', <ProfileOutlined />)
   ];

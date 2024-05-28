@@ -82,15 +82,35 @@ exports.getAllQuestionsBySection = async function (sectionId) {
 		await Promise.all(
 			quizzesId.map(async (quiz) => {
 				const ques = await quizModel.getAllQuestions(quiz);
-				console.log('ques', ques);
 				questions.push(...ques);
 			})
 		);
+
 		if (questions.length < 10) return questions;
 		const randQuestions = [];
 		for (let i = 0; i < 10; i++)
-			rand.push(questions[Math.floor(Math.random() * questions.length)]);
+			randQuestions.push(
+				questions[Math.floor(Math.random() * questions.length)]
+			);
 		return randQuestions;
+	} catch (error) {
+		return { error };
+	}
+};
+exports.deleteQuiz = async (quizId) => {
+	try {
+		const delQuiz = await quizModel.deleteQuiz(quizId);
+		const result = await Section.updateMany(
+			{},
+			{
+				$pull: {
+					specs: {
+						_id: quizId,
+					},
+				},
+			}
+		);
+		return result;
 	} catch (error) {
 		return { error };
 	}

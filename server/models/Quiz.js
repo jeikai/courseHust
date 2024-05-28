@@ -65,7 +65,7 @@ exports.getByInstructorId = async function (data) {
 
 		// Filter only quiz specs
 		const quizSpecs = allSpecs.flat().filter((spec) => spec.type === 'quiz');
-
+		console.log(quizSpecs);
 		return quizSpecs;
 	} catch (error) {
 		return { error: error };
@@ -108,6 +108,7 @@ exports.getAllQuestions = async function (quizId) {
 };
 
 exports.updateQuiz = async (quizId, data) => {
+	console.log('quiz data', data);
 	const result = await Quiz.findByIdAndUpdate(
 		quizId,
 		{

@@ -29,7 +29,6 @@ exports.create = async function (req, res) {
 	try {
 		const data = req.body;
 		const sectionId = req.params.sectionId;
-		console.log(data);
 		const result = await quizModel.create(sectionId, data);
 		return res.status(200).json({ data: result });
 	} catch (error) {
@@ -38,8 +37,10 @@ exports.create = async function (req, res) {
 };
 exports.update = async function (req, res) {
 	try {
-		const { quizId, data } = await req.body;
-		const result = await quizModel.updateQuiz(quizId, data);
+		const { quizId } = req.params;
+		const quizData = await req.body;
+		
+		const result = await quizModel.updateQuiz(quizId, quizData.quizData);
 		return res.status(200).json({ data: result });
 	} catch (error) {
 		return res.status(500).json({ message: error.message });

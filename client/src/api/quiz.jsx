@@ -159,110 +159,6 @@ const shuffleArray = (array) => {
   let currentIndex = array.length,
     randomIndex;
 
-  const updateQuiz = async (data) => {
-    // const res = await Axios.post('url', data)
-    // const data = await res.json();
-    try {
-      console.log("update data", data);
-      const dataReq = {};
-      dataReq.title = data.title;
-      const duration = data.duration;
-
-      dataReq.duration = duration;
-      dataReq.ques = [];
-      dataReq.startTime = data.deadline?.[0] || "";
-      dataReq.endTime = data.deadline?.[1] || "";
-
-      const quesIds = [];
-
-      await Promise.all(
-        data.questions.map(async (question) => {
-          if (question.id != null) {
-            let answer;
-            const options = [];
-            question.options.forEach((option) => {
-              options.push(option.label);
-              if (option.isSelected == true) {
-                answer = option.label;
-              }
-            });
-
-            const updatedQuestion = await Axios({
-              method: "PUT",
-              url: `/api/question/${question.id}`,
-              data: {
-                questionData: {
-                  question: question.title,
-                  level: question.level,
-                  options: options,
-                  answer: answer,
-                },
-              },
-            });
-
-            quesIds.push(updatedQuestion.data.data._id);
-            console.log("Updated Quiz", {
-              question: question.title,
-              level: question.level,
-              options: options,
-              answer: answer,
-            });
-          } else {
-            let answer = "";
-            const options = [];
-            question.options.forEach((option) => {
-              if (option.isSelected == true) {
-                answer = option.label;
-              }
-              options.push(option.label);
-            });
-
-            const newQuestion = await Axios({
-              method: "POST",
-              url: `/api/question`,
-              data: {
-                questionData: {
-                  question: question.title,
-                  level: question.level,
-                  options: options,
-                  answer: answer,
-                },
-              },
-            });
-            quesIds.push(newQuestion.data.data._id);
-            console.log("New Quiz", {
-              question: question.title,
-              level: question.level,
-              options: options,
-              answer: answer,
-            });
-          }
-        })
-      );
-
-      dataReq.ques = quesIds;
-      console.log("dataReq", dataReq);
-      const updatedQuiz = await Axios({
-        method: "PUT",
-        url: `/api/quiz/${data.id}`,
-        data: {
-          quizData: {
-            title: dataReq.title,
-            duration: dataReq.duration,
-            ques: dataReq.ques,
-            startTime: dataReq.startTime || "",
-            endTime: dataReq.endTime || "",
-          },
-        },
-      });
-      console.log("updatedQuiz", updatedQuiz);
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  };
-
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     [array[currentIndex - 1], array[randomIndex]] = [
@@ -274,6 +170,110 @@ const shuffleArray = (array) => {
 
   return array;
 };
+const updateQuiz = async (data) => {
+  // const res = await Axios.post('url', data)
+  // const data = await res.json();
+  try {
+    console.log("update data", data);
+    const dataReq = {};
+    dataReq.title = data.title;
+    const duration = data.duration;
+
+    dataReq.duration = duration;
+    dataReq.ques = [];
+    dataReq.startTime = data.deadline?.[0] || "";
+    dataReq.endTime = data.deadline?.[1] || "";
+
+    const quesIds = [];
+
+    await Promise.all(
+      data.questions.map(async (question) => {
+        if (question.id != null) {
+          let answer;
+          const options = [];
+          question.options.forEach((option) => {
+            options.push(option.label);
+            if (option.isSelected == true) {
+              answer = option.label;
+            }
+          });
+
+          const updatedQuestion = await Axios({
+            method: "PUT",
+            url: `/api/question/${question.id}`,
+            data: {
+              questionData: {
+                question: question.title,
+                level: question.level,
+                options: options,
+                answer: answer,
+              },
+            },
+          });
+
+          quesIds.push(updatedQuestion.data.data._id);
+          console.log("Updated Quiz", {
+            question: question.title,
+            level: question.level,
+            options: options,
+            answer: answer,
+          });
+        } else {
+          let answer = "";
+          const options = [];
+          question.options.forEach((option) => {
+            if (option.isSelected == true) {
+              answer = option.label;
+            }
+            options.push(option.label);
+          });
+
+          const newQuestion = await Axios({
+            method: "POST",
+            url: `/api/question`,
+            data: {
+              questionData: {
+                question: question.title,
+                level: question.level,
+                options: options,
+                answer: answer,
+              },
+            },
+          });
+          quesIds.push(newQuestion.data.data._id);
+          console.log("New Quiz", {
+            question: question.title,
+            level: question.level,
+            options: options,
+            answer: answer,
+          });
+        }
+      })
+    );
+
+    dataReq.ques = quesIds;
+    console.log("dataReq", dataReq);
+    const updatedQuiz = await Axios({
+      method: "PUT",
+      url: `/api/quiz/${data.id}`,
+      data: {
+        quizData: {
+          title: dataReq.title,
+          duration: dataReq.duration,
+          ques: dataReq.ques,
+          startTime: dataReq.startTime || "",
+          endTime: dataReq.endTime || "",
+        },
+      },
+    });
+    console.log("updatedQuiz", updatedQuiz);
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
 const getQuizById = async (id) => {
   const responseAPI = (await Axios({ url: `/api/quiz/${id}`, method: "GET" }))
     .data.data;

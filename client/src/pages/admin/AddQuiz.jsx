@@ -100,35 +100,25 @@ const AddQuiz = () => {
 		}
 	}, [courseResponseApi]);
 	const addNewSuggestQues = (question) => {
-		const suggestTemp = [...selectedSuggestQues];
-		if (suggestTemp == []) setSelectedSuggestQues([]);
-		suggestTemp.push(question);
-
 		const formatQues = {
 			id: question._id,
 			title: question.question,
 			level: question.level,
 			answer: question.answer,
 			type: 'scq',
-			options: [],
-		};
-		for (const option of question.options) {
-			formatQues.options.push({
-				isSelected: option == formatQues.answer,
+			options: question.options.map((option) => ({
+				isSelected: option === question.answer,
 				label: option,
-			});
-		}
-		const temp = [...formattedQuestion];
-		temp.push(formatQues);
-		setSelectedSuggestQues(suggestTemp);
-		setFormattedQuestion(temp);
-		console.log('selected', suggestTemp, selectedSuggestQues);
+			})),
+		};
+
 		formQuiz.setFieldsValue({
-			questions: formattedQuestion,
+			questions: [...formattedQuestion, formatQues],
 		});
-		return;
+		setSelectedSuggestQues((prev) => [...prev, question]);
+		setFormattedQuestion((prev) => [...prev, formatQues]);
 	};
-	useEffect(() => {}, [formQuiz]);
+	useEffect(() => {}, [formattedQuestion]);
 	useEffect(() => {
 		if (selectedCourseId) {
 			setSections([]);

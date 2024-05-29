@@ -36,7 +36,8 @@ import {
   TwitterOutlined,
   UserOutlined,
   LockOutlined,
-  CheckOutlined
+  CheckOutlined,
+  CheckCircleOutlined
 } from "@ant-design/icons";
 import breadcramb from "../assets/course-breadcramb.png";
 import item1 from "../assets/item-1.jpg";
@@ -154,7 +155,7 @@ const Curriculum = ({ course, process }) => {
                 align="center"
                 justify="space-between"
                 onClick={
-                  !process
+                  !process?.data
                     ? () => {}
                     : () => {
                         spec?.type === "lesson"
@@ -169,14 +170,14 @@ const Curriculum = ({ course, process }) => {
                       <LockOutlined className="text-xl text-[#ccc]" />
                     ) : (
                       process?.data?.lessonId?.some((id) => id.toString() === spec?._id?._id.toString())
-                        ? <CheckOutlined className="text-xl text-[#3ebb3a]" />
+                        ? <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
                         : <PlayCircleOutlined className="text-xl text-[#754FFE]" />
                     )
                   ) : !process?.data ? (
                     <LockOutlined className="text-xl text-[#ccc]" />
                   ) : (
                     process?.data?.quizScores?.some((id) => id?.quizId.toString() === spec?._id?._id.toString())
-                    ? <CheckOutlined className="text-xl text-[#3ebb3a]" />
+                    ? <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
                     : <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
                   )}
                   <span className="text-[#676C7D">
@@ -468,8 +469,8 @@ const CourseDetail = () => {
                 </span>
               </Space>
               <Space>
-                <ClockCircleOutlined className="text-white" />
-                <span className="text-white text-base">01:05:12 Hours</span>
+                <CheckCircleOutlined className="text-white" />
+                <span className="text-white text-base">{checkProcess?.data?.data?.process} %</span>
               </Space>
               <Space>
                 <UserOutlined className="text-white" />
@@ -483,7 +484,7 @@ const CourseDetail = () => {
             <Space align="center">
               <CalendarOutlined className="text-white" />
               <span className="text-white text-base">
-                last updated Thu, 13-Jul-2023
+                last updated {course?.data?.date_updated}
               </span>
             </Space>
           </Space>
@@ -529,11 +530,8 @@ const CourseDetail = () => {
             <div className="shadow-lg rounded-md sticky mt-[-200px]">
               <Space direction="vertical" className="p-2">
                 <Space className="relative" style={{ columnGap: 0 }}>
-                  <div className="absolute p-2 rounded-lg cursor-pointer top-[calc(50%-16px)] left-[calc(50%-16px)] bg-[#0000005a]">
-                    <PlayCircleOutlined className="text-3xl text-white" />
-                  </div>
                   <img
-                    src={item1}
+                    src={course?.data?.thumbnail}
                     alt="image"
                     className="w-full h-[227px] rounded-lg"
                   />

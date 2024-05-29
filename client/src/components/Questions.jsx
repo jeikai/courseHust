@@ -86,7 +86,6 @@ const Questions = ({ lesson, quizId }) => {
   };
   const handleOk = () => {
     handleCalculateScore(lesson.questions, answers);
-    showModal();
     setConfirmLoading(true);
 
     // Call api gửi đáp án
@@ -100,23 +99,13 @@ const Questions = ({ lesson, quizId }) => {
     setOpen(false);
   };
 
-  const handleOkModal = async () => {
-    try {
-      setIsModalOpen(false);
-    } catch (error) {
-      viewContext.handleError(error.toString());
-    }
-  };
-  const handleCancelModal = () => {
-    setIsModalOpen(false);
-  };
   const handleGetTime = () => {
     let endTime = localStorage.getItem(`${quizId}_time`);
     console.log(endTime);
     let now = new Date().getTime();
     let time = endTime - now;
 
-    if (time.toString() === "00:00:00") {
+    if (time <= 0) {
       // handleSubmit Question
       // handleOk()
 

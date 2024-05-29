@@ -21,52 +21,55 @@ import { ViewContext } from "../context/View.jsx";
 import { useAPI } from "../hooks/api";
 import Loader from "../components/Loader.jsx";
 import { useNavigate, useParams } from "react-router-dom";
+import Axios from "axios";
+import { da } from "@faker-js/faker";
 
 const Lesson = () => {
-  const { id } = useParams();
+  const { lessonId, courseId } = useParams();
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const viewContext = useContext(ViewContext);
-  let responseAPI = useAPI(`/api/lesson/${id}`, null);
-  console.log(responseAPI);
+  let responseAPI = useAPI(`/api/lesson/${lessonId}`, null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [time, setTime] = useState(0);
 
-  let toggle = false;
-  if (responseAPI.loading) return <Loader />;
-  const handleDoneLesson = async () => {
+  const handleDone = async () => {
     try {
-      console.log("Done");
+      console.log(userId, courseId, lessonId);
+      const data = {
+        userId: userId,
+        courseId: courseId,
+        lessonId: lessonId,
+      };
+      console.log(data)
+      const responseUpdate = await Axios({
+        url: "/api/process/lesson",
+        method: "PUT",
+        data: data,
+      });
+      console.log(responseUpdate);
     } catch (error) {
       console.log(error);
-      viewContext(error);
+      viewContext.handleError(error);
     }
   };
-  // const [lesson, setLesson] = useState(null);
-  // const [start, setStart] = useState(localStorage.getItem("time") || null);
-  // const handleStartQuiz = () => {
-  //   console.log("Start quiz");
-  //   // let duaration = lesson.duaration
-  //   let duration = "01-00-00";
-  //   let startTime = new Date().getTime();
-  //   let durationParts = duration.split("-");
-  //   let hours = parseInt(durationParts[0]);
-  //   let minutes = parseInt(durationParts[1]);
-  //   let seconds = parseInt(durationParts[2]);
-  //   let endTime = new Date(
-  //     startTime + hours * 3600000 + minutes * 60000 + seconds * 1000
-  //   ).getTime();
-  //   localStorage.setItem("time", endTime);
-  //   setStart(endTime);
-  // };
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (!isPlaying || time == responseAPI.data?.duration) {
+        clearInterval(intervalId);
+      } else if (isPlaying && time < (responseAPI.data?.duration * 2) / 3) {
+        console.log(responseAPI.data?.duration - time);
+        setTime((prevTime) => prevTime + 0.1);
+      } else if (time >= (responseAPI.data?.duration * 2) / 3) {
+        clearInterval(intervalId);
+        setTime(responseAPI.data?.duration);
+        handleDone();
+      }
+    }, 100);
 
-  // useEffect(() => {
-  //   // fetchQuestions()
-  //   getQuizById(1)
-  //     .then((res) => {
-  //       console.log(res);
-  //       setLesson(res);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, []);
+    return () => clearInterval(intervalId);
+  }, [isPlaying, time, responseAPI.data?.duration]);
+
+  if (responseAPI.loading) return <Loader />;
 
   return (
     <div className="py-16 px-4">
@@ -89,17 +92,18 @@ const Lesson = () => {
             >
               <Space direction="vertical" className="w-full">
                 <Flex align="center" gap={12} className="px-3 py-2 rounded-md">
-                  <Checkbox />
                   <Link className="flex-1 group">
                     <Flex justify="space-between">
                       <Flex vertical>
                         <p className="font-semibold text-base group-hover:text-[#754FFE]">
                           {responseAPI.data.content}
                         </p>
-                        <span className="text-[#6c757d]">{responseAPI?.data?.date_created}</span>
+                        <span className="text-[#6c757d]">
+                          {responseAPI?.data?.date_created}
+                        </span>
                       </Flex>
                       <p className="text-[#6c757d] text-base font-medium">
-                        {(responseAPI.data.duration).toFixed(2)} second
+                        {responseAPI.data.duration.toFixed(2)} second
                       </p>
                     </Flex>
                   </Link>
@@ -111,13 +115,10 @@ const Lesson = () => {
         </Col>
         <Col span={16} pull={8}>
           <div className="mb-4 mt-2">
-            {/* <TimePicker onChange={(value) => console.log(value.format('hh-mm-ss'))} /> */}
-            <Video video={responseAPI.data.videoURL} />
-            {/* {!start ? (
-              <Quiz handleStartQuiz={handleStartQuiz} />
-            ) : (
-              lesson && <Questions lesson={lesson} />
-            )} */}
+            <Video
+              video={responseAPI.data.videoURL}
+              setIsPlaying={setIsPlaying}
+            />
           </div>
         </Col>
       </Row>

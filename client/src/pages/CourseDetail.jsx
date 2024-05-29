@@ -35,7 +35,8 @@ import {
   TagsOutlined,
   TwitterOutlined,
   UserOutlined,
-  LockOutlined
+  LockOutlined,
+  CheckOutlined
 } from "@ant-design/icons";
 import breadcramb from "../assets/course-breadcramb.png";
 import item1 from "../assets/item-1.jpg";
@@ -89,9 +90,9 @@ const Overview = ({ course }) => {
   );
 };
 
-const Curriculum = ({ course, isBill }) => {
+const Curriculum = ({ course, process }) => {
   const navigate = useNavigate();
-  console.log(isBill)
+
   let totalSections = 0;
   const calculateTotalLectures = () => {
     if (!course || !course.sections) {
@@ -153,26 +154,30 @@ const Curriculum = ({ course, isBill }) => {
                 align="center"
                 justify="space-between"
                 onClick={
-                  !isBill
+                  !process
                     ? () => {}
                     : () => {
                         spec?.type === "lesson"
-                          ? navigate("/home/lesson/" + spec?._id?._id)
-                          : navigate("/home/quiz/" + spec?._id?._id);
+                          ? navigate("/home/lesson/" + spec?._id?._id + "/" + course?._id)
+                          : navigate("/home/quiz/" + spec?._id?._id + "/" + course?._id);
                       }
                 }
               >
                 <Flex align="center" gap={12}>
                   {spec.type === "lesson" ? (
-                    !isBill ? (
+                    !process?.data ? (
                       <LockOutlined className="text-xl text-[#ccc]" />
                     ) : (
-                      <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                      process?.data?.lessonId?.some((id) => id.toString() === spec?._id?._id.toString())
+                        ? <CheckOutlined className="text-xl text-[#3ebb3a]" />
+                        : <PlayCircleOutlined className="text-xl text-[#754FFE]" />
                     )
-                  ) : !isBill ? (
+                  ) : !process?.data ? (
                     <LockOutlined className="text-xl text-[#ccc]" />
                   ) : (
-                    <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
+                    process?.data?.quizScores?.some((id) => id?.quizId.toString() === spec?._id?._id.toString())
+                    ? <CheckOutlined className="text-xl text-[#3ebb3a]" />
+                    : <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
                   )}
                   <span className="text-[#676C7D">
                     {spec?._id?.title ? spec._id.title : ""}
@@ -343,12 +348,12 @@ const CourseDetail = () => {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const { courseId } = useParams();
   const course = useAPI(`/api/course/${courseId}`, null);
-  const checkBill = useAPI(`/api/bill/check/${userId}/${courseId}`, null);
-  console.log(checkBill);
+  const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
+  console.log(checkProcess);
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
 
-  if (course.loading || checkBill.loading) return <Loader />;
+  if (course.loading || checkProcess.loading) return <Loader />;
 
   const scheduleData = [
     {
@@ -417,7 +422,7 @@ const CourseDetail = () => {
       icon: ProfileOutlined,
       name: "Curriculum",
       child: Curriculum,
-      props: { course: course.data, isBill: checkBill?.data, navigate },
+      props: { course: course.data, process: checkProcess?.data, navigate },
     },
     {
       icon: UserOutlined,
@@ -600,7 +605,7 @@ const CourseDetail = () => {
                       },
                     }}
                   >
-                    {checkBill.data == true ? (
+                    {checkProcess?.data?.data  ? (
                       <></>
                     ) : (
                       <>

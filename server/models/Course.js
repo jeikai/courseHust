@@ -3,6 +3,7 @@ const Schema = mongoose.Schema
 const categoryModel = require('./Category')
 const quizModel = require('./Quiz')
 const courseSchema = new Schema({
+    // Basic info
     instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     title: { type: String, required: true, unique: true },
     shortDes: { type: String },
@@ -10,12 +11,19 @@ const courseSchema = new Schema({
     isStream: {type: Boolean, required: true},
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
+    price: { type: Number, required: true, default: 0 },
+
+    // ko quan tam truong nay
     courseVideo: { type: String },
     tags: [{ type: String }],
-    price: { type: Number, required: true, default: 0 },
+    
+    // thumbnail 
     thumbnail: { type: String, required: true },
+
+    // Bài học
     sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
-    date_created: Date,
+
+    date_created: Date, 
     date_updated: Date
 })
 

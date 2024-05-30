@@ -11,6 +11,7 @@ import Calendar from "../pages/Calendar";
 import Purchase from "../pages/Purchase";
 import Bill from "../pages/Bill"
 import QuizLesson from "../pages/QuizLesson";
+import QuizResult from "../pages/QuizResult";
 const Routes = [
   {
     path: "/cart",
@@ -63,7 +64,7 @@ const Routes = [
   {
     path: "/home/calendar",
     view: Calendar,
-    layout: "app",
+    layout: "app", 
     // permission: 'student',
     title: "FunCourse - Calendar | E-Learning",
   },
@@ -84,6 +85,13 @@ const Routes = [
   {
     path: "/home/quiz/:id/:courseId",
     view: QuizLesson,
+    layout: "lesson",
+    // permission: 'student',
+    title: "FunCourse - Lesson | E-Learning",
+  },
+  {
+    path: "/home/quiz_result",
+    view: QuizResult,
     layout: "lesson",
     // permission: 'student',
     title: "FunCourse - Lesson | E-Learning",

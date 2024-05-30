@@ -25,6 +25,7 @@ import { Axios } from "axios";
 
 const QuizLesson = () => {
   const { id } = useParams();
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const viewContext = useContext(ViewContext);
   let responseAPI;
 
@@ -32,21 +33,21 @@ const QuizLesson = () => {
 
   const [lesson, setLesson] = useState(null);
   const [start, setStart] = useState(
-    localStorage.getItem(`${id}_time`) || null
+    localStorage.getItem(`${userId}_${id}_time`) || null
   );
   const handleStartQuiz = () => {
     console.log("Start quiz");
     // let duaration = lesson.duaration
     let duration = lesson?.duration;
     let startTime = new Date().getTime();
-    let durationParts = duration.split(":");
+    let durationParts = duration.split(":"); 
     let hours = parseInt(durationParts[0]);
     let minutes = parseInt(durationParts[1]);
     let seconds = parseInt(durationParts[2]);
     let endTime = new Date(
       startTime + hours * 3600000 + minutes * 60000 + seconds * 1000
     ).getTime();
-    localStorage.setItem(`${id}_time`, endTime);
+    localStorage.setItem(`${userId}_${id}_time`, endTime);
     setStart(endTime);
   };
 
@@ -67,8 +68,6 @@ const QuizLesson = () => {
       <Row gutter={24}>
         <Col span={24} pull={0}>
           <div className="mb-4 mt-2">
-            {/* <TimePicker onChange={(value) => console.log(value.format('hh-mm-ss'))} /> */}
-            {/* <Video video={responseAPI.data.videoURL}/> */}
             {!start ? (
               <Quiz handleStartQuiz={handleStartQuiz} />
             ) : (

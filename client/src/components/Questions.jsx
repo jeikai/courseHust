@@ -19,8 +19,10 @@ import Question from "./Question";
 import { getQuizById } from "../api/quiz";
 import { ViewContext } from "../context/View";
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Questions = ({ lesson, quizId }) => {
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState([]);
@@ -29,6 +31,7 @@ const Questions = ({ lesson, quizId }) => {
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const viewContext = useContext(ViewContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // fetchQuestions()
@@ -44,7 +47,7 @@ const Questions = ({ lesson, quizId }) => {
     setQuiz(lesson);
   }, []);
   const showModal = () => {
-    setIsModalOpen(true);
+    setIsModalOpen(true); 
   };
   const handlePrev = () => {
     if (currentQuestion > 1) {
@@ -62,35 +65,15 @@ const Questions = ({ lesson, quizId }) => {
     setOpen(true);
   };
 
-  const handleCalculateScore = (lesson, answers) => {
-    try {
-      let diemSo = 0;
-      let soCauDung = 0;
-      const soCauHoi = lesson.length;
-      for (const cauHoiLesson of lesson) {
-        for (const cauTraLoiAnswer of answers) {
-          if (cauHoiLesson.id === cauTraLoiAnswer.id) {
-            if (cauTraLoiAnswer.choices[0] === cauHoiLesson.answer) {
-              soCauDung++;
-              break;
-            }
-          }
-        }
-      }
-
-      diemSo = (soCauDung / soCauHoi) * 10;
-      return diemSo.toFixed(2);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const handleOk = () => {
-    handleCalculateScore(lesson.questions, answers);
     setConfirmLoading(true);
-
-    // Call api gửi đáp án
-
-    localStorage.removeItem(`${quizId}_time`);
+    
+    let endTime = localStorage.getItem(`${userId}_${quizId}_time`);
+    if( endTime ) {
+      localStorage.removeItem(`${userId}_${quizId}_time`);
+    }
+    
+    navigate('/home/quiz_result', { state: { lesson, answers, duration } })
     setOpen(false);
     setConfirmLoading(false);
   };
@@ -100,16 +83,15 @@ const Questions = ({ lesson, quizId }) => {
   };
 
   const handleGetTime = () => {
-    let endTime = localStorage.getItem(`${quizId}_time`);
+    let endTime = localStorage.getItem(`${userId}_${quizId}_time`);
     console.log(endTime);
     let now = new Date().getTime();
     let time = endTime - now;
-
+    console.log(time)
     if (time <= 0) {
-      // handleSubmit Question
-      // handleOk()
+      console.log("end up");
 
-      localStorage.removeItem(`${quizId}_time`);
+      localStorage.removeItem(`${userId}_${quizId}_time`);
       return;
     }
 
@@ -120,7 +102,7 @@ const Questions = ({ lesson, quizId }) => {
     let formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-
+    
     setDuration(formattedTime);
   };
   useEffect(() => {
@@ -136,10 +118,6 @@ const Questions = ({ lesson, quizId }) => {
         <Col span={16}>
           <Flex align="center" justify="space-between">
             <Typography.Title level={3}>{quiz?.title}</Typography.Title>
-            {/* <Flex align='center' justify='center' gap={6} className='text-red-500'>
-              <ClockCircleOutlined />
-              <p>{duration}</p>
-            </Flex> */}
           </Flex>
           <Divider />
           <Flex align="center" justify="space-between" className="mb-2">

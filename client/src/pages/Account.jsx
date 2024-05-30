@@ -21,7 +21,7 @@ const Account = () => {
                                     <Avatar size={98} shape='circle' src='https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png' />
                                     <Space direction='vertical' >
                                         <Typography.Title level={5}>Profile photo</Typography.Title>
-                                        <Typography.Text>Update your profile photo and personal details</Typography.Text>
+                                        
                                     </Space>
                                 </Flex>
                             </Flex>

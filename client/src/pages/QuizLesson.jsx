@@ -24,7 +24,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Axios } from "axios";
 
 const QuizLesson = () => {
-  const { id } = useParams();
+  const { id, courseId } = useParams();
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const viewContext = useContext(ViewContext);
   let responseAPI;
@@ -36,7 +36,7 @@ const QuizLesson = () => {
     localStorage.getItem(`${userId}_${id}_time`) || null
   );
   const handleStartQuiz = () => {
-    console.log("Start quiz");
+    console.log("Start quiz"); 
     // let duaration = lesson.duaration
     let duration = lesson?.duration;
     let startTime = new Date().getTime();
@@ -71,7 +71,7 @@ const QuizLesson = () => {
             {!start ? (
               <Quiz handleStartQuiz={handleStartQuiz} />
             ) : (
-              lesson && <Questions lesson={lesson} quizId={id} />
+              lesson && <Questions lesson={lesson} quizId={id} courseId={courseId} />
             )}
           </div>
         </Col>

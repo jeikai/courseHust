@@ -111,3 +111,52 @@ exports.updateLesson = async function (userId, courseId, lessonId) {
         return { error: error }
     }
 }
+
+exports.updateQuiz = async function (userId, courseId, quizId, score) {
+    try {
+        const process = await Process.findOne({
+            userId: userId,
+            courseId: courseId
+        });
+
+        if (!process) {
+            return { error: "not found" };
+        }
+
+        const existingQuizIndex = process.quizScores.findIndex(quiz => quiz.quizId.toString() === quizId);
+        if (existingQuizIndex !== -1) {
+            console.log("Quiz already exists");
+            return process;
+        }
+
+        const course = await courseModel.get({
+            courseId: courseId
+        });
+
+        if (!course) {
+            return { error: "Course not found" };
+        }
+
+        let totalLesson = 0;
+        course.sections.forEach((section) => {
+            totalLesson += section.specs.length;
+        });
+
+        const newQuizScore = { quizId: quizId, score: score };
+        process.quizScores.push(newQuizScore);
+
+        const processPercentage = (((process.lessonId.length + process.quizScores.length + 1) / totalLesson) * 100).toFixed(2);
+        process.process = processPercentage;
+        process.date_updated = new Date();
+
+        process.markModified("quizScores");
+        process.markModified("process");
+        process.markModified("date_updated");
+
+        await process.save();
+        return process;
+    } catch (error) {
+        console.log(error);
+        return { error: error };
+    }
+}

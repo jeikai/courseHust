@@ -37,7 +37,7 @@ import {
   UserOutlined,
   LockOutlined,
   CheckOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import breadcramb from "../assets/course-breadcramb.png";
 import item1 from "../assets/item-1.jpg";
@@ -49,6 +49,7 @@ import { ViewContext } from "../context/View.jsx";
 import axios from "axios";
 import { Scheduler } from "devextreme-react";
 import { Editing, Scrolling } from "devextreme-react/scheduler";
+import moment from "moment";
 
 const Overview = ({ course }) => {
   return (
@@ -159,8 +160,15 @@ const Curriculum = ({ course, process }) => {
                     ? () => {}
                     : () => {
                         spec?.type === "lesson"
-                          ? navigate("/home/lesson/" + spec?._id?._id + "/" + course?._id)
-                          : navigate("/home/quiz/" + spec?._id?._id + "/" + course?._id);
+                          ? navigate(
+                              "/home/lesson/" +
+                                spec?._id?._id +
+                                "/" +
+                                course?._id
+                            )
+                          : navigate(
+                              "/home/quiz/" + spec?._id?._id + "/" + course?._id
+                            );
                       }
                 }
               >
@@ -168,17 +176,22 @@ const Curriculum = ({ course, process }) => {
                   {spec.type === "lesson" ? (
                     !process?.data ? (
                       <LockOutlined className="text-xl text-[#ccc]" />
+                    ) : process?.data?.lessonId?.some(
+                        (id) => id.toString() === spec?._id?._id.toString()
+                      ) ? (
+                      <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
                     ) : (
-                      process?.data?.lessonId?.some((id) => id.toString() === spec?._id?._id.toString())
-                        ? <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
-                        : <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                      <PlayCircleOutlined className="text-xl text-[#754FFE]" />
                     )
                   ) : !process?.data ? (
                     <LockOutlined className="text-xl text-[#ccc]" />
+                  ) : process?.data?.quizScores?.some(
+                      (id) =>
+                        id?.quizId.toString() === spec?._id?._id.toString()
+                    ) ? (
+                    <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
                   ) : (
-                    process?.data?.quizScores?.some((id) => id?.quizId.toString() === spec?._id?._id.toString())
-                    ? <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
-                    : <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
+                    <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
                   )}
                   <span className="text-[#676C7D">
                     {spec?._id?.title ? spec._id.title : ""}
@@ -292,6 +305,39 @@ const Instructor = ({ instructorId, navigate }) => {
 };
 
 const Schedule = ({ sourceData }) => {
+  const getDatesBetween = (startDate, endDate, dayOfWeek) => {
+    const dates = [];
+    let current = moment(startDate).startOf("day");
+    if (current.day() != dayOfWeek) {
+      current.day(dayOfWeek);
+    }
+    
+    while (current.isSameOrBefore(endDate)) {
+      if (current.isSameOrAfter(startDate)) {
+        dates.push(current.clone().format("YYYY-MM-DD"));
+      }
+      current.add(1, "week");
+    }
+
+    return dates;
+  };
+
+  const transformData = (data) => {
+    return data.flatMap((item) => {
+      const dates = getDatesBetween(
+        item.day_start,
+        item.day_end,
+        item.dayOfWeek
+      );
+
+      return dates.map((date) => ({
+        ...item,
+        text: item.title,
+        startDate: moment(date + "T" + item.time_start).toISOString(),
+        endDate: moment(date + "T" + item.time_end).toISOString(),
+      }));
+    });
+  };
   const appointmentRender = (e) => {
     return (
       <div>
@@ -310,27 +356,17 @@ const Schedule = ({ sourceData }) => {
     );
   };
 
-  // remap data
-  sourceData = sourceData.map((item) => {
-    return {
-      ...item,
-      text: item.title,
-      startDate: item.date_start,
-      // endDate is after 1 hour
-      endDate: new Date(item.date_start.getTime() + 60 * 60 * 1000),
-    };
-  });
-  console.log(sourceData);
+  const formattedSourceData = transformData(sourceData);
 
   return (
     <Scheduler
       height={730}
       showAllDayPanel={false}
-      dataSource={sourceData}
+      dataSource={formattedSourceData}
       currentView={"week"}
       appointmentRender={appointmentRender}
       appointmentTooltipRender={appointmentTooltipRender}
-      startDayHour={0}
+      startDayHour={7}
       crossScrollingEnabled={true}
     >
       <Editing
@@ -350,24 +386,13 @@ const CourseDetail = () => {
   const { courseId } = useParams();
   const course = useAPI(`/api/course/${courseId}`, null);
   const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
-  console.log(checkProcess);
+  const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
+  console.log(schedule);
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
 
-  if (course.loading || checkProcess.loading) return <Loader />;
-
-  const scheduleData = [
-    {
-      userId: 0,
-      courseId: 1,
-      title: "Introduction to the course",
-      description: "A short meeting introduce the course",
-      urlMeet: "https://meet.google.com/abc-xyz",
-      date_start: new Date(Date.now()),
-      date_created: new Date("2023-5-12T08:00:00"),
-      date_updated: new Date("2023-5-12T08:00:00"),
-    },
-  ];
+  if (course.loading || checkProcess.loading || schedule.loading)
+    return <Loader />;
 
   let totalSections = 0;
   let totalQuizs = 0;
@@ -437,13 +462,17 @@ const CourseDetail = () => {
       child: Reviews,
       props: { course: course.data, navigate },
     },
-    {
+  ];
+
+  // Conditionally add Schedule item
+  if (course?.data?.isStream) {
+    items.push({
       icon: CalendarOutlined,
       name: "Schedule",
       child: Schedule,
-      props: { sourceData: scheduleData },
-    },
-  ];
+      props: { sourceData: schedule },
+    });
+  }
   return (
     <>
       <section
@@ -470,7 +499,9 @@ const CourseDetail = () => {
               </Space>
               <Space>
                 <CheckCircleOutlined className="text-white" />
-                <span className="text-white text-base">{checkProcess?.data?.data?.process} %</span>
+                <span className="text-white text-base">
+                  {checkProcess?.data?.data?.process || 0} %
+                </span>
               </Space>
               <Space>
                 <UserOutlined className="text-white" />
@@ -603,7 +634,7 @@ const CourseDetail = () => {
                       },
                     }}
                   >
-                    {checkProcess?.data?.data  ? (
+                    {checkProcess?.data?.data ? (
                       <></>
                     ) : (
                       <>

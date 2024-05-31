@@ -8,7 +8,7 @@ exports.create = async function (req, res) {
         const newCalendar = await calendarModel.create(data)
         if (newCalendar.hasOwnProperty('error')) return res.status(500).json({ message: newCalendar.error })
 
-        return res.status(200).json({ message: "Course has been added to cart successfully", data: newCalendar })
+        return res.status(200).json({ message: "Create schedule successfully", data: newCalendar })
     } catch (error) {
         return res.status(500).json({ message: error.message })
     }
@@ -18,6 +18,17 @@ exports.getByCourseId = async function (req, res) {
     try {
         const courseId = req.params.courseId
         const response = await calendarModel.getByCourseId(courseId)
+
+        return res.status(200).json(response)
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+exports.getByUserId = async function (req, res) {
+    try {
+        const userId = req.params.userId
+        const response = await calendarModel.getByUserId(userId)
 
         return res.status(200).json(response)
     } catch (error) {

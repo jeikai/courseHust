@@ -20,14 +20,14 @@ import { getQuizById } from "../api/quiz";
 import { ViewContext } from "../context/View";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import Axios from "axios";
 
-const Questions = ({ lesson, quizId }) => {
+const Questions = ({ lesson, quizId, courseId }) => {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState([]);
   const [duration, setDuration] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const viewContext = useContext(ViewContext);
@@ -46,9 +46,7 @@ const Questions = ({ lesson, quizId }) => {
     setAnswers(newListAnswers);
     setQuiz(lesson);
   }, []);
-  const showModal = () => {
-    setIsModalOpen(true); 
-  };
+
   const handlePrev = () => {
     if (currentQuestion > 1) {
       setCurrentQuestion(currentQuestion - 1);
@@ -64,18 +62,60 @@ const Questions = ({ lesson, quizId }) => {
   const showPopconfirm = () => {
     setOpen(true);
   };
+  const handleCalculateScore = (lessonQuestions, userAnswers) => {
+    try {
+      let correctCount = 0;
+      const totalQuestions = lessonQuestions.length;
 
-  const handleOk = () => {
-    setConfirmLoading(true);
-    
-    let endTime = localStorage.getItem(`${userId}_${quizId}_time`);
-    if( endTime ) {
-      localStorage.removeItem(`${userId}_${quizId}_time`);
+      lessonQuestions.forEach((question) => {
+        const userAnswer = userAnswers.find(
+          (answer) => answer.id === question.id
+        );
+        if (userAnswer && userAnswer.choices[0] == question.answer[0]) {
+          correctCount++;
+        }
+      });
+
+      return {
+        correctCount: correctCount,
+        wrongCount: totalQuestions - correctCount,
+        percent: Math.round((correctCount / totalQuestions) * 100),
+      };
+    } catch (error) {
+      console.log(error);
     }
-    
-    navigate('/home/quiz_result', { state: { lesson, answers, duration } })
-    setOpen(false);
-    setConfirmLoading(false);
+  };
+  const handleOk = async () => {
+    try {
+      setConfirmLoading(true);
+      const result = handleCalculateScore(
+        lesson.questions,
+        answers
+      ).correctCount;
+      const data = {
+        userId: userId,
+        courseId: courseId,
+        quizId: quizId,
+        score: result,
+      };
+      const responseUpdate = await Axios({
+        url: "/api/process/quiz",
+        method: "PUT",
+        data: data,
+      });
+      console.log(responseUpdate);
+      let endTime = localStorage.getItem(`${userId}_${quizId}_time`);
+      if (endTime) {
+        localStorage.removeItem(`${userId}_${quizId}_time`);
+      }
+
+      navigate("/home/quiz_result", { state: { lesson, answers, duration } });
+      setOpen(false);
+      setConfirmLoading(false);
+    } catch (error) {
+      console.log(error);
+      viewContext.handleError(error.toString());
+    }
   };
   const handleCancel = () => {
     console.log("Clicked cancel button");
@@ -87,7 +127,7 @@ const Questions = ({ lesson, quizId }) => {
     console.log(endTime);
     let now = new Date().getTime();
     let time = endTime - now;
-    console.log(time)
+    console.log(time);
     if (time <= 0) {
       console.log("end up");
 
@@ -102,7 +142,7 @@ const Questions = ({ lesson, quizId }) => {
     let formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-    
+
     setDuration(formattedTime);
   };
   useEffect(() => {

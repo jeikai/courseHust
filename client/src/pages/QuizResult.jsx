@@ -21,7 +21,7 @@ const QuizResult = () => {
     { min: 91, max: 100, text: "Excellent! You're a star!" },
   ];
 
-  const getQuote = (percent) => {
+  const getQuote = (percent) => { 
     const quote = quotes.find((q) => percent >= q.min && percent <= q.max);
     return quote ? quote.text : "Good effort!";
   };

@@ -13,7 +13,7 @@ const SectionSchema = new Schema({
 			_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
 			type: { type: String, enum: ['lesson', 'quiz'], default: 'quiz' },
 		},
-	], 
+	],
 	date_created: Date,
 	date_updated: Date,
 });
@@ -110,6 +110,16 @@ exports.deleteQuiz = async (quizId) => {
 				},
 			}
 		);
+		return result;
+	} catch (error) {
+		return { error };
+	}
+};
+exports.update = async (sectionId, data) => {
+	try {
+		const result = await Section.findByIdAndUpdate(sectionId, data, {
+			new: true,
+		});
 		return result;
 	} catch (error) {
 		return { error };

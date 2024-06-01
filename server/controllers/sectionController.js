@@ -59,3 +59,17 @@ exports.deleteQuiz = async (req, res) => {
 		});
 	}
 };
+exports.update = async (req, res) => {
+	try {
+		const { sectionId } = req.params;
+		const data = await req.body;
+		const result = await sectionModel.update(sectionId, data);
+		return res.status(200).json({
+			data: result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
+	}
+};

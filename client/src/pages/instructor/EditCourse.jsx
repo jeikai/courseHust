@@ -62,6 +62,7 @@ import Spring from '../../components/Spring';
 import { useAPI } from '../../hooks/api';
 import Loader from '../../components/Loader';
 import { uploadFile } from '../../helpers';
+import { handleUpdateCourse } from '../../api/course';
 
 const EditCourse = () => {
 	const courseId = useParams().id;
@@ -93,6 +94,7 @@ const EditCourse = () => {
 	const [courseCategory, setCourseCategory] = useState([]);
 
 	const [data, setData] = useState({
+		_id: courseId,
 		title: '',
 		category: '',
 		level: 'basic',
@@ -182,17 +184,17 @@ const EditCourse = () => {
 		const { sections } = data;
 
 		sections.forEach((section) => {
-			if (section.id === sectionId) {
-				console.log('hehe');
-
-				if (!section?.specialIds) {
-					(section.specialIds = []), (section.specials = []);
+			if (section._id === sectionId) {
+				if (!section?.specs) {
+					(section.specs = []), (section.specs = []);
 				}
 				let obj = {
-					id: lessonId,
+					_id: {
+						...fieldLessons,
+					},
 					type: 'lesson',
 				};
-				section.specialIds.push(obj), section.specials.push(fieldLessons);
+				section.specs.push(obj);
 			}
 		});
 
@@ -212,8 +214,9 @@ const EditCourse = () => {
 	const handleEditLesson = async () => {
 		setIsLoading((prev) => true);
 		let newLesson = formEditLesson.getFieldsValue();
-		const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-		newLesson.videoURL = uploadedFile.file_url;
+		// const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
+		newLesson.videoURL = '';
+		newLesson.docURL = '';
 		let { sections } = data;
 		sections.forEach((section) => {
 			let { specs } = section;
@@ -271,15 +274,13 @@ const EditCourse = () => {
 
 		const fieldSections = formSection.getFieldsValue();
 		let sectionId = uuidv4();
-		fieldSections.id = sectionId;
+		fieldSections._id = sectionId;
 
-		if (!data.sectionIds) {
-			data.sectionIds = [];
-			data.sections = [];
-		}
-
-		data.sectionIds.push(sectionId);
-		data.sections.push(fieldSections);
+		data.sections.push({
+			_id: fieldSections._id,
+			title: fieldSections.sectionName,
+			specs: [],
+		});
 
 		console.log('fieldSections', fieldSections);
 		console.log(data);
@@ -292,9 +293,9 @@ const EditCourse = () => {
 
 	const handleEditSection = () => {
 		data.sections.forEach((section) => {
-			if (section.id === idEditSection) {
+			if (section._id === idEditSection) {
 				let newName = formEditSection.getFieldValue('sectionName');
-				section.sectionName = newName;
+				section.title = newName;
 				setData(data);
 
 				formEditSection.resetFields();
@@ -306,9 +307,9 @@ const EditCourse = () => {
 	const openModalEditSection = (id) => {
 		console.log(id);
 		data.sections.forEach((section) => {
-			if (section.id === id) {
+			if (section._id === id) {
 				console.log(data.sections);
-				formEditSection.setFieldValue('sectionName', section.sectionName);
+				formEditSection.setFieldValue('sectionName', section.title);
 				setIdEditSection(id);
 				setOpenEditSections(true);
 			}
@@ -338,17 +339,18 @@ const EditCourse = () => {
 		console.log(id);
 		// Xóa phần tử trong mảng sections
 		const updatedSections = data.sections.filter(
-			(section) => section.id !== id
+			(section) => section._id !== id
 		);
 
 		// Xóa id trong mảng sectionIds
-		const updatedSectionIds = data.sectionIds.filter((id) => id !== id);
+		const updatedSectionIds = data.sections.filter(
+			(section) => section._id !== id
+		);
 
 		// Cập nhật dữ liệu mới
 		setData((prevData) => ({
 			...prevData,
 			sections: updatedSections,
-			sectionIds: updatedSectionIds,
 		}));
 	};
 
@@ -381,7 +383,10 @@ const EditCourse = () => {
 		// let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
 		// data.thumbnail = thumbnail.file_url;
 		// console.log(data.thumbnail);
-		console.log('Submitted data', data);
+		setIsLoading(true);
+		const result = await handleUpdateCourse(data);
+
+		setIsLoading(false);
 	};
 
 	const BasicInformation = (props) => {
@@ -692,132 +697,125 @@ const EditCourse = () => {
 	});
 
 	const sensors = useSensors(mouseSensor, touchSensor);
+	const Card = ({ item, section, openModalEditLesson, handleRemoveLesson }) => {
+		const {
+			attributes,
+			listeners,
+			isDragging,
+			setNodeRef,
+			transform,
+			transition,
+		} = useSortable({
+			id: item.id,
+			data: { ...item },
+		});
 
-	const Curriculum = () => {
-		const RowSection = ({
-			section,
-			openModalEditSection,
-			handleRemoveSection,
-			openModalEditLesson,
-			handleRemoveLesson,
-			formLesson,
-			setOpenInputLesson,
-			someoneIsDragging,
-			formQuiz,
-			setOpenEditQuiz,
-			setOpenInputQuiz,
-		}) => {
-			const {
-				attributes,
-				listeners,
-				isDragging,
-				setNodeRef,
-				transform,
-				transition,
-			} = useSortable({
-				id: section.id,
-				data: { ...section },
-			});
-
-			const style = {
-				transform: CSS.Translate.toString(transform),
-				transition,
-			};
-			const Card = ({
-				item,
-				section,
-				openModalEditLesson,
-				handleRemoveLesson,
-			}) => {
-				const {
-					attributes,
-					listeners,
-					isDragging,
-					setNodeRef,
-					transform,
-					transition,
-				} = useSortable({
-					id: item.id,
-					data: { ...item },
-				});
-
-				const style = {
-					transform: CSS.Translate.toString(transform),
-					transition,
-				};
-				return (
-					<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-						<Flex
-							className="border px-4 p-2 mb-3 bg-[#f1f5f9]"
-							align="center"
-							justify="space-between">
-							<Flex align="center" gap={6}>
-								{section?.specs?.filter((spec) => spec.type === 'lesson') ? (
-									<VideoCameraOutlined />
-								) : (
-									<QuestionCircleOutlined />
-								)}
-								<Typography.Title style={{ marginBottom: 0 }} level={5}>
-									{item.title}
-								</Typography.Title>
-							</Flex>
-							<Space>
-								<EditOutlined onClick={() => openModalEditLesson(item._id)} />
-								<DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
-							</Space>
-						</Flex>
-					</div>
-				);
-			};
-			return (
-				<div
-					key={section.id}
-					ref={setNodeRef}
-					style={style}
-					{...attributes}
-					{...listeners}
-					className="border border-[#e2e8f0] item rounded text-nowrap bg-white text-[#64748b] p-4">
-					<div>
-						<Flex align="center" justify="space-between" className="mb-4">
-							<Typography.Title level={5}>{section.title}</Typography.Title>
-							<Space className="text-base">
-								<EditOutlined
-									onClick={() => openModalEditSection(section.id)}
-								/>
-								<DeleteOutlined
-									onClick={() => handleRemoveSection(section.id)}
-								/>
-							</Space>
-						</Flex>
-						<SortableContext items={[]}>
-							{section?.specs?.map((item, index) => {
-								return (
-									<Card
-										key={index}
-										item={item._id}
-										section={section}
-										openModalEditLesson={openModalEditLesson}
-										handleRemoveLesson={handleRemoveLesson}
-									/>
-								);
-							})}
-						</SortableContext>
-					</div>
+		const style = {
+			transform: CSS.Translate.toString(transform),
+			transition,
+		};
+		return (
+			<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+				<Flex
+					className="border px-4 p-2 mb-3 bg-[#f1f5f9]"
+					align="center"
+					justify="space-between">
+					<Flex align="center" gap={6}>
+						{section?.specs?.filter((spec) => spec.type === 'lesson') ? (
+							<VideoCameraOutlined />
+						) : (
+							<QuestionCircleOutlined />
+						)}
+						<Typography.Title style={{ marginBottom: 0 }} level={5}>
+							{item.title}
+						</Typography.Title>
+					</Flex>
 					<Space>
-						<Button
-							onClick={() => {
-								formLesson.setFieldValue('sectionId', section.id);
-
-								setOpenInputLesson(true);
-							}}
-							icon={<PlusOutlined />}>
-							Lesson
-						</Button>
+						<EditOutlined onClick={() => openModalEditLesson(item._id)} />
+						<DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
 					</Space>
-				</div>
-			);
+				</Flex>
+			</div>
+		);
+	};
+	const RowSection = ({
+		section,
+		openModalEditSection,
+		handleRemoveSection,
+		openModalEditLesson,
+		handleRemoveLesson,
+		formLesson,
+		setOpenInputLesson,
+		someoneIsDragging,
+		formQuiz,
+		setOpenEditQuiz,
+		setOpenInputQuiz,
+	}) => {
+		const {
+			attributes,
+			listeners,
+			isDragging,
+			setNodeRef,
+			transform,
+			transition,
+		} = useSortable({
+			id: section._id,
+			data: { ...section },
+		});
+
+		const style = {
+			transform: CSS.Translate.toString(transform),
+			transition,
 		};
 
+		return (
+			<div
+				key={section._id}
+				ref={setNodeRef}
+				style={style}
+				{...attributes}
+				{...listeners}
+				className="border border-[#e2e8f0] item rounded text-nowrap bg-white text-[#64748b] p-4">
+				<div>
+					<Flex align="center" justify="space-between" className="mb-4">
+						<Typography.Title level={5}>{section.title}</Typography.Title>
+						<Space className="text-base">
+							<EditOutlined onClick={() => openModalEditSection(section._id)} />
+							<DeleteOutlined
+								onClick={() => handleRemoveSection(section._id)}
+							/>
+						</Space>
+					</Flex>
+					<SortableContext items={[]}>
+						{section?.specs?.map((item, index) => {
+							return (
+								<Card
+									key={index}
+									item={item._id}
+									section={section}
+									openModalEditLesson={openModalEditLesson}
+									handleRemoveLesson={handleRemoveLesson}
+								/>
+							);
+						})}
+					</SortableContext>
+				</div>
+				<Space>
+					<Button
+						onClick={() => {
+							formLesson.setFieldValue('sectionId', section._id);
+
+							setOpenInputLesson(true);
+						}}
+						icon={<PlusOutlined />}>
+						Lesson
+					</Button>
+				</Space>
+			</div>
+		);
+	};
+
+	const Curriculum = () => {
 		return (
 			<div className={''}>
 				<Typography.Title level={4}>Curriculum</Typography.Title>
@@ -834,7 +832,7 @@ const EditCourse = () => {
 									{data?.sections.map((section) => {
 										return (
 											<RowSection
-												key={section.id}
+												key={section._id}
 												section={section}
 												openModalEditSection={openModalEditSection}
 												handleRemoveSection={handleRemoveSection}

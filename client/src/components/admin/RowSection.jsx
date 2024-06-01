@@ -17,7 +17,7 @@ import {
 	Typography,
 	Upload,
 } from 'antd';
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import Card from './Card';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -51,10 +51,6 @@ const RowSection = ({
 		transform: CSS.Translate.toString(transform),
 		transition,
 	};
-	useEffect(() => {
-		console.log('Row Form Lesson', formLesson.getFieldsValue());
-	}, []);
-
 	return (
 		<div
 			key={section.id}
@@ -72,11 +68,11 @@ const RowSection = ({
 					</Space>
 				</Flex>
 				<SortableContext items={[]}>
-					{section?.specs?.map((item, index) => {
+					{section?.specials?.map((item, index) => {
 						return (
 							<Card
 								key={index}
-								item={item._id}
+								item={item}
 								section={section}
 								openModalEditLesson={openModalEditLesson}
 								handleRemoveLesson={handleRemoveLesson}
@@ -89,7 +85,7 @@ const RowSection = ({
 				<Button
 					onClick={() => {
 						formLesson.setFieldValue('sectionId', section.id);
-
+						console.log(formLesson.getFieldsValue());
 						setOpenInputLesson(true);
 					}}
 					icon={<PlusOutlined />}>

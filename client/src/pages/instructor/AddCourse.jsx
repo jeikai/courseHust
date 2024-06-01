@@ -112,7 +112,7 @@ const AddCourse = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "",
+      href: "/admin/manage_courses",
     },
     {
       title: "Add New Course",
@@ -360,7 +360,7 @@ const AddCourse = () => {
     let user = localStorage.getItem("user");
     user = JSON.parse(user);
     // console.log(user.authenticated);
-    try { 
+    try {
       const resCourse = await Axios({
         url: "/api/course",
         method: "POST",

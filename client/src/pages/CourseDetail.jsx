@@ -391,7 +391,7 @@ const CourseDetail = () => {
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
 
-  if (course.loading || checkProcess.loading || schedule.loading)
+  if (course?.loading || checkProcess?.loading || schedule?.loading)
     return <Loader />;
 
   let totalSections = 0;

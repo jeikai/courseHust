@@ -294,7 +294,7 @@ const getQuizById = async (id) => {
         id: question._id,
         title: question.question,
         level: question.level,
-        answer: question.answer,
+        answer: question.answer[0],
         type: "scq",
         options: [],
       };

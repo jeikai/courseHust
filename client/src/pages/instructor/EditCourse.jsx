@@ -377,9 +377,7 @@ const EditCourse = () => {
 	};
 
 	const handleSubmit = async (formData) => {
-		// if (typeof form.getFieldValue('thumbnail') == Object) {
-		// 	console.log('object');
-		// }
+		
 		// let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
 		// data.thumbnail = thumbnail.file_url;
 		// console.log(data.thumbnail);

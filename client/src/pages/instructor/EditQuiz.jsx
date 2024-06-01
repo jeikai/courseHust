@@ -71,6 +71,7 @@ const EditQuiz = () => {
 			);
 		}
 		formQuiz.setFieldsValue({ questions });
+		console.log(questions);
 	};
 
 	const handleFinish = (data) => {
@@ -95,7 +96,12 @@ const EditQuiz = () => {
 				// );
 				// data.duration = dayjs(data.duration?.toISOString(), timeFormat);
 				// dayjs(date, dateFormat)
-				setInitialForm(data);
+
+				confirm;
+
+				setInitialForm({
+					...data,
+				});
 				setIsLoading(false);
 			})
 			.catch((error) => {
@@ -125,7 +131,7 @@ const EditQuiz = () => {
 												<Typography.Title level={5}>Title</Typography.Title>
 											}>
 											<Input />
-										</Form.Item> 
+										</Form.Item>
 									</Col>
 									<Col span={24}>
 										<Form.Item

@@ -249,6 +249,7 @@ const handleUpdateCourse = async (data) => {
 	prevCourse.sections.forEach((section) => {
 		prevSections.push(section._id);
 	});
+    //get section needs to be deleted
     prevSections = prevSections.filter((id) => newSections.findIndex(secId => secId == id) == -1)
     //! Delete unused section
     // await Promise.all( prevSections.forEach(async (section) => {

@@ -36,7 +36,7 @@ import { useContext } from 'react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
-const dateFormat = 'YYYY-MM-DD';
+const dateFormat = 'YYYY-MM-DD HH:mm';
 const timeFormat = 'HH:mm:ss';
 
 const EditQuiz = () => {
@@ -141,7 +141,11 @@ const EditQuiz = () => {
 													Quiz duration
 												</Typography.Title>
 											}>
-											<TimePicker className="w-full" />
+											<TimePicker
+												className="w-full"
+												defaultValue={dayjs(initialForm.duration, timeFormat)}
+												format={timeFormat}
+											/>
 										</Form.Item>
 									</Col>
 									<Col span={24}>
@@ -157,7 +161,11 @@ const EditQuiz = () => {
 												showTime={{
 													format: 'HH:mm',
 												}}
-												format="YYYY-MM-DD HH:mm"
+												format={dateFormat}
+												defaultValue={[
+													dayjs(initialForm.startTime, dateFormat),
+													dayjs(initialForm.deadline, dateFormat),
+												]}
 												onChange={(value, dateString) =>
 													console.log(value, dateString)
 												}

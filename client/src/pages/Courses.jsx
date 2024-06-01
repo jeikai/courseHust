@@ -114,7 +114,7 @@ const Courses = () => {
     if (urlParams.get("categoryname")) {
       newParam.categoryname = urlParams.get("categoryname");
     }
-
+ 
     if (urlParams.get("price")) {
       newParam.price = urlParams.get("price");
     }

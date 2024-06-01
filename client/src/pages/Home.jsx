@@ -261,7 +261,7 @@ const Home = () => {
                     onClick={() =>
                       navigate(`/courses?categoryname=${category?.title}`)
                     }
-                  >
+                  > 
                     <Space
                       direction="vertical"
                       className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500"

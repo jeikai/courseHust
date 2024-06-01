@@ -834,7 +834,7 @@ const AddCourse = () => {
                 </Space>
               }
             >
-              <Form form={formEditLesson}>
+              <Form form={formEditLesson}> 
                 <Row gutter={16}>
                   <Col span={24}>
                     <Typography.Title level={5}>Lesson Name</Typography.Title>

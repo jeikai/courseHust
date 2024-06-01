@@ -38,6 +38,8 @@ const AddCategory = () => {
         viewContext.handleError("Title and Description are required.");
         return;
     }
+    data.title = data.title.trim();
+    data.description = data.description.trim();
     try {
         setLoading(true)
         const response = await Axios({

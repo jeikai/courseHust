@@ -11,7 +11,7 @@ exports.schema = Category
 
 exports.create = async function(data){
     try{
-        const categoryData = {
+        const categoryData = { 
             title: data.title,
             description: data.description
         } 

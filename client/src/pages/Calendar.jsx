@@ -15,20 +15,16 @@ import {
 import Sidenav from "../components/sidenav/Sidenav";
 import { Scheduler } from "devextreme-react";
 import { Editing, Scrolling } from "devextreme-react/scheduler";
+import Loader from "../components/Loader";
+import { useAPI } from "../hooks/api.jsx";
+import moment from "moment";
 
 const Calendar = () => {
-  let sourceData = [
-    {
-      userId: 0,
-      courseId: 1,
-      title: "Introduction to the course",
-      description: "A short meeting introduce the course",
-      urlMeet: "https://meet.google.com/abc-xyz",
-      date_start: new Date(Date.now()),
-      date_created: new Date("2023-5-12T08:00:00"),
-      date_updated: new Date("2023-5-12T08:00:00"),
-    },
-  ];
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
+  const schedule = useAPI(`/api/calendar/user/${userId}`, null)
+
+  if(schedule.loading) return <Loader/>
+
   const appointmentRender = (e) => {
     return (
       <div>
@@ -46,18 +42,42 @@ const Calendar = () => {
       </div>
     );
   };
+  const getDatesBetween = (startDate, endDate, dayOfWeek) => {
+    const dates = [];
+    let current = moment(startDate).startOf("day");
+    if (current.day() != dayOfWeek) {
+      current.day(dayOfWeek);
+    }
+    
+    while (current.isSameOrBefore(endDate)) {
+      if (current.isSameOrAfter(startDate)) {
+        dates.push(current.clone().format("YYYY-MM-DD"));
+      }
+      current.add(1, "week");
+    }
 
-  // remap data
-  sourceData = sourceData.map((item) => {
-    return {
-      ...item,
-      text: item.title,
-      startDate: item.date_start,
-      // endDate is after 1 hour
-      endDate: new Date(item.date_start.getTime() + 60 * 60 * 1000),
-    };
-  });
-  console.log(sourceData);
+    return dates;
+  };
+
+  const transformData = (data) => {
+    return data.flatMap((item) => {
+      const dates = getDatesBetween(
+        item.day_start,
+        item.day_end,
+        item.dayOfWeek
+      );
+
+      return dates.map((date) => ({
+        ...item,
+        text: item.title,
+        startDate: moment(date + "T" + item.time_start).toISOString(),
+        endDate: moment(date + "T" + item.time_end).toISOString(),
+      }));
+    });
+  };
+
+  const formattedSourceData = transformData(schedule?.data);
+  
   return (
     <>
       <Banner name="My Schedule" />
@@ -67,14 +87,14 @@ const Calendar = () => {
             <Sidenav />
           </Col>
           <Col span={18}>
-            <Scheduler
-              height={730}
+            <Scheduler 
+              height={600}
               showAllDayPanel={false}
-              dataSource={sourceData}
+              dataSource={formattedSourceData}
               currentView={"week"}
               appointmentRender={appointmentRender}
               appointmentTooltipRender={appointmentTooltipRender}
-              startDayHour={0}
+              startDayHour={7}
               crossScrollingEnabled={true}
             >
               <Editing

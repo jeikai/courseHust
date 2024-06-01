@@ -11,9 +11,6 @@ import {
   Tabs,
 } from "antd";
 import {
-  CarOutlined,
-  MoreOutlined,
-  SearchOutlined,
   TagsOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";

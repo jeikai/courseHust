@@ -15,7 +15,7 @@ exports.create = async function (req, res) {
 		if (newcategory.hasOwnProperty('error'))
 			return res.status(500).json({ message: newcategory.error });
 
-		return res
+		return res 
 			.status(200)
 			.json({ message: 'Create Category Successfully', data: newcategory });
 	} catch (e) {

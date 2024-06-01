@@ -125,7 +125,7 @@ const EditQuiz = () => {
 												<Typography.Title level={5}>Title</Typography.Title>
 											}>
 											<Input />
-										</Form.Item>
+										</Form.Item> 
 									</Col>
 									<Col span={24}>
 										<Form.Item

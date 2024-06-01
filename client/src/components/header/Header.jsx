@@ -96,11 +96,6 @@ const Header = () => {
         ),
       },
       {
-        key: "2",
-        label: "Become a Instructor",
-        icon: <BookOutlined />,
-      },
-      {
         key: "my_course",
         label: "My courses",
         icon: <UngroupOutlined />,
@@ -111,7 +106,7 @@ const Header = () => {
         icon: <CalendarOutlined />,
       },
       {
-        key: "5",
+        key: "user_profile",
         label: "User profile",
         icon: <UserOutlined />,
       },
@@ -121,6 +116,19 @@ const Header = () => {
         icon: <RollbackOutlined />,
       },
     ];
+
+    // Conditionally hide "Become a Instructor" for teachers
+    if (user.account.role === "teacher") {
+      itemProfile = itemProfile.filter(
+        (item) => item.key !== "become_instructor"
+      );
+    } else {
+      itemProfile.push({
+        key: "become_instructor",
+        label: "Become a Instructor",
+        icon: <BookOutlined />,
+      });
+    }
   }
   let enrollmentAPI;
   if (user) {
@@ -133,6 +141,8 @@ const Header = () => {
       navigate("/home/calendar");
     } else if (key === "my_course") {
       navigate("/home/my_courses");
+    } else if( key === "user_profile") {
+      navigate("/home/user_credentials");
     }
   };
 

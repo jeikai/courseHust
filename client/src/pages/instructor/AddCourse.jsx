@@ -360,7 +360,7 @@ const AddCourse = () => {
     let user = localStorage.getItem("user");
     user = JSON.parse(user);
     // console.log(user.authenticated);
-    try {
+    try { 
       const resCourse = await Axios({
         url: "/api/course",
         method: "POST",

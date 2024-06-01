@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-
+const courseModel = require('./Course')
 const ProcessSchema = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
@@ -51,9 +51,19 @@ exports.getById = async function (id) {
     }
 };
 
+exports.getByUserIdAndCourseId = async function (userId, courseId) {
+    try {
+        const process = await Process.findOne({ userId: userId, courseId: courseId })
+        return process;
+    } catch (error) {
+        console.log(error)
+        return { error: error }
+    }
+}
+
 exports.getByUserId = async function (userId) {
     try {
-        const process = await Process.find({userId: userId}).populate('courseId')
+        const process = await Process.find({ userId: userId }).populate('courseId')
             .populate({
                 path: 'courseId',
                 populate: [{
@@ -63,6 +73,41 @@ exports.getByUserId = async function (userId) {
         return process;
     } catch (error) {
         console.log(error)
-        return { error: err }
+        return { error: error }
+    }
+}
+
+exports.updateLesson = async function (userId, courseId, lessonId) {
+    try {
+        const process = await Process.findOne({
+            userId: userId,
+            courseId: courseId
+        })
+        const existingLessonIndex = process.lessonId.indexOf(lessonId)
+        if (existingLessonIndex !== -1) {
+            console.log("existed")
+            return process
+        }
+        const course = await courseModel.get({
+            courseId: courseId
+        })
+        if (!process || !course) return { error: "not found" }
+        let totalLesson = 0;
+        course?.sections.forEach((section) => {
+            totalLesson += section?.specs.length
+        })
+        const process_section = (((process?.lessonId.length + process?.quizScores.length + 1) / totalLesson) * 100).toFixed(2)
+
+        process.lessonId.push(lessonId)
+        process.process = process_section
+        process.date_updated = new Date()
+        process.markModified("lessonId")
+        process.markModified("process")
+        process.markModified("date_updated")
+        await process.save()
+        return process
+    } catch (error) {
+        console.log(error)
+        return { error: error }
     }
 }

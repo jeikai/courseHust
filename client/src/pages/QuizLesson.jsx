@@ -74,7 +74,7 @@ const QuizLesson = () => {
                   className="w-full hover:text-[#754FFE]"
                   level={5}
                 >
-                  {lesson?.title}
+                  {lesson?.title} 
                 </Typography.Title>
               }
               key="1"

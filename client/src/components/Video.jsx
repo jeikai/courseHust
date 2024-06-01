@@ -2,7 +2,7 @@ import React from 'react'
 import ReactPlayer from 'react-player'
 import vid from '../assets/video/vid.mp4'
 import thumbnail from '../assets/image/thumbnail.jpg'
-const Video = ({video}) => {
+const Video = ({video, setIsPlaying}) => {
     console.log(video)
     const videoUrl = video.startsWith("http") ? video : vid
     return (
@@ -14,6 +14,8 @@ const Video = ({video}) => {
                 height="100%"
                 playing={true}
                 controls={true}
+                onPlay={() => setIsPlaying(true)} 
+                onPause={() => setIsPlaying(false)}
                 pip
             />
         </div>

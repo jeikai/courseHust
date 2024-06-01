@@ -8,62 +8,22 @@ import {
   Input,
   Row,
   Table,
+  Tabs,
 } from "antd";
-import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  CarOutlined,
+  MoreOutlined,
+  SearchOutlined,
+  TagsOutlined,
+  VideoCameraOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import Spring from "../../components/Spring";
 import { useAPI } from "../../hooks/api";
 import Loader from "../../components/Loader";
+import { OutlinedInput } from "@mui/material";
 
-const Courses = () => {
-  const course = useAPI("/api/course", null);
-  if (course.loading) return <Loader />;
-
-  console.log(course);
-  const breadcrumb = [
-    {
-      title: "Home",
-      href: "",
-    },
-    {
-      title: "Application Center",
-    },
-  ];
-
-  const action = [
-    {
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.antgroup.com"
-        >
-          1st menu item
-        </a>
-      ),
-      key: "0",
-    },
-    {
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-        >
-          2nd menu item
-        </a>
-      ),
-      key: "1",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "3rd menu item（disabled）",
-      key: "3",
-      disabled: true,
-    },
-  ];
+const NormalCourse = ({ course }) => {
   const calculateTotalLectures = (course) => {
     if (!course || !course.sections) {
       return 0;
@@ -90,7 +50,127 @@ const Courses = () => {
       return str.substring(0, maxLength) + "...";
     }
   }
-  //   const [type, setType] = useState("all");
+  return (
+    <>
+      <div>
+        <Table size="large" dataSource={course} pagination={true}>
+          <Table.Column
+            sorter={{
+              compare: (a, b) => a.id - b.id,
+            }}
+            title="#"
+            dataIndex={"id"}
+            key={"id"}
+            render={(_, record) => {
+              return <>{truncateString(record._id, 5)}</>;
+            }}
+          />
+          <Table.Column
+            width={250}
+            title="Title"
+            dataIndex={"title"}
+            key={"title"}
+            render={(_, record) => {
+              return (
+                <Flex vertical>
+                  <Link className="font-semibold text-[#775FFE] text-line-1 w-[99%] block" to={`/admin/edit_course/${record._id}`}>
+                    {record.title}
+                  </Link>
+                  <span className="text-[#98a6ad]">
+                    Instructor: <strong>{record.instructorId.name}</strong>
+                  </span>
+                </Flex>
+              );
+            }}
+          />
+          <Table.Column
+            // width={150}
+            title="Category"
+            dataIndex={"category"}
+            key={"category"}
+            render={(_, record) => {
+              return (
+                <p className="text-xs font-semibold bg-[#313a462e] w-fit p-1 rounded-lg shadow-md">
+                  {record.categoryId.title}
+                </p>
+              );
+            }}
+          />
+          <Table.Column
+            // width={180}
+            title="Lesson and section"
+            key={"curriculum"}
+            render={(_, record) => {
+              return (
+                <Flex vertical className="text-[#98a6ad] text-md">
+                  <p>
+                    <span className="font-semibold">Lectures</span>:{" "}
+                    {calculateTotalLectures(record).totalLectures}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Quizs</span>:{" "}
+                    {calculateTotalLectures(record).totalQuizs}
+                  </p>
+                </Flex>
+              );
+            }}
+          />
+          <Table.Column
+            title="Price"
+            dataIndex={"price"}
+            key={"price"}
+            render={(_, record) => {
+              return (
+                <p className="text-md font-bold bg-[#313a462e] w-fit p-1 rounded-lg shadow-md">
+                  {record.price} <sup>đ</sup>
+                </p>
+              );
+            }}
+          />
+        </Table>
+      </div>
+    </>
+  );
+};
+
+const Courses = () => {
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
+  const course = useAPI(`/api/course/instructor/${userId}`, null);
+  if (course.loading) return <Loader />;
+
+  console.log(course);
+  const breadcrumb = [
+    {
+      title: "Home",
+      href: "",
+    },
+    {
+      title: "Application Center",
+    },
+  ];
+
+  const NormalCourses = course.data.filter((course) => {
+    return course?.isStream == false || course?.isStream == null;
+  });
+
+  const StreamCourse = course.data.filter((course) => {
+    return course?.isStream == true;
+  });
+
+  const items = [
+    {
+      icon: TagsOutlined,
+      name: "Normal",
+      child: NormalCourse,
+      props: { course: NormalCourses },
+    },
+    {
+      icon: VideoCameraOutlined,
+      name: "Stream",
+      child: NormalCourse,
+      props: { course: StreamCourse },
+    },
+  ];
   return (
     <section>
       <Spring>
@@ -100,167 +180,40 @@ const Courses = () => {
           label={"Add new courses"}
           link={"/admin/add_course"}
         />
-        <div className="shadow-md border bg-white">
-          <div className="mb-4">
-            {/* <Flex align="center" className="border-b">
-              <div
-                onClick={() => setType("all")}
-                className={`mx-5 text-base font-semibold text-[#64748b] py-4 border-b-2 ${
-                  type === "all" && "border-b-[#754FFE] "
-                } cursor-pointer hover:text-[#754FFE] ease-out duration-500`}
-              >
-                All
-              </div>
-              <div
-                onClick={() => setType("approved")}
-                className={`mx-5 text-base font-semibold text-[#64748b] py-4 border-b-2 ${
-                  type === "approved" && "border-b-[#754FFE] "
-                } cursor-pointer hover:text-[#754FFE] ease-out duration-500`}
-              >
-                Approved
-              </div>
-              <div
-                onClick={() => setType("pending")}
-                className={`mx-5 text-base font-semibold text-[#64748b] py-4 border-b-2 ${
-                  type === "pending" && "border-b-[#754FFE] "
-                } cursor-pointer hover:text-[#754FFE] ease-out duration-500`}
-              >
-                Pending
-              </div>
-            </Flex> */}
-          </div>
-          <div className="my-8 mx-4">
+        <div className="shadow-md border ">
+          <div className="my-8 mx-4 shadow-md border">
             <ConfigProvider
               theme={{
                 components: {
-                  Input: {
-                    /* here is your component tokens */
-                    activeBorderColor: "#775FFE",
-                    hoverBorderColor: "#775FFE",
+                  Tabs: {
+                    // cardGutter: 12
+                    horizontalItemGutter: 50,
+                    itemHoverColor: "#754FFE",
+                    itemSelectedColor: "#754FFE",
+                    inkBarColor: "#754FFE",
+                    horizontalItemMarginRTL: "",
                   },
                 },
               }}
             >
-              <Input
+              <Tabs
+                className="p-4 shadow-xl rounded-md mt-[-60px] bg-white"
                 size="large"
-                placeholder="Search"
-                prefix={<SearchOutlined />}
+                defaultActiveKey="2"
+                items={items.map((item, i) => {
+                  return {
+                    key: i,
+                    label: (
+                      <span className="font-semibold text-base">
+                        {item.name}
+                      </span>
+                    ),
+                    children: <item.child {...item.props} />,
+                    icon: <item.icon className="text-base" />,
+                  };
+                })}
               />
             </ConfigProvider>
-          </div>
-          <div>
-            <Table size="large" dataSource={course.data} pagination={true}>
-              <Table.Column
-                sorter={{
-                  compare: (a, b) => a.id - b.id,
-                }}
-                title="#"
-                dataIndex={"id"}
-                key={"id"}
-                render={(_, record) => {
-                  return <>{truncateString(record._id, 5)}</>;
-                }}
-              />
-              <Table.Column
-                width={250}
-                title="Title"
-                dataIndex={"title"}
-                key={"title"}
-                render={(_, record) => {
-                  return (
-                    <Flex vertical>
-                      <Link className="font-semibold text-[#775FFE] text-line-1 w-[99%] block">
-                        {record.title}
-                      </Link>
-                      <span className="text-[#98a6ad]">
-                        Instructor: <strong>{record.instructorId.name}</strong>
-                      </span>
-                    </Flex>
-                  );
-                }}
-              />
-              <Table.Column
-                // width={150}
-                title="Category"
-                dataIndex={"category"}
-                key={"category"}
-                render={(_, record) => {
-                  return (
-                    <p className="text-xs font-semibold bg-[#313a462e] w-fit p-1 rounded-lg shadow-md">
-                      {record.categoryId.title}
-                    </p>
-                  );
-                }}
-              />
-              <Table.Column
-                // width={180}
-                title="Lesson and section"
-                key={"curriculum"}
-                render={(_, record) => {
-                  return (
-                    <Flex vertical className="text-[#98a6ad] text-md">
-                      <p>
-                        <span className="font-semibold">Lectures</span>:{" "}
-                        {calculateTotalLectures(record).totalLectures}
-                      </p>
-                      <p>
-                        <span className="font-semibold">Quizs</span>:{" "}
-                        {calculateTotalLectures(record).totalQuizs}
-                      </p>
-                    </Flex>
-                  );
-                }}
-              />
-              {/* <Table.Column
-                // width={150}
-                title="Enrolled student"
-                dataIndex={"enrollment"}
-                key={"enrollment"}
-                render={(_, record) => {
-                  return (
-                    <p className="text-[#98a6ad] text-md">
-                      <span className="font-semibold">Enrollments: </span>
-                      {record.enrollment}
-                    </p>
-                  );
-                }}
-              />
-              <Table.Column
-                // width={120}
-                title="Status"
-                dataIndex={"status"}
-                key={"status"}
-                render={(_, record) => {
-                  return (
-                    <>
-                      <span
-                        className={`mx-1 rounded-full inline-block h-2 w-2 ${
-                          record.status === "pending"
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                        }`}
-                      ></span>
-                      <span className="capitalize text-sm font-semibold">
-                        {record.status}
-                      </span>
-                    </>
-                  );
-                }}
-              /> */}
-              <Table.Column
-                title="Price"
-                dataIndex={"price"} 
-                key={"price"}
-                render={(_, record) => {
-                  return (
-                    <p className="text-md font-bold bg-[#313a462e] w-fit p-1 rounded-lg shadow-md">
-                      {record.price} <sup>đ</sup>
-                    </p>
-                  );
-                }}
-              />
-              
-            </Table>
           </div>
         </div>
       </Spring>

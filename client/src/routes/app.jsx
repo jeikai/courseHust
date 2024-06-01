@@ -75,14 +75,14 @@ const Routes = [
     title: "FunCourse - Account | E-Learning",
   },
   {
-    path: "/home/lesson/:id",
+    path: "/home/lesson/:lessonId/:courseId",
     view: Lesson,
     layout: "lesson",
     // permission: 'student',
     title: "FunCourse - Lesson | E-Learning",
   },
   {
-    path: "/home/quiz/:id",
+    path: "/home/quiz/:id/:courseId",
     view: QuizLesson,
     layout: "lesson",
     // permission: 'student',

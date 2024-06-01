@@ -110,7 +110,7 @@ export function View(props) {
 
     setLoading: (state) => setLoading(state),
     handleError: handleError,
-    handleSuccess: handleSuccess,
+    handleSuccess: handleSuccess, 
   };
 
   return (

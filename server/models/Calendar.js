@@ -8,7 +8,8 @@ const CalendarSchema = new Schema({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
   urlMeet: { type: String, default: '' },
-  date_start: Date,
+  time_start: Date,
+  time_end: Date,
   date_created: Date,
   date_updated: Date
 })
@@ -24,7 +25,8 @@ exports.create = async function (data) {
       title: data.title,
       description: data.description,
       urlMeet: data.urlMeet,
-      date_start: data.date_start,
+      time_start: data.time_start,
+      time_end: data.time_end,
       date_created: new Date(),
       date_updated: new Date()
     }

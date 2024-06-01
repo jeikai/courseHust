@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-// import Layout from '../layout/AppLayout'
+import React, { useContext, useState } from "react";
 import {
   Avatar,
   Button,
@@ -13,19 +12,21 @@ import {
   Space,
   Tabs,
   Typography,
+  Modal,
+  Table,
 } from "antd";
 import {
   BarsOutlined,
   BookOutlined,
   CalculatorOutlined,
   CalendarOutlined,
-  ClockCircleOutlined,
+  CheckCircleOutlined,
   CommentOutlined,
   CreditCardOutlined,
   FacebookOutlined,
-  FlagOutlined,
   HeartFilled,
   LinkedinOutlined,
+  LockOutlined,
   PlayCircleOutlined,
   PlusOutlined,
   ProfileOutlined,
@@ -35,60 +36,54 @@ import {
   TagsOutlined,
   TwitterOutlined,
   UserOutlined,
-  LockOutlined,
-  CheckOutlined,
-  CheckCircleOutlined,
 } from "@ant-design/icons";
 import breadcramb from "../assets/course-breadcramb.png";
-import item1 from "../assets/item-1.jpg";
 import Course from "../components/Course";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAPI } from "../hooks/api.jsx";
 import Loader from "../components/Loader.jsx";
 import { ViewContext } from "../context/View.jsx";
-import axios from "axios";
+import Axios from "axios";
 import { Scheduler } from "devextreme-react";
 import { Editing, Scrolling } from "devextreme-react/scheduler";
 import moment from "moment";
 
 const Overview = ({ course }) => {
   return (
-    <>
-      <Space direction="vertical">
-        <Typography.Title level={3}>Course description</Typography.Title>
-        <Typography.Paragraph style={{ color: "#676C7D" }}>
-          {course.description.toString()}
-        </Typography.Paragraph>
-        <Typography.Title level={3}>Categories</Typography.Title>
-        <Typography.Paragraph>
-          <ul>
-            <li>
-              <Typography.Link
-                className="text-base"
-                style={{ color: "#676C7D" }}
-                href="#"
-              >
-                {course.categoryId.description}
-              </Typography.Link>
-            </li>
-          </ul>
-        </Typography.Paragraph>
-        <Typography.Title level={3}>Language</Typography.Title>
-        <Typography.Paragraph>
-          <ul>
-            <li>
-              <Typography.Link
-                className="text-base"
-                style={{ color: "#676C7D" }}
-                href="/docs/spec/proximity"
-              >
-                {course.language}
-              </Typography.Link>
-            </li>
-          </ul>
-        </Typography.Paragraph>
-      </Space>
-    </>
+    <Space direction="vertical">
+      <Typography.Title level={3}>Course description</Typography.Title>
+      <Typography.Paragraph style={{ color: "#676C7D" }}>
+        {course.description.toString()}
+      </Typography.Paragraph>
+      <Typography.Title level={3}>Categories</Typography.Title>
+      <Typography.Paragraph>
+        <ul>
+          <li>
+            <Typography.Link
+              className="text-base"
+              style={{ color: "#676C7D" }}
+              href="#"
+            >
+              {course.categoryId.description}
+            </Typography.Link>
+          </li>
+        </ul>
+      </Typography.Paragraph>
+      <Typography.Title level={3}>Language</Typography.Title>
+      <Typography.Paragraph>
+        <ul>
+          <li>
+            <Typography.Link
+              className="text-base"
+              style={{ color: "#676C7D" }}
+              href="/docs/spec/proximity"
+            >
+              {course.language}
+            </Typography.Link>
+          </li>
+        </ul>
+      </Typography.Paragraph>
+    </Space>
   );
 };
 
@@ -113,7 +108,8 @@ const Curriculum = ({ course, process }) => {
 
     return totalLectures;
   };
-  function formatTime(timeString) {
+
+  const formatTime = (timeString) => {
     const timeRegex = /^(?:[0-2]\d):([0-5]\d):([0-5]\d)$/;
     const match = timeRegex.exec(timeString);
     if (match) {
@@ -131,7 +127,7 @@ const Curriculum = ({ course, process }) => {
     const formattedSeconds = remainingSeconds.toString().padStart(2, "0");
 
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-  }
+  };
 
   const totalLectures = calculateTotalLectures();
 
@@ -201,7 +197,6 @@ const Curriculum = ({ course, process }) => {
                   {formatTime(spec?._id?.duration)}
                 </span>
               </Flex>
-              {/* </a> */}
             </li>
           );
         })}
@@ -264,7 +259,6 @@ const Reviews = () => {
 };
 
 const Instructor = ({ instructorId, navigate }) => {
-  console.log(instructorId);
   return (
     <Space direction="horizontal">
       <Image
@@ -308,10 +302,10 @@ const Schedule = ({ sourceData }) => {
   const getDatesBetween = (startDate, endDate, dayOfWeek) => {
     const dates = [];
     let current = moment(startDate).startOf("day");
-    if (current.day() != dayOfWeek) {
+    if (current.day() !== dayOfWeek) {
       current.day(dayOfWeek);
     }
-    
+
     while (current.isSameOrBefore(endDate)) {
       if (current.isSameOrAfter(startDate)) {
         dates.push(current.clone().format("YYYY-MM-DD"));
@@ -338,6 +332,7 @@ const Schedule = ({ sourceData }) => {
       }));
     });
   };
+
   const appointmentRender = (e) => {
     return (
       <div>
@@ -351,7 +346,7 @@ const Schedule = ({ sourceData }) => {
       <div>
         <div>{e.appointmentData.title}</div>
         <div>{e.appointmentData.description}</div>
-        <Button href={e.appointmentData.urlMeet}> Join Metting </Button>
+        <Button href={e.appointmentData.urlMeet}> Join Meeting </Button>
       </div>
     );
   };
@@ -387,15 +382,30 @@ const CourseDetail = () => {
   const course = useAPI(`/api/course/${courseId}`, null);
   const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
   const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
-  console.log(schedule);
+  let totalSections = 0;
+  let totalQuizs = 0;
   const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
+  const [calendarData, setCalendar] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (course?.loading || checkProcess?.loading || schedule?.loading)
     return <Loader />;
 
-  let totalSections = 0;
-  let totalQuizs = 0;
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = async () => {
+    await handleAddToCart();
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const calculateTotalLectures = () => {
     if (!course.data || !course?.data?.sections) {
       return 0;
@@ -418,18 +428,44 @@ const CourseDetail = () => {
 
   const totalLectures = calculateTotalLectures();
 
+  const handleCheckSchedule = async () => {
+    try {
+      setLoading(true);
+      const responseApi = await Axios({
+        url: `/api/calendar/check/${userId}/${courseId}`,
+        method: "GET",
+      });
+      if (responseApi?.data.length > 0) {
+        setCalendar(responseApi.data);
+        setLoading(false);
+        showModal();
+      } else {
+        await handleAddToCart();
+      }
+    } catch (error) {
+      console.log(error);
+      viewContext.handleError(error);
+    }
+  };
+
   const handleAddToCart = async () => {
     try {
       if (!JSON.parse(localStorage.getItem("user"))) {
         viewContext.handleError("You need to login first");
         navigate("/login");
       } else {
+        setLoading(true);
         const userId = JSON.parse(localStorage.getItem("user")).account._id;
-        const response = await axios.post("/api/enrollment", {
-          userId: userId,
-          courseId: courseId,
+        const response = await Axios({
+          url: "/api/enrollment",
+          method: "POST",
+          data: {
+            userId: userId,
+            courseId: courseId,
+          },
         });
         console.log(response);
+        setLoading(false);
         viewContext.handleSuccess("Add to cart successfully");
       }
     } catch (error) {
@@ -437,6 +473,7 @@ const CourseDetail = () => {
       viewContext.handleError(error);
     }
   };
+
   const items = [
     {
       icon: TagsOutlined,
@@ -464,15 +501,75 @@ const CourseDetail = () => {
     },
   ];
 
+  const columnsCalendar = [
+    {
+      title: "Course",
+      dataIndex: "name",
+      key: "name",
+      render: (_, record) => {
+        return (
+          <Flex align="center" gap={5} className="w-[100px]">
+            <p className="break-words text-base font-semibold w-[150px]">
+              {record.courseId.title}
+            </p>
+          </Flex>
+        );
+      },
+    },
+    {
+      title: "Day",
+      dataIndex: "day",
+      key: "day",
+      render: (_, record) => (
+        <h5 className="font-bold text-base capitalize">
+          {record?.dayOfWeek === 0
+            ? "Sunday"
+            : record?.dayOfWeek === 1
+            ? "Monday"
+            : record?.dayOfWeek === 2
+            ? "Tuesday"
+            : record?.dayOfWeek === 3
+            ? "Wednesday"
+            : record?.dayOfWeek === 4
+            ? "Thursday"
+            : record?.dayOfWeek === 5
+            ? "Friday"
+            : record?.dayOfWeek === 6
+            ? "Saturday"
+            : "Unknown Day"}
+        </h5>
+      ),
+    },
+    {
+      title: "Start",
+      dataIndex: "start",
+      key: "start",
+      render: (_, record) => (
+        <h5 className="font-bold text-base capitalize">{record?.time_start}</h5>
+      ),
+    },
+    {
+      title: "End",
+      dataIndex: "end",
+      key: "end",
+      render: (_, record) => (
+        <h5 className="font-bold text-base capitalize">{record?.time_end}</h5>
+      ),
+    },
+  ];
+
   // Conditionally add Schedule item
   if (course?.data?.isStream) {
     items.push({
       icon: CalendarOutlined,
       name: "Schedule",
       child: Schedule,
-      props: { sourceData: schedule },
+      props: { sourceData: schedule || [] },
     });
   }
+
+  if (loading) return <Loader />;
+
   return (
     <>
       <section
@@ -528,7 +625,6 @@ const CourseDetail = () => {
               theme={{
                 components: {
                   Tabs: {
-                    // cardGutter: 12
                     horizontalItemGutter: 50,
                     itemHoverColor: "#754FFE",
                     itemSelectedColor: "#754FFE",
@@ -577,7 +673,6 @@ const CourseDetail = () => {
                         ? "Free"
                         : course.data.price.toLocaleString() + " VND"}
                     </h1>
-                    {/*<del className='text-xl'>$18.00</del>*/}
                     <a href="#" className="ml-auto block">
                       <RetweetOutlined className="text-2xl" />
                     </a>
@@ -624,7 +719,6 @@ const CourseDetail = () => {
                     theme={{
                       components: {
                         Button: {
-                          /* here is your component tokens */
                           defaultHoverBg: "#754FFE",
                           defaultHoverBorderColor: "#754FFE",
                           defaultActiveBorderColor: "#754FFE",
@@ -642,17 +736,14 @@ const CourseDetail = () => {
                           icon={<PlusOutlined />}
                           size="large"
                           className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500 mb-6"
-                          onClick={handleAddToCart}
+                          onClick={
+                            course.data.isStream
+                              ? handleCheckSchedule
+                              : handleAddToCart
+                          }
                         >
                           Add to cart
                         </Button>
-                        {/* <Button
-                          icon={<CreditCardOutlined />}
-                          size="large"
-                          className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
-                        >
-                          Buy now
-                        </Button> */}
                       </>
                     )}
                   </ConfigProvider>
@@ -661,6 +752,16 @@ const CourseDetail = () => {
             </div>
           </Col>
         </Row>
+      </section>
+      <section>
+        <Modal
+          title="The course you are about to purchase appears to have a conflicting schedule with a course you have already purchased. Do you still want to continue?"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <Table columns={columnsCalendar} dataSource={calendarData}></Table>
+        </Modal>
       </section>
       <section className="max-w-screen-xl m-auto mb-12">
         <Typography.Title>Related courses</Typography.Title>

@@ -36,6 +36,33 @@ exports.getByUserId = async function (req, res) {
     }
 }
 
+exports.checkCalendar = async function (req, res) {
+    try {
+        const { userId, courseId } = req.params;
+        const responseUser = await calendarModel.getByUserId(userId);
+        const responseCourse = await calendarModel.getByCourseId(courseId);
+
+        const overlappingSchedules = [];
+
+        for (const userSchedule of responseUser) {
+            for (const courseSchedule of responseCourse) {
+                if (
+                    userSchedule.dayOfWeek === courseSchedule.dayOfWeek &&
+                    ((userSchedule.time_start >= courseSchedule.time_start && userSchedule.time_start < courseSchedule.time_end) ||
+                        (userSchedule.time_end > courseSchedule.time_start && userSchedule.time_end <= courseSchedule.time_end) ||
+                        (userSchedule.time_start <= courseSchedule.time_start && userSchedule.time_end >= courseSchedule.time_end))
+                ) {
+                    overlappingSchedules.push(userSchedule);
+                }
+            }
+        }
+
+        return res.status(200).json(overlappingSchedules);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 exports.update = async function (req, res) {
     try {
         const calendarId = req.params.calendarId

@@ -53,13 +53,13 @@ exports.getByCourseId = async function (courseId) {
       throw new Error('Invalid course ID');
     }
 
-    const calendars = await Calendar.find({ courseId });
+    const calendars = await Calendar.find({ courseId }).populate("courseId");
 
     if (calendars.length === 0) {
       return null;
     }
 
-    return calendars;
+    return calendars; 
   } catch (err) {
     console.error(err);
     throw err;
@@ -71,12 +71,12 @@ exports.getByUserId = async function (userId) {
     let result = []
     const process = await processModel.getByUserId(userId);
     for (const proc of process) {
-      const resultCalendar = await Calendar.find({ courseId: proc?.courseId._id });
+      const resultCalendar = await Calendar.find({ courseId: proc?.courseId._id }).populate("courseId");
       resultCalendar.forEach(calendar => result.push(calendar));
     }
     return result;
   } catch (error) {
-    return { error: error };
+    return { error: error }; 
   }
 }
 

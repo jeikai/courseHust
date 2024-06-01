@@ -34,6 +34,10 @@ import {
 	ProfileOutlined,
 	TagsOutlined,
 	UserOutlined,
+	VideoCameraOutlined,
+	QuestionCircleOutlined,
+	EditOutlined,
+	DeleteOutlined,
 } from '@ant-design/icons';
 import { Link, useParams } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
@@ -58,8 +62,10 @@ import Spring from '../../components/Spring';
 import { useAPI } from '../../hooks/api';
 import Loader from '../../components/Loader';
 import { uploadFile } from '../../helpers';
+
 const EditCourse = () => {
 	const courseId = useParams().id;
+	const [isLoading, setIsLoading] = useState(false);
 
 	const [form] = Form.useForm();
 	const [basicInfoForm] = Form.useForm();
@@ -131,7 +137,7 @@ const EditCourse = () => {
 				...prev,
 				description: courseData.description,
 				title: courseData.title,
-				level: courseData.title,
+				level: courseData.level,
 				shortDes: courseData.shortDes,
 				category: courseData.categoryId.title,
 				thumbnail: courseData.thumbnail,
@@ -164,6 +170,7 @@ const EditCourse = () => {
 	const [thumbnail, setThumbnail] = useState([]);
 	const [video, setVideo] = useState([]);
 
+	//*Handle create new lesson
 	const handleOkLesson = () => {
 		// debugger
 		// callback()
@@ -202,22 +209,25 @@ const EditCourse = () => {
 		console.log('fieldLessons', fieldLessons);
 	};
 
-	const handleEditLesson = () => {
-		let newObject = formEditLesson.getFieldsValue();
-		console.log(newObject);
+	const handleEditLesson = async () => {
+		setIsLoading((prev) => true);
+		let newLesson = formEditLesson.getFieldsValue();
+		const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
+		newLesson.videoURL = uploadedFile.file_url;
 		let { sections } = data;
 		sections.forEach((section) => {
-			let { specials } = section;
-			let index = specials.findIndex((special) => special.id === idEditLesson);
-			console.log(index);
+			let { specs } = section;
 
-			if (index !== -1) {
-				// Tìm thấy đối tượng với id tương ứng
-				// Xóa phần tử cũ
-				specials.splice(index, 1);
+			let specIndex = -1;
+			specs.forEach((spec, index) => {
+				if (spec._id._id == idEditLesson) specIndex = index;
+			});
 
-				// Chèn đối tượng mới vào vị trí đó
-				specials.splice(index, 0, newObject);
+			if (specIndex !== -1) {
+				specs.splice(specIndex, 1, {
+					_id: { ...newLesson },
+					type: 'lesson',
+				});
 			}
 		});
 
@@ -229,9 +239,7 @@ const EditCourse = () => {
 		setIdEditLesson(0);
 		setOpenEditLesson(false);
 		formEditLesson.resetFields();
-
-		console.log(sections);
-		console.log(data);
+		setIsLoading(false);
 	};
 
 	const openModalEditLesson = (id) => {
@@ -241,12 +249,17 @@ const EditCourse = () => {
 			section?.specs?.forEach((item) => {
 				if (item._id._id === id) {
 					console.log('item lesson', item._id);
-					formEditLesson.setFieldValue('name', item._id.title);
-					formEditLesson.setFieldValue('lessonDescription', item._id.content);
-					formEditLesson.setFieldValue('file', item._id.file);
-					formEditLesson.setFieldValue('sectionId', section._id);
 
-					setIdEditLesson(id);
+					formEditLesson.setFieldsValue({
+						title: item._id.title,
+						content: item._id.content,
+						docURL: item._id.docURL,
+						videoURL: item._id.videoURL,
+						sectionId: section._id,
+						duration: item._id.duration,
+					});
+
+					setIdEditLesson(item._id._id);
 					setOpenEditLesson(true);
 				}
 			});
@@ -305,14 +318,14 @@ const EditCourse = () => {
 	const handleRemoveLesson = (id) => {
 		let { sections } = data;
 		sections.forEach((section) => {
-			let { specials } = section;
-			let index = specials.findIndex((special) => special.id === id);
+			let { specs } = section;
+			let index = specs.findIndex((spec) => spec._id._id === id);
 			console.log(index);
 
 			if (index !== -1) {
 				// Tìm thấy đối tượng với id tương ứng
 				// Xóa phần tử cũ
-				specials.splice(index, 1);
+				specs.splice(index, 1);
 			}
 		});
 		setData((prevData) => ({
@@ -361,14 +374,14 @@ const EditCourse = () => {
 		onSuccess('ok');
 	};
 
-	const handleSubmit = async (data) => {
+	const handleSubmit = async (formData) => {
 		// if (typeof form.getFieldValue('thumbnail') == Object) {
 		// 	console.log('object');
 		// }
 		// let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
 		// data.thumbnail = thumbnail.file_url;
 		// console.log(data.thumbnail);
-		console.log('submit', data);
+		console.log('Submitted data', data);
 	};
 
 	const BasicInformation = (props) => {
@@ -420,16 +433,24 @@ const EditCourse = () => {
 								placeholder="Select a level"
 								options={[
 									{
-										label: 'Intermediate',
-										value: 'intermediate',
+										label: 'Specialized',
+										value: 'specialized',
 									},
 									{
 										label: 'Advanced',
 										value: 'advanced',
 									},
 									{
+										label: 'Intermediate',
+										value: 'intermediate',
+									},
+									{
 										label: 'Beginner',
 										value: 'beginner',
+									},
+									{
+										label: 'Basic',
+										value: 'basic',
 									},
 								]}
 								size="large"
@@ -506,7 +527,7 @@ const EditCourse = () => {
 		return (
 			<Spring className={''}>
 				<Typography.Title level={4}>Courses Media</Typography.Title>
-				<Divider />
+
 				<Row>
 					<Col span={8}>
 						<Typography.Title level={5}>Course thumbnail</Typography.Title>
@@ -673,6 +694,130 @@ const EditCourse = () => {
 	const sensors = useSensors(mouseSensor, touchSensor);
 
 	const Curriculum = () => {
+		const RowSection = ({
+			section,
+			openModalEditSection,
+			handleRemoveSection,
+			openModalEditLesson,
+			handleRemoveLesson,
+			formLesson,
+			setOpenInputLesson,
+			someoneIsDragging,
+			formQuiz,
+			setOpenEditQuiz,
+			setOpenInputQuiz,
+		}) => {
+			const {
+				attributes,
+				listeners,
+				isDragging,
+				setNodeRef,
+				transform,
+				transition,
+			} = useSortable({
+				id: section.id,
+				data: { ...section },
+			});
+
+			const style = {
+				transform: CSS.Translate.toString(transform),
+				transition,
+			};
+			const Card = ({
+				item,
+				section,
+				openModalEditLesson,
+				handleRemoveLesson,
+			}) => {
+				const {
+					attributes,
+					listeners,
+					isDragging,
+					setNodeRef,
+					transform,
+					transition,
+				} = useSortable({
+					id: item.id,
+					data: { ...item },
+				});
+
+				const style = {
+					transform: CSS.Translate.toString(transform),
+					transition,
+				};
+				return (
+					<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+						<Flex
+							className="border px-4 p-2 mb-3 bg-[#f1f5f9]"
+							align="center"
+							justify="space-between">
+							<Flex align="center" gap={6}>
+								{section?.specs?.filter((spec) => spec.type === 'lesson') ? (
+									<VideoCameraOutlined />
+								) : (
+									<QuestionCircleOutlined />
+								)}
+								<Typography.Title style={{ marginBottom: 0 }} level={5}>
+									{item.title}
+								</Typography.Title>
+							</Flex>
+							<Space>
+								<EditOutlined onClick={() => openModalEditLesson(item._id)} />
+								<DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
+							</Space>
+						</Flex>
+					</div>
+				);
+			};
+			return (
+				<div
+					key={section.id}
+					ref={setNodeRef}
+					style={style}
+					{...attributes}
+					{...listeners}
+					className="border border-[#e2e8f0] item rounded text-nowrap bg-white text-[#64748b] p-4">
+					<div>
+						<Flex align="center" justify="space-between" className="mb-4">
+							<Typography.Title level={5}>{section.title}</Typography.Title>
+							<Space className="text-base">
+								<EditOutlined
+									onClick={() => openModalEditSection(section.id)}
+								/>
+								<DeleteOutlined
+									onClick={() => handleRemoveSection(section.id)}
+								/>
+							</Space>
+						</Flex>
+						<SortableContext items={[]}>
+							{section?.specs?.map((item, index) => {
+								return (
+									<Card
+										key={index}
+										item={item._id}
+										section={section}
+										openModalEditLesson={openModalEditLesson}
+										handleRemoveLesson={handleRemoveLesson}
+									/>
+								);
+							})}
+						</SortableContext>
+					</div>
+					<Space>
+						<Button
+							onClick={() => {
+								formLesson.setFieldValue('sectionId', section.id);
+
+								setOpenInputLesson(true);
+							}}
+							icon={<PlusOutlined />}>
+							Lesson
+						</Button>
+					</Space>
+				</div>
+			);
+		};
+
 		return (
 			<div className={''}>
 				<Typography.Title level={4}>Curriculum</Typography.Title>
@@ -687,7 +832,6 @@ const EditCourse = () => {
 									items={data?.sections}
 									strategy={verticalListSortingStrategy}>
 									{data?.sections.map((section) => {
-										console.log('section', section);
 										return (
 											<RowSection
 												key={section.id}
@@ -733,18 +877,18 @@ const EditCourse = () => {
 							<Form form={formLesson}>
 								<Row gutter={16}>
 									<Col span={24}>
-										<Typography.Title level={5}>Lesson Name</Typography.Title>
+										<Typography.Title level={5}>Lesson Title</Typography.Title>
 									</Col>
 									<Col span={24}>
 										<Form.Item
-											name="name"
+											name="title"
 											rules={[
 												{
 													required: true,
-													message: 'Please enter lesson name',
+													message: 'Please enter lesson title',
 												},
 											]}>
-											<Input placeholder="Please enter lesson name" />
+											<Input placeholder="Please enter lesson title" />
 										</Form.Item>
 									</Col>
 								</Row>
@@ -754,7 +898,7 @@ const EditCourse = () => {
 									</Col>
 									<Col span={24}>
 										<Form.Item
-											name="lessonDescription"
+											name="content"
 											rules={[
 												{
 													required: true,
@@ -818,18 +962,18 @@ const EditCourse = () => {
 							<Form form={formEditLesson}>
 								<Row gutter={16}>
 									<Col span={24}>
-										<Typography.Title level={5}>Lesson Name</Typography.Title>
+										<Typography.Title level={5}>Lesson Title</Typography.Title>
 									</Col>
 									<Col span={24}>
 										<Form.Item
-											name="name"
+											name="title"
 											rules={[
 												{
 													required: true,
-													message: 'Please enter lesson name',
+													message: 'Please enter lesson title',
 												},
 											]}>
-											<Input placeholder="Please enter lesson name" />
+											<Input placeholder="Please enter lesson title" />
 										</Form.Item>
 									</Col>
 								</Row>
@@ -839,7 +983,7 @@ const EditCourse = () => {
 									</Col>
 									<Col span={24}>
 										<Form.Item
-											name="lessonDescription"
+											name="content"
 											rules={[
 												{
 													required: true,
@@ -853,16 +997,21 @@ const EditCourse = () => {
 										</Form.Item>
 									</Col>
 									<Col span={24}>
+										<Typography.Title level={5}>Document URL</Typography.Title>
+										<Form.Item name="docURL">
+											<Input />
+										</Form.Item>
+										<Typography.Title level={5}>Video URL</Typography.Title>
+										<Form.Item name="videoURL">
+											<Input />
+										</Form.Item>
 										<Typography.Title level={5}>
 											Upload video or document
 										</Typography.Title>
 									</Col>
 									<Col span={24}>
 										<Form.Item name="file" getValueFromEvent={getFile}>
-											<Upload
-
-											// fileList={video}
-											>
+											<Upload>
 												<Button icon={<UploadOutlined />}>
 													Upload your file
 												</Button>
@@ -1161,7 +1310,7 @@ const EditCourse = () => {
 	];
 	return (
 		<>
-			{courseDataApi.loading ? (
+			{courseDataApi.loading || categoryDataApi.loading || isLoading ? (
 				<Loader />
 			) : (
 				<section>

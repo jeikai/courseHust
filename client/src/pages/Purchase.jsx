@@ -26,6 +26,7 @@ import {
   TwitterOutlined,
   UploadOutlined,
   UserOutlined,
+  DeleteOutlined
 } from "@ant-design/icons";
 import Spring from "../components/Spring";
 import { useAPI } from "../hooks/api";
@@ -119,6 +120,20 @@ function Purchase() {
           {record.courseId.date_created}
         </h5>
       ),
+    },
+    {
+      title: "",
+      dataIndex: "",
+      key: "x",
+      render: (_, record) => {
+        console.log(record);
+        return (
+          <DeleteOutlined
+            onClick={() => {}}
+            className="text-2xl cursor-pointer hover:text-purple-500"
+          />
+        );
+      },
     },
   ];
 

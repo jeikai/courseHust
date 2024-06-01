@@ -19,8 +19,10 @@ import Axios from "axios";
 import { Icon } from "@iconify/react";
 import { ViewContext } from "../../context/View";
 import axios from "axios";
+
 const AddCategory = () => {
   const viewContext = useContext(ViewContext);
+  const [loading, setLoading] = useState(false)
   const breadcrumb = [
     {
       title: "Home",
@@ -37,13 +39,20 @@ const AddCategory = () => {
         return;
     }
     try {
+        setLoading(true)
         const response = await Axios({
             url: '/api/category',
             method: 'POST',
             data: data
         })
+        console.log(response)
+        if(response) {
+            viewContext.handleSuccess("Create new category successfully!")
+        }
+        setLoading(false)
     } catch (error) {
-      viewContext.handleError(error.toString());
+        console.log(error)
+      viewContext.handleError(error?.response?.data?.message);
     }
   };
   const [formCategory] = Form.useForm();
@@ -56,12 +65,14 @@ const AddCategory = () => {
           <Form.Item
             name={"title"}
             label={<Typography.Title level={5}>Title</Typography.Title>}
+            rules={[{ required: true, message: 'Please input the title!' }]}
           >
             <Input placeholder="title" />
           </Form.Item>
           <Form.Item
             name={"description"}
             label={<Typography.Title level={5}>Description</Typography.Title>}
+            rules={[{ required: true, message: 'Please input the description!' }]}
           >
             <Input placeholder="description" />
           </Form.Item>

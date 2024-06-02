@@ -5,7 +5,7 @@ const use = require('../helper/utility').use;
 
 api.post('/section/:courseId', use(sectionController.create));
 
-api.get('/section', use(sectionController.getById));
+api.post('/section', use(sectionController.getById));
 api.get(
 	'/section/:sectionId/random-questions',
 	use(sectionController.getRandomQuestions)

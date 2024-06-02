@@ -107,7 +107,11 @@ const AddQuiz = () => {
 			answer: question.answer,
 			type: 'scq',
 			options: question.options.map((option) => ({
-				isSelected: option === question.answer,
+				isSelected:
+					option ===
+					(typeof question.answer == 'string'
+						? question.answer
+						: question.answer[0]),
 				label: option,
 			})),
 		};

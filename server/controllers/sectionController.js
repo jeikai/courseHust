@@ -23,7 +23,8 @@ exports.create = async function (req, res) {
 
 exports.getById = async function (req, res) {
 	try {
-		const data = req.body;
+		const data = await req.body;
+		console.log("get by id", data);
 		utility.validate(data, ['sectionId', 'specType']);
 
 		const section = await sectionModel.get(data);

@@ -15,6 +15,8 @@ const QuizSchema = new Schema({
 	],
 	startTime: { type: Date, default: '' },
 	endTime: { type: Date, default: '' },
+	totalMarks: { type: Number, default: 10 },
+	passMarks: { type: Number, default: 10 },
 	date_created: Date,
 	date_updated: Date,
 });
@@ -30,6 +32,8 @@ exports.create = async function (sectionId, data) {
 			ques: data.ques,
 			startTime: data.startTime || '',
 			endTime: data.endTime || '',
+			totalMarks: data.totalMarks,
+			passMarks: data.passMarks,
 			date_created: new Date(),
 			date_updated: new Date(),
 		};
@@ -117,6 +121,8 @@ exports.updateQuiz = async (quizId, data) => {
 			ques: data.ques,
 			startTime: data.startTime || '',
 			endTime: data.endTime || '',
+			totalMarks: data.totalMarks,
+			passMarks: data.passMarks,
 			date_updated: new Date(),
 		},
 		{ new: true }

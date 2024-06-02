@@ -248,27 +248,39 @@ const handleUpdateCourse = async (data) => {
 			}
 		})
 	);
-	try {
-		const prevCourse = await Axios({
-			method: 'GET',
-			url: `/api/course/${courseId}`,
-		});
+
+	const prevCourse = await Axios({
+		method: 'GET',
+		url: `/api/course/${courseId}`,
+	});
+	if (prevCourse.data.sections.length != 0) {
 		let prevSections = [];
-		prevCourse.sections.forEach((section) => {
+		prevCourse.data.sections.forEach((section) => {
 			prevSections.push(section._id);
 		});
-		//get section needs to be deleted
+
 		prevSections = prevSections.filter(
 			(id) => newSections.findIndex((secId) => secId == id) == -1
 		);
+		console.log('prev sections', prevSections);
 		//! Delete unused section
-		// await Promise.all( prevSections.forEach(async (section) => {
-		//     await Axios({
-		//         method: 'DELETE',
-		//         url
-		//     })
-	} catch (error) {
-		console.log('error');
+		if (prevSections.length != 0) {
+			try {
+				await Promise.all(
+					prevSections.map(async (section) => {
+						await Axios({
+							method: 'DELETE',
+							url: `/api/section/${section}`,
+							params: {
+								courseId,
+							},
+						});
+					})
+				);
+			} catch (error) {
+				console.log('error', error.message);
+			}
+		}
 	}
 	//fetch prev course to delete section
 	// }))

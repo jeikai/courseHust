@@ -115,42 +115,7 @@ const Routes = [
 		layout: 'admin',
 		// permission: 'student',
 		title: 'FunCourse - Manage Profile | E-Learning',
-	},
-	{
-		path: '/admin/quiz',
-		view: Quiz,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Manage Quiz | E-Learning',
-	},
-	{
-		path: '/admin/add_quiz',
-		view: AddQuiz,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Add a new quiz | E-Learning',
-	},
-	{
-		path: '/admin/auto_quiz',
-		view: AutoQuiz,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Add a new quiz | E-Learning',
-	},
-	{
-		path: '/admin/edit_quiz/:id',
-		view: EditQuiz,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Edit a quiz | E-Learning',
-	},
-	{
-		path: '/admin/add_question',
-		view: AddQuestion,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Add a question | E-Learning',
-	},
+	}
 ];
 
 export default Routes;

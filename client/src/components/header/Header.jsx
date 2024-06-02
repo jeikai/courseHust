@@ -109,7 +109,7 @@ const Header = () => {
         key: "user_profile",
         label: "User profile",
         icon: <UserOutlined />,
-      },
+      }, 
       {
         key: "signout",
         label: "Log out",

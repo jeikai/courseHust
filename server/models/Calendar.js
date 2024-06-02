@@ -14,7 +14,7 @@ const CalendarSchema = new Schema({
   day_start: { type: Date },
   day_end: { type: Date },
   exceptions: [{ type: Date }],
-  date_created: { type: Date, default: Date.now },
+  date_created: { type: Date, default: Date.now }, 
   date_updated: { type: Date, default: Date.now }
 });
 

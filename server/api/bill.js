@@ -10,4 +10,7 @@ api.get('/bill/:userId', use(billController.getById))
 api.get('/bill', use(billController.get))
 
 api.get('/bill/check/:userId/:courseId', use(billController.getByUserIdAndCourseId))
-module.exports = api  
+
+api.get('/bill/course/:courseId', use(billController.getByCourseId))
+
+module.exports = api   

@@ -12,7 +12,7 @@ const Banner = (props) => {
                 <Breadcrumb className="z-10 text-2xl"
                     items={[
                         {
-                            href: '',
+                            href: '/',
                             title: <>
                                 <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />
                                 <span className="text-white">Home</span>

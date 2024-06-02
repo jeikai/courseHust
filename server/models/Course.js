@@ -21,8 +21,9 @@ const courseSchema = new Schema({
     thumbnail: { type: String, required: true },
 
     // Bài học
-    sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
+    sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }], 
 
+    rating: { type: Number, min: 0, max: 5, default: 0 },
     date_created: Date, 
     date_updated: Date
 })
@@ -164,7 +165,6 @@ exports.addSection = async function (courseId, sectionId) {
         return { error: err }
     }
 }
-
 
 exports.update = async function (courseId, data) {
     try {

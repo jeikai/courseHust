@@ -13,5 +13,6 @@ module.exports = [
   require('./calendar'),
   require('./recommendation'),
   require('./question'),
-  require('./process')
+  require('./process'),
+  require('./feedback')
 ]

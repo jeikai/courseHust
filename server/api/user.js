@@ -10,6 +10,8 @@ api.post('/user/login', validation.loginValidate, use(userController.login))
 
 api.get('/user/get/:userId', authMiddleware.checkToken, use(userController.get))
 
+api.get('/user/getDetail/:userId', use(userController.get))
+
 api.get('/user/get', use(userController.getAll))
 
 api.put('/user/update/:userId', authMiddleware.checkToken, use(userController.update))

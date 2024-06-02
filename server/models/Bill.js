@@ -88,3 +88,13 @@ exports.getByUserIdAndCourseId = async function (userId, courseId) {
         return { error: error.message };
     }
 };
+
+exports.getByCourseId = async function (courseId) {
+    try {
+        const bills = await Bill.find({ 'listOfCourse': courseId }).populate('listOfCourse');
+        return bills;
+    } catch (error) {
+        console.error("Error fetching bills by courseId:", error);
+        return { error: error.message };
+    }
+};

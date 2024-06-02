@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Avatar,
   Button,
@@ -14,6 +14,8 @@ import {
   Typography,
   Modal,
   Table,
+  Input,
+  message,
 } from "antd";
 import {
   BarsOutlined,
@@ -33,6 +35,7 @@ import {
   QuestionCircleOutlined,
   RetweetOutlined,
   SettingOutlined,
+  ShoppingCartOutlined,
   TagsOutlined,
   TwitterOutlined,
   UserOutlined,
@@ -44,6 +47,7 @@ import { useAPI } from "../hooks/api.jsx";
 import Loader from "../components/Loader.jsx";
 import { ViewContext } from "../context/View.jsx";
 import Axios from "axios";
+import axios from "axios";
 import { Scheduler } from "devextreme-react";
 import { Editing, Scrolling } from "devextreme-react/scheduler";
 import moment from "moment";
@@ -213,47 +217,133 @@ const Curriculum = ({ course, process }) => {
   );
 };
 
-const Reviews = () => {
+const Reviews = ({ userId, courseId }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/feedback/${courseId}`);
+        setReviews(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch feedback:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchFeedback();
+  }, [courseId]);
+
+  const handleOk = async () => {
+    try {
+      console.log("Comment:", comment, "Rating:", rating);
+      const data = {
+        userId: userId,
+        courseId: courseId,
+        content: comment,
+        rating: rating,
+      };
+      const responseAPI = await axios.post("/api/feedback", data);
+      console.log(responseAPI?.data);
+
+      if (responseAPI?.data?.data) {
+        const newReview = {
+          ...responseAPI.data.data,
+          userId: {
+            name: "Current User",
+          },
+          content: comment,
+          date_created: new Date().toLocaleDateString(),
+          rating: rating,
+        };
+        setReviews((reviews) => [...reviews, newReview]);
+        message.success(
+          responseAPI?.data?.message || "Feedback added successfully."
+        );
+      } else {
+        message.error("Unexpected response data format.");
+      }
+      setIsModalVisible(false);
+      setComment("");
+      setRating(0);
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to submit feedback: " + error.toString());
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    // Optionally clear the input fields when canceling
+    setComment("");
+    setRating(0);
+  };
+
+  const isFormValid = () => {
+    return comment.trim().length > 0 && rating > 0;
+  };
+  if (loading) return <Loader />;
   return (
     <>
-      <Row className="mb-4 pb-4 border-b">
-        <Col span={5}>
-          <Space direction="vertical" align="center">
-            <Typography.Title level={5}>Signe Thompson</Typography.Title>
-            <Typography.Text>26-Nov-2023</Typography.Text>
-            <Typography.Title level={2}>4</Typography.Title>
-            <Rate defaultValue={4} />
-          </Space>
-        </Col>
-        <Col span={18}>
-          <div className="text-base">
-            From the outset, the course structure impressed me with its
-            thoughtful organization. Each module builds seamlessly upon the
-            last, creating a logical and comprehensive learning journey. The
-            content is delivered in a way that is both engaging and accessible,
-            making complex concepts easy to grasp.
-          </div>
+      <Row className="mb-4">
+        <Col span={24}>
+          <Button type="primary" onClick={showModal}>
+            Add your comment
+          </Button>
         </Col>
       </Row>
-      <Row className="mb-4 pb-4 border-b">
-        <Col span={5}>
-          <Space direction="vertical" align="center">
-            <Typography.Title level={5}>Signe Thompson</Typography.Title>
-            <Typography.Text>26-Nov-2023</Typography.Text>
-            <Typography.Title level={2}>4</Typography.Title>
-            <Rate defaultValue={4} />
-          </Space>
-        </Col>
-        <Col span={18}>
-          <div className="text-base">
-            From the outset, the course structure impressed me with its
-            thoughtful organization. Each module builds seamlessly upon the
-            last, creating a logical and comprehensive learning journey. The
-            content is delivered in a way that is both engaging and accessible,
-            making complex concepts easy to grasp.
-          </div>
-        </Col>
-      </Row>
+      <Modal
+        title="Add Your Comment"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Submit"
+        cancelText="Cancel"
+        okButtonProps={{ disabled: !isFormValid() }}
+      >
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <Input.TextArea
+            rows={4}
+            placeholder="Enter your comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <Rate
+            tooltips={["Terrible", "Bad", "Normal", "Good", "Wonderful"]}
+            onChange={setRating}
+            value={rating}
+          />
+        </Space>
+      </Modal>
+      <div style={{ height: '300px', overflowY: 'auto' }}>
+        {reviews.map((review, index) => (
+          <Row key={index} className="mb-4 pb-4 border-b">
+            <Col span={5}>
+              <Space direction="vertical" align="center">
+                <Typography.Title level={5}>
+                  {review?.userId.name}
+                </Typography.Title>
+                <Typography.Text>{review?.date_created}</Typography.Text>
+                <Typography.Title level={2}>{review?.rating}</Typography.Title>
+                <Rate value={review?.rating} disabled />
+              </Space>
+            </Col>
+            <Col span={18}>
+              <div className="text-base">{review?.content}</div>
+            </Col>
+          </Row>
+        ))}
+      </div>
     </>
   );
 };
@@ -263,7 +353,7 @@ const Instructor = ({ instructorId, navigate }) => {
     <Space direction="horizontal">
       <Image
         width={200}
-        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+        src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
       />
       <Space direction="vertical" className="ml-6">
         <Typography.Title level={5}>{instructorId.name}</Typography.Title>
@@ -382,6 +472,7 @@ const CourseDetail = () => {
   const course = useAPI(`/api/course/${courseId}`, null);
   const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
   const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
+  const bill = useAPI(`/api/bill/course/${courseId}`, null)?.data;
   let totalSections = 0;
   let totalQuizs = 0;
   const navigate = useNavigate();
@@ -390,8 +481,7 @@ const CourseDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  if (course?.loading || checkProcess?.loading || schedule?.loading)
-    return <Loader />;
+  if (course?.loading || checkProcess?.loading) return <Loader />;
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -497,7 +587,7 @@ const CourseDetail = () => {
       icon: CommentOutlined,
       name: "Reviews",
       child: Reviews,
-      props: { course: course.data, navigate },
+      props: { userId: userId, courseId: courseId },
     },
   ];
 
@@ -584,31 +674,36 @@ const CourseDetail = () => {
             <Typography.Text style={{ color: "white", fontSize: "18px" }}>
               {course.data.shortDes}
             </Typography.Text>
-            <Flex align="center" justify="space-between" className="my-2">
-              <Space>
-                <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-                <span className="text-white text-sm">
-                  Created by{" "}
-                  <Typography.Link style={{ color: "white", fontSize: "16px" }}>
-                    {course.data.instructorId.name.toString()}
-                  </Typography.Link>{" "}
-                </span>
-              </Space>
-              <Space>
-                <CheckCircleOutlined className="text-white" />
-                <span className="text-white text-base">
-                  {checkProcess?.data?.data?.process || 0} %
-                </span>
-              </Space>
-              <Space>
-                <UserOutlined className="text-white" />
-                <span className="text-white text-base">8 Enrolled</span>
-              </Space>
-              <Space>
-                <Rate disabled defaultValue={2} />
-                <span className="text-white text-base">(3 Reviews)</span>
-              </Space>
-            </Flex>
+
+            <Space>
+              <UserOutlined className="text-white" />
+              <span className="text-white text-sm">
+                Created by{" "}
+                <Typography.Link style={{ color: "white", fontSize: "16px" }}>
+                  {course.data.instructorId.name.toString()}
+                </Typography.Link>
+              </span>
+            </Space>
+
+            <Space>
+              <CheckCircleOutlined className="text-white" />
+              <span className="text-white text-base">
+                {checkProcess?.data?.data?.process || 0} %
+              </span>
+            </Space>
+
+            <Space>
+              <ShoppingCartOutlined className="text-white" />
+              <span className="text-white text-base">
+                {bill?.length} Enrolled
+              </span>
+            </Space>
+
+            <Space>
+              <Rate disabled defaultValue={course?.data?.rating} />
+              <span className="text-white text-base">(3 Reviews)</span>
+            </Space>
+
             <Space align="center">
               <CalendarOutlined className="text-white" />
               <span className="text-white text-base">
@@ -780,5 +875,5 @@ const CourseDetail = () => {
     </>
   );
 };
- 
+
 export default CourseDetail;

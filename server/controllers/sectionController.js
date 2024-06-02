@@ -23,7 +23,8 @@ exports.create = async function (req, res) {
 
 exports.getById = async function (req, res) {
 	try {
-		const data = req.body;
+		const data = await req.body;
+		console.log('get by id', data);
 		utility.validate(data, ['sectionId', 'specType']);
 
 		const section = await sectionModel.get(data);
@@ -66,6 +67,21 @@ exports.update = async (req, res) => {
 		const result = await sectionModel.update(sectionId, data);
 		return res.status(200).json({
 			data: result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
+	}
+};
+exports.delete = async (req, res) => {
+	try {
+		const { sectionId } = await req.params;
+		const { courseId } = await req.query;
+		console.log(sectionId, courseId);
+		const result = await sectionModel.delete(sectionId, courseId);
+		return res.status(200).json({
+			data: 'test',
 		});
 	} catch (error) {
 		return res.status(500).json({

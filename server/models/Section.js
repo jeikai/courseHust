@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const courseModel = require('./Course');
 const quizModel = require('./Quiz');
+const lessonModal = require('./Lesson');
 const SectionSchema = new Schema({
 	title: { type: String, required: true },
 	specs: [
@@ -121,6 +122,28 @@ exports.update = async (sectionId, data) => {
 			new: true,
 		});
 		return result;
+	} catch (error) {
+		return { error };
+	}
+};
+exports.delete = async (sectionId, courseId) => {
+	try {
+		const section = await Section.findById(sectionId);
+		const specs = section.specs;
+		const sectionId = section._id;
+		await Promise.all(
+			specs.forEach(async (spec) => {
+				if (spec.type == 'lesson') {
+					const deletedLesson = await lessonModal.delete(spec._id);
+				} else if (spec.type == 'quiz') {
+					const deletedQuiz = await quizModel.deleteQuiz(spec._id);
+				}
+			})
+		);
+		//delete sectionId form course
+		const course = await courseModel.deleteSectionId(courseId, sectionId);
+		const deleteSection = await Section.findByIdAndDelete(sectionId);
+		return deleteSection;
 	} catch (error) {
 		return { error };
 	}

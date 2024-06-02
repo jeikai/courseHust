@@ -30,6 +30,7 @@ import {
 import Card from 'antd/es/card/Card';
 import Question from '../../components/Question';
 import Spring from '../../components/Spring';
+import Loader from '../../components/Loader';
 import scq from '../../assets/scq.svg';
 import mcq from '../../assets/mcq.svg';
 import fill from '../../assets/fill.svg';
@@ -59,6 +60,7 @@ const AddQuiz = () => {
 	const [formattedQuestion, setFormattedQuestion] = useState([]);
 	const [suggestedQuestion, setSuggestedQuestion] = useState([]);
 	const [selectedSuggestQues, setSelectedSuggestQues] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
 	const userId = JSON.parse(localStorage.getItem('user')).account;
 	const courseResponseApi = useAPI(
 		`/api/course/instructor/${userId._id}`,
@@ -107,7 +109,11 @@ const AddQuiz = () => {
 			answer: question.answer,
 			type: 'scq',
 			options: question.options.map((option) => ({
-				isSelected: option === question.answer,
+				isSelected:
+					option ===
+					(typeof question.answer == 'string'
+						? question.answer
+						: question.answer[0]),
 				label: option,
 			})),
 		};
@@ -152,10 +158,10 @@ const AddQuiz = () => {
 		formQuiz.setFieldsValue({ questions });
 	};
 
-	const handleFinish = (data) => {
+	const handleFinish = async (data) => {
 		console.log(data);
-
-		createQuizWithSuggestedQues(data)
+		setIsLoading((prev) => true);
+		await createQuizWithSuggestedQues(data)
 			.then((res) => {
 				if (res == true) {
 					viewContext.handleSuccess('Create quiz successfully!');
@@ -169,6 +175,7 @@ const AddQuiz = () => {
 				console.log(err);
 				viewContext.handleError(err);
 			});
+		setIsLoading((prev) => false);
 	};
 	const handleCourseChange = (value) => {
 		setSelectedCourseId(value);
@@ -176,338 +183,375 @@ const AddQuiz = () => {
 	const filterOption = (input, option) =>
 		(option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 	return (
-		<Spring>
-			<Modal
-				open={suggestionModal}
-				okText="Finish"
-				cancelText="Close"
-				onCancel={() => setSuggestionModal(false)}
-				onOk={() => setSuggestionModal(false)}
-				className="min-h-[20rem] h-[20rem] w-auto">
-				<Flex justify="center" vertical={true} gap={10}>
-					<Select
-						placeholder="Select category"
-						className="capitalize w-3/4"
-						onSelect={(e) => {
-							const category = categories.find(
-								(category) => category.title == e
-							);
-							console.log(category);
-							setSelectedCategory(category);
-						}}>
-						{categories.map(({ title }, index) => (
-							<Select.Option value={title} key={index}>
-								{title}
-							</Select.Option>
-						))}
-					</Select>
-					<p className="font-bold">Description</p>
-					<p>{selectedCategory.description}</p>
-					<div className="overflow-y-scroll max-h-[15rem] flex flex-col gap-5">
-						{suggestedQuestion.map((question, index) => {
-							return (
-								<>
-									<Card key={question}>
-										<Flex
-											vertical={true}
-											flex={1}
-											justify="space-around"
-											gap={10}>
-											<Flex vertical={false} justify="space-between">
-												<p className="text-base">
-													<span className="font-bold text-lg">
-														Question {index + 1}:
-													</span>{' '}
-													{question.question}
-												</p>
-												<Button
-													icon={<PlusOutlined />}
-													onClick={() => addNewSuggestQues(question)}
-												/>
-											</Flex>
+		<>
+			{isLoading ? (
+				<Loader />
+			) : (
+				<Spring>
+					<Modal
+						open={suggestionModal}
+						okText="Finish"
+						cancelText="Close"
+						onCancel={() => setSuggestionModal(false)}
+						onOk={() => setSuggestionModal(false)}
+						className="min-h-[20rem] h-[20rem] w-auto">
+						<Flex justify="center" vertical={true} gap={10}>
+							<Select
+								placeholder="Select category"
+								className="capitalize w-3/4"
+								onSelect={(e) => {
+									const category = categories.find(
+										(category) => category.title == e
+									);
+									console.log(category);
+									setSelectedCategory(category);
+								}}>
+								{categories.map(({ title }, index) => (
+									<Select.Option value={title} key={index}>
+										{title}
+									</Select.Option>
+								))}
+							</Select>
+							<p className="font-bold">Description</p>
+							<p>{selectedCategory.description}</p>
+							<div className="overflow-y-scroll max-h-[15rem] flex flex-col gap-5">
+								{suggestedQuestion.map((question, index) => {
+									return (
+										<>
+											<Card key={question}>
+												<Flex
+													vertical={true}
+													flex={1}
+													justify="space-around"
+													gap={10}>
+													<Flex vertical={false} justify="space-between">
+														<p className="text-base">
+															<span className="font-bold text-lg">
+																Question {index + 1}:
+															</span>{' '}
+															{question.question}
+														</p>
+														<Button
+															icon={<PlusOutlined />}
+															onClick={() => addNewSuggestQues(question)}
+														/>
+													</Flex>
 
-											<Flex vertical={true} gap={5} className="">
-												{question.options.map((opt, index) => (
-													<div
-														className={`py-2 rounded-xl pl-5 border-slate-200 border-[1px] ${
-															(question.answer == opt ||
-																question.answer[0] == opt) &&
-															'bg-green-300'
-														}`}
-														key={opt}>
-														{index + 1}. {opt}
-													</div>
-												))}
-											</Flex>
-										</Flex>
-									</Card>
-								</>
-							);
-						})}
-					</div>
-				</Flex>
-			</Modal>
-			<Bread title="Add a new quiz" items={breadcrumb} />
-			<div>
-				<Form
-					form={formQuiz}
-					layout="vertical"
-					// onValuesChange={handleFormQuizChange}
-					onFinish={handleFinish}>
-					<Row gutter={12}>
-						<Col span={8}>
-							<Row className="shadow-md border bg-white p-8">
-								<Col span={24}>
-									<Form.Item
-										name={'title'}
-										label={
-											<Typography.Title level={5}>Title</Typography.Title>
-										}>
-										<Input />
-									</Form.Item>
-								</Col>
-								<Col span={24}>
-									<Form.Item
-										name={'duration'}
-										label={
-											<Typography.Title level={5}>
-												Quiz duration
-											</Typography.Title>
-										}>
-										<TimePicker className="w-full" />
-									</Form.Item>
-								</Col>
-								<Col span={24}>
-									<Form.Item
-										name={'deadline'}
-										label={
-											<Typography.Title level={5}>
-												Quiz deadline
-											</Typography.Title>
-										}>
-										<DatePicker.RangePicker
-											className="w-full"
-											showTime={{
-												format: 'HH:mm',
-											}}
-											format="YYYY-MM-DD HH:mm"
-											onChange={(value, dateString) =>
-												console.log(value, dateString)
-											}
-											onOk={(value) => console.log(value)}
-										/>
-									</Form.Item>
-								</Col>
-								<Col span={24}>
-									<Form.Item
-										name={'course'}
-										label={
-											<Typography.Title level={5}>Course</Typography.Title>
-										}>
-										<Select
-											showSearch
-											placeholder="Select a course"
-											optionFilterProp="children"
-											filterOption={filterOption}
-											options={course}
-											onChange={handleCourseChange}
-											size="large"
-										/>
-									</Form.Item>
-								</Col>
-								<Col span={24}>
-									<Form.Item
-										name={'section'}
-										label={
-											<Typography.Title level={5}>Section</Typography.Title>
-										}>
-										<Select
-											showSearch
-											placeholder="Select a section"
-											optionFilterProp="children"
-											filterOption={filterOption}
-											options={sections.map((section) => ({
-												label: section.title,
-												value: section._id,
-											}))}
-											size="large"
-											disabled={!selectedCourseId}
-										/>
-									</Form.Item>
-								</Col>
-							</Row>
-						</Col>
-						<Col span={16}>
-							<Row className="shadow-md border bg-white p-8">
-								<Form.List name={'questions'}>
-									{(fields, { add, remove }) => (
-										<Row gutter={[12, 12]} className="w-full">
-											<Col span={24}>
-												<Flex align="center" justify="space-between">
-													<Button
-														htmlType="submit"
-														className="bg-[#754FFE] text-white"
-														size="large">
-														Save
-													</Button>
-													<Button
-														className=""
-														size="large"
-														onClick={() => {
-															setSuggestionModal(true);
-														}}>
-														Add a new question
-													</Button>
+													<Flex vertical={true} gap={5} className="">
+														{question.options.map((opt, index) => (
+															<div
+																className={`py-2 rounded-xl pl-5 border-slate-200 border-[1px] ${
+																	(question.answer == opt ||
+																		question.answer[0] == opt) &&
+																	'bg-green-300'
+																}`}
+																key={opt}>
+																{index + 1}. {opt}
+															</div>
+														))}
+													</Flex>
 												</Flex>
-											</Col>
-											{fields.map((field, index) => (
-												<Fragment key={index}>
+											</Card>
+										</>
+									);
+								})}
+							</div>
+						</Flex>
+					</Modal>
+					<Bread title="Add a new quiz" items={breadcrumb} />
+					<div>
+						<Form
+							form={formQuiz}
+							layout="vertical"
+							// onValuesChange={handleFormQuizChange}
+							onFinish={handleFinish}>
+							<Row gutter={12}>
+								<Col span={8}>
+									<Row className="shadow-md border bg-white p-8">
+										<Col span={24}>
+											<Form.Item
+												name={'title'}
+												label={
+													<Typography.Title level={5}>Title</Typography.Title>
+												}>
+												<Input />
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Form.Item
+												name={'duration'}
+												label={
+													<Typography.Title level={5}>
+														Quiz duration
+													</Typography.Title>
+												}>
+												<TimePicker className="w-full" />
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Form.Item
+												name={'deadline'}
+												label={
+													<Typography.Title level={5}>
+														Quiz deadline
+													</Typography.Title>
+												}>
+												<DatePicker.RangePicker
+													className="w-full"
+													showTime={{
+														format: 'HH:mm',
+													}}
+													format="YYYY-MM-DD HH:mm"
+													onChange={(value, dateString) =>
+														console.log(value, dateString)
+													}
+													onOk={(value) => console.log(value)}
+												/>
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Form.Item
+												name={'course'}
+												label={
+													<Typography.Title level={5}>Course</Typography.Title>
+												}>
+												<Select
+													showSearch
+													placeholder="Select a course"
+													optionFilterProp="children"
+													filterOption={filterOption}
+													options={course}
+													onChange={handleCourseChange}
+													size="large"
+												/>
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Form.Item
+												name={'section'}
+												label={
+													<Typography.Title level={5}>Section</Typography.Title>
+												}>
+												<Select
+													showSearch
+													placeholder="Select a section"
+													optionFilterProp="children"
+													filterOption={filterOption}
+													options={sections.map((section) => ({
+														label: section.title,
+														value: section._id,
+													}))}
+													size="large"
+													disabled={!selectedCourseId}
+												/>
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Form.Item
+												name={'totalMarks'}
+												label={
+													<Typography.Title level={5}>
+														Total Marks
+													</Typography.Title>
+												}>
+												<InputNumber className="w-full" min={1} changeOnWheel />
+											</Form.Item>
+										</Col>
+										<Col span={24}>
+											<Form.Item
+												name={'passMarks'}
+												label={
+													<Typography.Title level={5}>
+														Pass Marks
+													</Typography.Title>
+												}>
+												<InputNumber className="w-full" min={1} changeOnWheel />
+											</Form.Item>
+										</Col>
+									</Row>
+								</Col>
+								<Col span={16}>
+									<Row className="shadow-md border bg-white p-8">
+										<Form.List name={'questions'}>
+											{(fields, { add, remove }) => (
+												<Row gutter={[12, 12]} className="w-full">
 													<Col span={24}>
-														<Flex
-															align="center"
-															justify="space-between"
-															style={{ marginBottom: 12 }}>
-															<Flex align="center" wrap="wrap" gap={8} flex={1}>
-																<Typography.Title
-																	style={{
-																		marginBottom: 0,
-																		minWidth: 'fit-content',
-																	}}
-																	level={5}>
-																	Question {index + 1}:
-																</Typography.Title>
-																<Form.Item
-																	style={{ marginBottom: 0 }}
-																	name={[field.name, 'title']}>
-																	<Input
-																		placeholder="Title here"
-																		style={{ width: '400px' }}
-																	/>
-																</Form.Item>
-																<Flex gap={4}>
-																	<Form.Item
-																		name={[field.name, 'level']}
-																		initialValue={'perception'}
-																		noStyle>
-																		<Select placeholder="Select question type">
-																			<Select.Option value="perception">
-																				Perception
-																			</Select.Option>
-																			<Select.Option value="comprehension">
-																				Comprehension
-																			</Select.Option>
-																			<Select.Option value="application">
-																				Application
-																			</Select.Option>
-																			<Select.Option value="advanced application">
-																				Advanced application
-																			</Select.Option>
-																		</Select>
-																	</Form.Item>
-																	<Button
-																		onClick={() => remove(field.name)}
-																		danger
-																		icon={<DeleteOutlined />}></Button>
-																</Flex>
-															</Flex>
+														<Flex align="center" justify="space-between">
+															<Button
+																htmlType="submit"
+																className="bg-[#754FFE] text-white"
+																size="large">
+																Save
+															</Button>
+															<Button
+																className=""
+																size="large"
+																onClick={() => {
+																	setSuggestionModal(true);
+																}}>
+																Add a new question
+															</Button>
 														</Flex>
-														<Form.Item>
-															<Form.List
-																name={[field.name, 'options']}
-																initialValue={[
-																	{
-																		isSelected: true,
-																		label: '',
-																	},
-																]}>
-																{(subFields, subOpt) => (
-																	<div
-																		style={{
-																			display: 'flex',
-																			flexDirection: 'column',
-																			rowGap: 16,
-																		}}>
-																		{subFields.map((subField) => (
-																			<Flex key={subField.key}>
-																				<Flex
-																					wrap="wrap"
-																					align="center"
-																					gap={5}
-																					justify="space-between"
-																					className="w-full">
-																					<Flex align="center" gap={12}>
-																						<ConfigProvider
-																							theme={{
-																								components: {
-																									Switch: {
-																										// handleBg: '#ccc'
-																									},
-																								},
-																								token: {
-																									colorPrimary: '#754FFE',
-																									/* here is your global tokens */
-																								},
-																							}}>
-																							<Form.Item
-																								noStyle
-																								name={[
-																									subField.name,
-																									'isSelected',
-																								]}
-																								valuePropName="checked">
-																								<Switch
-																									onChange={() =>
-																										handleSetAsDefaultChange(
-																											field.key,
-																											subField.key
-																										)
-																									}
-																									checked></Switch>
-																							</Form.Item>
-																						</ConfigProvider>
-																						<Form.Item
-																							noStyle
-																							name={[subField.name, 'label']}>
-																							<Input
-																								placeholder="Question title"
-																								style={{ width: 400 }}
-																							/>
-																						</Form.Item>
-																					</Flex>
-																					{subField.name === 0 && (
-																						<Button
-																							icon={<PlusOutlined />}
-																							onClick={() => {
-																								subOpt.add();
-																							}}></Button>
-																					)}
-																					{subField.name !== 0 && (
-																						<Button
-																							danger
-																							icon={<DeleteOutlined />}
-																							onClick={() => {
-																								subOpt.remove(subField.name);
-																							}}></Button>
-																					)}
-																				</Flex>
-																			</Flex>
-																		))}
-																	</div>
-																)}
-															</Form.List>
-														</Form.Item>
 													</Col>
-												</Fragment>
-											))}
-										</Row>
-									)}
-								</Form.List>
+													{fields.map((field, index) => (
+														<Fragment key={index}>
+															<Col span={24}>
+																<Flex
+																	align="center"
+																	justify="space-between"
+																	style={{ marginBottom: 12 }}>
+																	<Flex
+																		align="center"
+																		wrap="wrap"
+																		gap={8}
+																		flex={1}>
+																		<Typography.Title
+																			style={{
+																				marginBottom: 0,
+																				minWidth: 'fit-content',
+																			}}
+																			level={5}>
+																			Question {index + 1}:
+																		</Typography.Title>
+																		<Form.Item
+																			style={{ marginBottom: 0 }}
+																			name={[field.name, 'title']}>
+																			<Input
+																				placeholder="Title here"
+																				style={{ width: '400px' }}
+																			/>
+																		</Form.Item>
+																		<Flex gap={4}>
+																			<Form.Item
+																				name={[field.name, 'level']}
+																				initialValue={'perception'}
+																				noStyle>
+																				<Select placeholder="Select question type">
+																					<Select.Option value="perception">
+																						Perception
+																					</Select.Option>
+																					<Select.Option value="comprehension">
+																						Comprehension
+																					</Select.Option>
+																					<Select.Option value="application">
+																						Application
+																					</Select.Option>
+																					<Select.Option value="advanced application">
+																						Advanced application
+																					</Select.Option>
+																				</Select>
+																			</Form.Item>
+																			<Button
+																				onClick={() => remove(field.name)}
+																				danger
+																				icon={<DeleteOutlined />}></Button>
+																		</Flex>
+																	</Flex>
+																</Flex>
+																<Form.Item>
+																	<Form.List
+																		name={[field.name, 'options']}
+																		initialValue={[
+																			{
+																				isSelected: true,
+																				label: '',
+																			},
+																		]}>
+																		{(subFields, subOpt) => (
+																			<div
+																				style={{
+																					display: 'flex',
+																					flexDirection: 'column',
+																					rowGap: 16,
+																				}}>
+																				{subFields.map((subField) => (
+																					<Flex key={subField.key}>
+																						<Flex
+																							wrap="wrap"
+																							align="center"
+																							gap={5}
+																							justify="space-between"
+																							className="w-full">
+																							<Flex align="center" gap={12}>
+																								<ConfigProvider
+																									theme={{
+																										components: {
+																											Switch: {
+																												// handleBg: '#ccc'
+																											},
+																										},
+																										token: {
+																											colorPrimary: '#754FFE',
+																											/* here is your global tokens */
+																										},
+																									}}>
+																									<Form.Item
+																										noStyle
+																										name={[
+																											subField.name,
+																											'isSelected',
+																										]}
+																										valuePropName="checked">
+																										<Switch
+																											onChange={() =>
+																												handleSetAsDefaultChange(
+																													field.key,
+																													subField.key
+																												)
+																											}
+																											checked></Switch>
+																									</Form.Item>
+																								</ConfigProvider>
+																								<Form.Item
+																									noStyle
+																									name={[
+																										subField.name,
+																										'label',
+																									]}>
+																									<Input
+																										placeholder="Question title"
+																										style={{ width: 400 }}
+																									/>
+																								</Form.Item>
+																							</Flex>
+																							{subField.name === 0 && (
+																								<Button
+																									icon={<PlusOutlined />}
+																									onClick={() => {
+																										subOpt.add();
+																									}}></Button>
+																							)}
+																							{subField.name !== 0 && (
+																								<Button
+																									danger
+																									icon={<DeleteOutlined />}
+																									onClick={() => {
+																										subOpt.remove(
+																											subField.name
+																										);
+																									}}></Button>
+																							)}
+																						</Flex>
+																					</Flex>
+																				))}
+																			</div>
+																		)}
+																	</Form.List>
+																</Form.Item>
+															</Col>
+														</Fragment>
+													))}
+												</Row>
+											)}
+										</Form.List>
+									</Row>
+								</Col>
 							</Row>
-						</Col>
-					</Row>
-				</Form>
-			</div>
-		</Spring>
+						</Form>
+					</div>
+				</Spring>
+			)}
+		</>
 	);
 };
 

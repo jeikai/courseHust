@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import Bread from '../../components/Bread';
+import Axios from 'axios';
 import {
 	Avatar,
 	Button,
@@ -173,15 +174,22 @@ const EditCourse = () => {
 	const [video, setVideo] = useState([]);
 
 	//*Handle create new lesson
-	const handleOkLesson = () => {
+	const handleOkLesson = async () => {
 		// debugger
 		// callback()
+		setIsLoading((prev) => true);
 		const fieldLessons = formLesson.getFieldsValue();
 		let lessonId = uuidv4();
 		let sectionId = fieldLessons.sectionId;
 		fieldLessons.id = lessonId;
 
 		const { sections } = data;
+		//get video URL
+		let videoURL = '';
+		if (fieldLessons.file && fieldLessons.file != undefined) {
+			const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
+			videoURL = upFile.file_url;
+		}
 
 		sections.forEach((section) => {
 			if (section._id === sectionId) {
@@ -191,6 +199,7 @@ const EditCourse = () => {
 				let obj = {
 					_id: {
 						...fieldLessons,
+						videoURL: videoURL,
 					},
 					type: 'lesson',
 				};
@@ -206,6 +215,7 @@ const EditCourse = () => {
 		setOpenInputLesson(false);
 		formLesson.resetFields();
 
+		setIsLoading((prev) => false);
 		console.log('data', data);
 		console.log(JSON.stringify(data));
 		console.log('fieldLessons', fieldLessons);
@@ -214,8 +224,11 @@ const EditCourse = () => {
 	const handleEditLesson = async () => {
 		setIsLoading((prev) => true);
 		let newLesson = formEditLesson.getFieldsValue();
-		// const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-		newLesson.videoURL = '';
+
+		if (newLesson.file && newLesson.file != undefined) {
+			const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
+			newLesson.videoURL = uploadedFile.file_url || '';
+		}
 		newLesson.docURL = '';
 		let { sections } = data;
 		sections.forEach((section) => {
@@ -377,11 +390,12 @@ const EditCourse = () => {
 	};
 
 	const handleSubmit = async (formData) => {
-		
-		// let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
-		// data.thumbnail = thumbnail.file_url;
-		// console.log(data.thumbnail);
 		setIsLoading(true);
+		if (data.thumbnail.file && data.thumbnail.file != undefined) {
+			let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
+			data.thumbnail = thumbnail.file_url;
+		}
+		console.log(data.thumbnail);
 		const result = await handleUpdateCourse(data);
 
 		setIsLoading(false);
@@ -511,6 +525,7 @@ const EditCourse = () => {
 			setPreviewOpen(true);
 		};
 		const handleChange = async (e) => {
+			setIsLoading((prev) => true);
 			if (e.fileList.length > 0 && !e.file.url && !e.file.preview) {
 				e.file.preview = await getBase64(e.file.originFileObj);
 				setThumbnail((prev) => [
@@ -521,6 +536,7 @@ const EditCourse = () => {
 					},
 				]);
 			}
+			setIsLoading((prev) => false);
 		};
 
 		return (

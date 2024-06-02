@@ -148,34 +148,42 @@ const handleUpdateCourse = async (data) => {
 				);
 				//Update existed section
 				console.log('specs-1', newSpecs);
-				const prevSection = await Axios({
-					method: 'GET',
-					url: `/api/section`,
-					data: {
+				try {
+					const prevSection = await Axios({
+						method: 'POST',
+						url: '/api/section',
+						data: {
+							sectionId: sectionId,
+							specType: 'lesson',
+						},
+					});
+					const prevLessonIds = [];
+					const prevSpecs = prevSection.data.specs;
+					if (prevSpecs && prevSpecs != []) {
+						prevSpecs.forEach((spec) => {
+							prevLessonIds.push(spec._id._id);
+						});
+					}
+					const deleteId = [];
+					prevLessonIds.forEach((prevId) => {
+						const id = newSpecs.findIndex((spec) => spec._id == id);
+						if (id == -1) deleteId.push(prevId);
+					});
+					await Promise.all(
+						deleteId.forEach(async (id) => {
+							await Axios({
+								method: 'DELETE',
+								url: `/api/lesson/${id}`,
+							});
+						})
+					);
+				} catch (error) {
+					console.log({
 						sectionId: sectionId,
 						specType: 'lesson',
-					},
-				});
-				const prevLessonIds = [];
-				const prevSpecs = prevSection.data.specs;
-				if (prevSpecs && prevSpecs != []) {
-					prevSpecs.forEach((spec) => {
-						prevLessonIds.push(spec._id._id);
 					});
 				}
-				const deleteId = [];
-				prevLessonIds.forEach((prevId) => {
-					const id = newSpecs.findIndex((spec) => spec._id == id);
-					if (id == -1) deleteId.push(prevId);
-				});
-				await Promise.all(
-					deleteId.forEach(async (id) => {
-						await Axios({
-							method: 'DELETE',
-							url: `/api/lesson/${id}`,
-						});
-					})
-				);
+
 				const updateSection = await Axios({
 					method: 'PUT',
 					url: `/api/section/${sectionId}`,
@@ -240,24 +248,42 @@ const handleUpdateCourse = async (data) => {
 			}
 		})
 	);
-	//fetch prev course to delete section
+
 	const prevCourse = await Axios({
 		method: 'GET',
 		url: `/api/course/${courseId}`,
 	});
-	let prevSections = [];
-	prevCourse.sections.forEach((section) => {
-		prevSections.push(section._id);
-	});
-    //get section needs to be deleted
-    prevSections = prevSections.filter((id) => newSections.findIndex(secId => secId == id) == -1)
-    //! Delete unused section
-    // await Promise.all( prevSections.forEach(async (section) => {
-    //     await Axios({
-    //         method: 'DELETE',
-    //         url
-    //     })
-    // }))
+	if (prevCourse.data.sections.length != 0) {
+		let prevSections = [];
+		prevCourse.data.sections.forEach((section) => {
+			prevSections.push(section._id);
+		});
+
+		prevSections = prevSections.filter(
+			(id) => newSections.findIndex((secId) => secId == id) == -1
+		);
+		console.log('prev sections', prevSections);
+		//! Delete unused section
+		if (prevSections.length != 0) {
+			try {
+				await Promise.all(
+					prevSections.map(async (section) => {
+						await Axios({
+							method: 'DELETE',
+							url: `/api/section/${section}`,
+							params: {
+								courseId,
+							},
+						});
+					})
+				);
+			} catch (error) {
+				console.log('error', error.message);
+			}
+		}
+	}
+	//fetch prev course to delete section
+	// }))
 	const updatedCourse = await Axios({
 		method: 'PUT',
 		url: `/api/course/${courseId}`,

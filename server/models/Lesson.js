@@ -9,7 +9,7 @@ const LessonSchema = new Schema({
 	docURL: { type: String, default: '' },
 	duration: { type: Number, required: true },
 	date_created: Date,
-	date_updated: Date,
+	date_updated: Date, 
 });
 
 const Lesson = mongoose.model('Lesson', LessonSchema, 'lessons');

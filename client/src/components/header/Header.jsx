@@ -214,7 +214,7 @@ const Header = () => {
                   </Link>
                 </Flex>
               </div>
-              {user.account.role === "teacher" ? (
+              {user.account.role === "teacher" && user.account.is_verified == true ? (
                 <div className="px-4 py-2 rounded cursor-pointer">
                   <Flex align="center" gap={0} className="text-black">
                     <Link
@@ -235,7 +235,7 @@ const Header = () => {
                       Admin Dashboard
                     </Link>
                   </Flex>
-                </div>
+                </div> 
               ) : null}
 
               <div className="py-2 rounded cursor-pointer">

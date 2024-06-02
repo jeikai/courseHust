@@ -42,11 +42,20 @@ exports.create = async function (data) {
 }
 
 exports.get = async function (data) {
-    try {
+    try { 
         let query = {}
         if (data.id) query._id = data.id
         if (data.email) query.email = data.email
         const user = await User.findOne(query).lean()
+        return user
+    } catch (e) {
+        return { error: e }
+    }
+}
+
+exports.getAll = async function () {
+    try { 
+        const user = await User.findOne({})
         return user
     } catch (e) {
         return { error: e }

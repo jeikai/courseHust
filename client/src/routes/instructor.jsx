@@ -124,7 +124,7 @@ const Routes = [
 		title: 'FunCourse - Manage Quiz | E-Learning',
 	},
 	{
-		path: '/admin/add_quiz',
+		path: '/admin/add_quiz', 
 		view: AddQuiz,
 		layout: 'admin',
 		// permission: 'student',

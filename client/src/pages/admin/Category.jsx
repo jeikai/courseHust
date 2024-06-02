@@ -22,7 +22,7 @@ const Category = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "/admin/manage_courses",
+      href: "/admin_main/manage_courses",
     },
     {
       title: "Category",
@@ -41,7 +41,7 @@ const Category = () => {
         title="Categries"
         items={breadcrumb}
         label={"Add new category"}
-        link={"/admin/add_category"}
+        link={"/admin_main/add_category"}
       />
       <>
         <div>

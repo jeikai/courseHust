@@ -139,7 +139,7 @@ const Courses = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "",
+      href: "/admin_main",
     },
     {
       title: "Application Center",
@@ -175,7 +175,7 @@ const Courses = () => {
           title="Courses"
           items={breadcrumb}
           label={"Add new courses"}
-          link={"/admin/add_course"}
+          link={"/admin_main/add_course"}
         />
         <div className="shadow-md border ">
           <div className="my-8 mx-4 shadow-md border">

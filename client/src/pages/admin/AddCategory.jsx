@@ -26,7 +26,7 @@ const AddCategory = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "/admin/category",
+      href: "/admin_main/category",
     },
     {
       title: "Add a new category",

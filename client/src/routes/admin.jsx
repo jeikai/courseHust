@@ -6,63 +6,104 @@ import Courses from '../pages/admin/Courses';
 import Dashboard from '../pages/admin/Dashboard';
 import EditCourse from '../pages/admin/EditCourse';
 import Instructors from '../pages/admin/Instructors';
+import AutoQuiz from '../pages/admin/AutoQuiz';
+import AddQuiz from '../pages/admin/AddQuiz';
+import EditQuiz from '../pages/admin/EditQuiz';
+import Quiz from '../pages/admin/Quiz';
+import AddQuestion from '../pages/admin/AddQuestion';
+
 const Routes = [
 	{
-		path: '/admin',
+		path: '/admin_main',
 		view: Dashboard,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Dash board | E-Learning',
 	},
 	{
-		path: '/admin/manage_courses',
+		path: '/admin_main/manage_courses',
 		view: Courses,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Manage courses | E-Learning',
 	},
 	{
-		path: '/admin/add_course',
+		path: '/admin_main/add_course',
 		view: AddCourse,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Add a new courses | E-Learning',
 	},
 	{
-		path: '/admin/edit_course/:id',
+		path: '/admin_main/edit_course/:id',
 		view: EditCourse,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Edit a courses | E-Learning',
 	},
 	{
-		path: '/admin/category',
+		path: '/admin_main/category',
 		view: Category,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Manage categories | E-Learning',
 	},
 	{
-		path: '/admin/add_category',
+		path: '/admin_main/add_category',
 		view: AddCategory,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Manage categories | E-Learning',
 	},
 	{
-		path: '/admin/instructors',
+		path: '/admin_main/instructors',
 		view: Instructors,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Manage instructors | E-Learning',
 	},
 	{
-		path: '/admin/add_instructor',
+		path: '/admin_main/add_instructor',
 		view: AddInstructor,
-		layout: 'admin',
+		layout: 'admin_main',
 		// permission: 'student',
 		title: 'FunCourse - Add instructor | E-Learning',
-	}
+	},
+    {
+		path: '/admin_main/quiz',
+		view: Quiz,
+		layout: 'admin_main',
+		// permission: 'student',
+		title: 'FunCourse - Manage Quiz | E-Learning',
+	},
+	{
+		path: '/admin_main/add_quiz',
+		view: AddQuiz,
+		layout: 'admin_main',
+		// permission: 'student',
+		title: 'FunCourse - Add a new quiz | E-Learning',
+	},
+	{
+		path: '/admin_main/auto_quiz',
+		view: AutoQuiz,
+		layout: 'admin_main',
+		// permission: 'student',
+		title: 'FunCourse - Add a new quiz | E-Learning',
+	},
+	{
+		path: '/admin_main/edit_quiz/:id',
+		view: EditQuiz,
+		layout: 'admin_main',
+		// permission: 'student',
+		title: 'FunCourse - Edit a quiz | E-Learning',
+	},
+	{
+		path: '/admin_main/add_question',
+		view: AddQuestion,
+		layout: 'admin_main',
+		// permission: 'student',
+		title: 'FunCourse - Add a question | E-Learning',
+	},
 ];
 
 export default Routes;

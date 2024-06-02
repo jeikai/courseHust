@@ -52,6 +52,14 @@ exports.create = async function (data) {
     }
 }
 
+exports.get = async function () {
+    try {
+        const result = await Bill.find().populate('listOfCourse')
+        return result;
+    } catch (error) {
+        return { error: error }
+    }
+}
 exports.getById = async function (data) {
     try {
         const enrollments = await Bill.find({ userId: data }).populate('listOfCourse');

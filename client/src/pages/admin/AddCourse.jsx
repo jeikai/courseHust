@@ -112,7 +112,7 @@ const AddCourse = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "/admin/manage_courses",
+      href: "/admin_main/manage_courses",
     },
     {
       title: "Add New Course",

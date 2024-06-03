@@ -473,6 +473,7 @@ const CourseDetail = () => {
   const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
   const bill = useAPI(`/api/bill/course/${courseId}`, null)?.data;
   const reviews = useAPI(`/api/feedback/${courseId}`, null);
+  const favorite = useAPI(`/api/favorite/check/${userId}/${courseId}`, null);
   let totalSections = 0;
   let totalQuizs = 0;
   const navigate = useNavigate();
@@ -480,8 +481,16 @@ const CourseDetail = () => {
   const [calendarData, setCalendar] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  if (course?.loading || checkProcess?.loading || reviews.loading)
+  const [isLiked, setIsLiked] = useState(favorite?.data?.exists);
+  useEffect(() => {
+    setIsLiked(favorite?.data?.exists);
+  }, [favorite]);
+  if (
+    course?.loading ||
+    checkProcess?.loading ||
+    reviews.loading ||
+    favorite.loading
+  )
     return <Loader />;
 
   const showModal = () => {
@@ -661,21 +670,27 @@ const CourseDetail = () => {
 
   const toggleLike = async () => {
     try {
-      // Update trạng thái like trên client
+      setLoading(true);
       setIsLiked(!isLiked);
       // Gọi API để cập nhật trạng thái
-      // const response = await axios.post(`/api/course/like`, {
-      //   userId: userId,
-      //   courseId: courseId,
-      //   isLiked: !isLiked,
-      // });
-      if (response.data.success) {
-        message.success("You have liked this course");
+      const response = await axios.post(`/api/favorite`, {
+        userId: userId,
+        courseId: courseId,
+      });
+      if (response?.data) {
+        if (!isLiked) {
+          message.success("You have liked this course.");
+        } else {
+          message.success("You have disliked this course.");
+        }
+
         console.log("Updated successfully");
       } else {
         throw new Error("Failed to update");
       }
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Error updating like status", error);
     }
   };

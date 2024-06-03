@@ -14,5 +14,6 @@ module.exports = [
   require('./recommendation'),
   require('./question'),
   require('./process'),
-  require('./feedback')
+  require('./feedback'),
+  require('./favorite'),
 ]

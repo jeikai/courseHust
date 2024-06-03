@@ -217,12 +217,12 @@ const Curriculum = ({ course, process }) => {
   );
 };
 
-const Reviews = ({ userId, courseId }) => {
+const Reviews = ({ userId, courseId, reviews }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  const [review, setReviews] = useState([]);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -232,8 +232,7 @@ const Reviews = ({ userId, courseId }) => {
     const fetchFeedback = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/feedback/${courseId}`);
-        setReviews(response.data);
+        setReviews(reviews);
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch feedback:", error);
@@ -325,8 +324,8 @@ const Reviews = ({ userId, courseId }) => {
           />
         </Space>
       </Modal>
-      <div style={{ height: '300px', overflowY: 'auto' }}>
-        {reviews.map((review, index) => (
+      <div style={{ height: "300px", overflowY: "auto" }}>
+        {review.map((review, index) => (
           <Row key={index} className="mb-4 pb-4 border-b">
             <Col span={5}>
               <Space direction="vertical" align="center">
@@ -473,6 +472,7 @@ const CourseDetail = () => {
   const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
   const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
   const bill = useAPI(`/api/bill/course/${courseId}`, null)?.data;
+  const reviews = useAPI(`/api/feedback/${courseId}`, null);
   let totalSections = 0;
   let totalQuizs = 0;
   const navigate = useNavigate();
@@ -480,8 +480,9 @@ const CourseDetail = () => {
   const [calendarData, setCalendar] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  if (course?.loading || checkProcess?.loading) return <Loader />;
+  const [isLiked, setIsLiked] = useState(false);
+  if (course?.loading || checkProcess?.loading || reviews.loading)
+    return <Loader />;
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -587,7 +588,7 @@ const CourseDetail = () => {
       icon: CommentOutlined,
       name: "Reviews",
       child: Reviews,
-      props: { userId: userId, courseId: courseId },
+      props: { userId: userId, courseId: courseId, reviews: reviews?.data },
     },
   ];
 
@@ -658,6 +659,27 @@ const CourseDetail = () => {
     });
   }
 
+  const toggleLike = async () => {
+    try {
+      // Update trạng thái like trên client
+      setIsLiked(!isLiked);
+      // Gọi API để cập nhật trạng thái
+      // const response = await axios.post(`/api/course/like`, {
+      //   userId: userId,
+      //   courseId: courseId,
+      //   isLiked: !isLiked,
+      // });
+      if (response.data.success) {
+        message.success("You have liked this course");
+        console.log("Updated successfully");
+      } else {
+        throw new Error("Failed to update");
+      }
+    } catch (error) {
+      console.error("Error updating like status", error);
+    }
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -701,7 +723,9 @@ const CourseDetail = () => {
 
             <Space>
               <Rate disabled defaultValue={course?.data?.rating} />
-              <span className="text-white text-base">(3 Reviews)</span>
+              <span className="text-white text-base">
+                ({reviews?.data?.length} Reviews)
+              </span>
             </Space>
 
             <Space align="center">
@@ -758,7 +782,12 @@ const CourseDetail = () => {
                     className="w-full h-[227px] rounded-lg"
                   />
                   <div className="bg-white absolute top-3 right-5 w-6 h-6 flex items-center justify-center rounded-full">
-                    <HeartFilled className="text-[#6e798a81]" />
+                    <HeartFilled
+                      className={`text-xl ${
+                        isLiked ? "text-red-500" : "text-[#6e798a81]"
+                      }`}
+                      onClick={toggleLike}
+                    />
                   </div>
                 </Space>
                 <div className="p-4 w-full">

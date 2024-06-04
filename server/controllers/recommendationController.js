@@ -117,6 +117,7 @@ async function recommendCourses(userId) {
             if (otherUserId !== userId) {
                 const otherUserRatings = ratingMatrix[otherUserId];
                 const similarity = cosineSimilarity(userRatings, otherUserRatings);
+                console.log(similarity)
                 similarityScores[otherUserId] = similarity;
             }
         });

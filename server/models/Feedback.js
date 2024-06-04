@@ -46,3 +46,12 @@ exports.getByCourseId = async function (courseId) {
         return { error: err };
     }
 }
+
+exports.get = async function () {
+    try {
+        const result = await Feedback.find();
+        return result;
+    } catch (err) {
+        return { error: err };
+    }
+}

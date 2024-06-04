@@ -1,7 +1,7 @@
 const api = require('express').Router()
-const use = require('../helper/utility').use
 const recommendationController = require('../controllers/recommendationController')
+const use = require('../helper/utility').use
 
-api.post('/recommendation', use(recommendationController.example))
+api.get('/recommend/:userId', use(recommendationController.recommend))
 
 module.exports = api

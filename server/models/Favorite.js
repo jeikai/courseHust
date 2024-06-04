@@ -51,3 +51,12 @@ exports.getByUserIdAndCourseId = async function (userId, courseId) {
         return { error: err };
     }
 }
+
+exports.get = async function () {
+    try {
+        const result = await Favorite.find();
+        return result;
+    } catch (err) {
+        return { error: err };
+    }
+}

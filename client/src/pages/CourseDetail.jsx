@@ -259,7 +259,7 @@ const Reviews = ({ userId, courseId, reviews }) => {
         const newReview = {
           ...responseAPI.data.data,
           userId: {
-            name: "Current User",
+            name: "Me",
           },
           content: comment,
           date_created: new Date().toLocaleDateString(),
@@ -474,6 +474,7 @@ const CourseDetail = () => {
   const bill = useAPI(`/api/bill/course/${courseId}`, null)?.data;
   const reviews = useAPI(`/api/feedback/${courseId}`, null);
   const favorite = useAPI(`/api/favorite/check/${userId}/${courseId}`, null);
+  const recommend = useAPI(`/api/recommend/${userId}`, null);
   let totalSections = 0;
   let totalQuizs = 0;
   const navigate = useNavigate();
@@ -482,14 +483,35 @@ const CourseDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(favorite?.data?.exists);
+  const [recommendedCourses, setRecommendedCourses] = useState([]);
   useEffect(() => {
     setIsLiked(favorite?.data?.exists);
   }, [favorite]);
+  useEffect(() => {
+    if (recommend?.data) {
+      const fetchCourseDetails = async () => {
+        try {
+          const courses = await Promise.all(
+            Object.keys(recommend.data).map((courseId) =>
+              axios.get(`/api/course/${courseId}`).then((res) => res.data)
+            )
+          );
+          setRecommendedCourses(courses);
+        } catch (error) {
+          console.error("Failed to fetch recommended courses:", error);
+        }
+      };
+
+      fetchCourseDetails();
+    }
+  }, [recommend]);
+  console.log(recommendedCourses);
   if (
     course?.loading ||
     checkProcess?.loading ||
     reviews.loading ||
-    favorite.loading
+    favorite.loading ||
+    recommend.loading
   )
     return <Loader />;
 
@@ -905,15 +927,11 @@ const CourseDetail = () => {
       <section className="max-w-screen-xl m-auto mb-12">
         <Typography.Title>Related courses</Typography.Title>
         <Row gutter={12}>
-          <Col span={6}>
-            <Course></Course>
-          </Col>
-          <Col span={6}>
-            <Course></Course>
-          </Col>
-          <Col span={6}>
-            <Course></Course>
-          </Col>
+          {recommendedCourses.map((course) => (
+            <Col span={6} key={course._id}>
+              <Course course={course} />
+            </Col>
+          ))}
         </Row>
       </section>
     </>

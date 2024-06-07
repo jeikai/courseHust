@@ -1,5 +1,16 @@
 /* eslint-disable no-unused-vars */
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import moment from 'moment';
+
+import React, {
+	Fragment,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
+import { Scheduler } from 'devextreme-react';
+import { Editing, Scrolling } from 'devextreme-react/scheduler';
 import Bread from '../../components/Bread';
 import Axios from 'axios';
 import {
@@ -7,6 +18,8 @@ import {
 	Button,
 	Checkbox,
 	Col,
+	Badge,
+	Calendar,
 	ConfigProvider,
 	Divider,
 	Drawer,
@@ -91,7 +104,8 @@ const EditCourse = () => {
 	//MEDIA TAB
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
-
+	//CALENDAR TAB
+	const [openCalendar, setOpenCalendar] = useState(false);
 	const [courseCategory, setCourseCategory] = useState([]);
 
 	const [data, setData] = useState({
@@ -109,20 +123,11 @@ const EditCourse = () => {
 		thumbnail: null,
 		video: null,
 		sections: [],
+		isStream: true,
 	});
 	const courseDataApi = useAPI(`/api/course/${courseId}`, null);
 	const categoryDataApi = useAPI(`/api/category`, null);
-	// useEffect(() => {
-	// 	if (categoryDataApi.data) {
-	// 		setCourseCategory((prev) =>
-	// 			categoryDataApi.data.map((category) => ({
-	// 				label: category.title,
-	// 				value: category.title,
-	// 				_id: category._id,
-	// 			}))
-	// 		);
-	// 	}
-	// }, [categoryDataApi]);
+	const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
 	useEffect(() => {
 		if (categoryDataApi.data) {
 			setCourseCategory((prev) =>
@@ -145,7 +150,9 @@ const EditCourse = () => {
 				category: courseData.categoryId.title,
 				thumbnail: courseData.thumbnail,
 				sections: courseData.sections,
+				isStream: courseData.isStream != null ? courseData.isStream : false,
 			}));
+
 			setThumbnail((prev) => [
 				{
 					url: courseData.thumbnail,
@@ -154,6 +161,7 @@ const EditCourse = () => {
 
 			form.setFieldsValue(data);
 		}
+		console.log('schedule data');
 		return () => {};
 	}, [courseDataApi, categoryDataApi]);
 
@@ -452,22 +460,27 @@ const EditCourse = () => {
 									{
 										label: 'Specialized',
 										value: 'specialized',
+										key: 'specialized',
 									},
 									{
 										label: 'Advanced',
 										value: 'advanced',
+										key: 'advanced',
 									},
 									{
 										label: 'Intermediate',
 										value: 'intermediate',
+										key: 'intermediate',
 									},
 									{
 										label: 'Beginner',
 										value: 'beginner',
+										key: 'beginner',
 									},
 									{
 										label: 'Basic',
 										value: 'basic',
+										key: 'basic',
 									},
 								]}
 								size="large"
@@ -1142,165 +1155,106 @@ const EditCourse = () => {
 			quizs: 10,
 		},
 	];
+	const Schedule = ({ sourceData }) => {
+		const getDatesBetween = (startDate, endDate, dayOfWeek) => {
+			const dates = [];
+			let current = moment(startDate).startOf('day');
+			if (current.day() !== dayOfWeek) {
+				current.day(dayOfWeek);
+			}
 
-	const ProgressAcademy = ({ index }) => {
+			while (current.isSameOrBefore(endDate)) {
+				if (current.isSameOrAfter(startDate)) {
+					dates.push(current.clone().format('YYYY-MM-DD'));
+				}
+				current.add(1, 'week');
+			}
+
+			return dates;
+		};
+
+		const transformData = (data) => {
+			return data.flatMap((item) => {
+				const dates = getDatesBetween(
+					item.day_start,
+					item.day_end,
+					item.dayOfWeek
+				);
+
+				return dates.map((date) => ({
+					...item,
+					text: item.title,
+					startDate: moment(date + 'T' + item.time_start).toISOString(),
+					endDate: moment(date + 'T' + item.time_end).toISOString(),
+				}));
+			});
+		};
+
+		const appointmentRender = (e) => {
+			return (
+				<div>
+					<div>{e.appointmentData.title}</div>
+				</div>
+			);
+		};
+
+		const appointmentTooltipRender = (e) => {
+			return (
+				<div>
+					<div>{e.appointmentData.title}</div>
+					<div>{e.appointmentData.description}</div>
+					<Button href={e.appointmentData.urlMeet}> Join Meeting </Button>
+				</div>
+			);
+		};
+
+		const formattedSourceData = transformData(sourceData);
+
 		return (
-			<div className={''}>
-				<Table dataSource={progressData}>
-					<Table.Column
-						width={50}
-						title="Avatar"
-						render={(_, record) => {
-							return (
-								<div>
-									<Avatar size={48} shape="circle" src={record.photo} />
-								</div>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Student"
-						render={(_, record) => {
-							return (
-								<Flex vertical>
-									<Typography.Title level={5}>{record.name}</Typography.Title>
-									<Typography.Text className="p-1 shadow bg-[#e3eaef] w-fit rounded">
-										{record.email}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Date"
-						render={(_, record) => {
-							return (
-								<Flex vertical>
-									<Typography.Text>
-										<span className="font-semibold">Enroll from: </span>
-										{record.enrolledDate}
-									</Typography.Text>
-									<Typography.Text>
-										<span className="font-semibold">Last seen on: </span>
-										{record.completeOn}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Progress"
-						render={(_, record) => {
-							return (
-								<Flex vertical className="w-[85%]">
-									<Progress percent={20} />
-									<Typography.Text>
-										<span className="font-semibold">Complete quiz: </span>
-										{record.quizDone}
-										<span> out of </span>
-										{record.quizs}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Actions"
-						render={(_, record) => {
-							return (
-								<Flex align="center">
-									<Button icon={<CreditCardOutlined />}></Button>
-								</Flex>
-							);
-						}}
-					/>
-				</Table>
-
-				<Table>
-					<Table.Column title="#" key={'id'} dataIndex={'id'} />
-					<Table.Column
-						title="Student"
-						render={(_, record) => {
-							return (
-								<Flex vertical>
-									<Typography.Title level={5}>{record.name}</Typography.Title>
-									<Typography.Text className="p-1 shadow bg-[#e3eaef] w-fit rounded">
-										{record.email}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column title="Mark" key={'mark'} dataIndex={'mark'} />
-					<Table.Column title="Status" key={'status'} dataIndex={'status'} />
-					{/* <Table.Column
-                        title="#"
-                        key={"id"}
-                        dataIndex={"id"}
-                    /> */}
-				</Table>
-			</div>
+			<>
+				<Flex vertical={true} align="center" justify="center">
+					<Button
+						onClick={() => setOpenCalendar(true)}
+						className="bg-[#754FFE] text-white font-semibold self-end"
+						size="large">
+						Add Schedule
+					</Button>
+					<Modal open={openCalendar}>
+						{/* 
+							- time: week days (Mon, Tue,...)
+							- start time
+							- end time
+							- recurring {
+								// start date
+								// end date
+							}
+							
+						*/}
+					</Modal>
+					<Scheduler
+						height={730}
+						showAllDayPanel={false}
+						dataSource={formattedSourceData}
+						currentView={'week'}
+						appointmentRender={appointmentRender}
+						appointmentTooltipRender={appointmentTooltipRender}
+						startDayHour={7}
+						crossScrollingEnabled={true}>
+						<Editing
+							allowAdding={false}
+							allowDeleting={false}
+							allowResizing={false}
+							allowDragging={false}
+							allowUpdating={false}
+						/>
+						<Scrolling mode="virtual" />
+					</Scheduler>
+				</Flex>
+			</>
 		);
 	};
-
-	// const steps = [
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Basic infomation
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <BasicInformation index={0} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Info
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Information index={1} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Pricing
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Pricing index={2} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Media
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Media index={3} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Curriculum
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Curriculum index={4} />,
-	// 	},
-	// {
-	//     title: <Typography.Title level={5} style={{ display: 'inline-block', marginBottom: 0 }}>Academic progress</Typography.Title>,
-	//     content: <ProgressAcademy index={5} />,
-	// },
-	// ];
-	//TABS
-	const items = [
+	// Tabs
+	const [tabs, setTabs] = useState([
 		{
 			icon: TagsOutlined,
 			name: 'Overview',
@@ -1319,7 +1273,14 @@ const EditCourse = () => {
 			child: Curriculum,
 			props: { index: 4 },
 		},
-	];
+		data.isStream && {
+			icon: CalendarOutlined,
+			child: Schedule,
+			name: 'Schedule',
+			props: { sourceData: schedule || [] },
+		},
+	]);
+
 	return (
 		<>
 			{courseDataApi.loading || categoryDataApi.loading || isLoading ? (
@@ -1361,7 +1322,7 @@ const EditCourse = () => {
 										className="p-4 py-10 shadow-xl rounded-md mt-8 bg-white"
 										size="large"
 										defaultActiveKey="2"
-										items={items.map((item, i) => {
+										items={tabs.map((item, i) => {
 											return {
 												key: i,
 												label: (
@@ -1377,88 +1338,6 @@ const EditCourse = () => {
 									/>
 								</ConfigProvider>
 							</Form>
-							{/* <div className="w-full overflow-x-auto">
-						<Flex
-							align="center"
-							justify="space-between"
-							className="px-5"
-							gap={6}>
-							{steps.map((step, index) => {
-								return (
-									<Fragment key={index}>
-										<Flex
-											className="flex-1 cursor-pointer min-w-max"
-											align="center"
-											gap={12}
-											onClick={() => setCurrent(index)}>
-											<Flex
-												align="center"
-												justify="center"
-												className={`font-semibold w-10 h-10 ${
-													current >= index
-														? 'bg-[#754FFE] text-white'
-														: 'bg-gray-200'
-												} rounded-full`}>
-												{index + 1}
-											</Flex>
-											{step.title}
-										</Flex>
-
-	</span>									{index < steps.length - 1 && (
-											<Flex className="flex-1">
-												<Divider className={`bg-[#754FFE]`} />
-											</Flex>
-										)}
-									</Fragment>
-								);
-							})}
-						</Flex>
-					</div> */}
-
-							{/* <div className="mt-8">
-						<Form
-							form={form}
-							layout="vertical"
-							onFinish={handleSubmit}
-							initialValues={{
-								faq: [null],
-								requirements: [null],
-								outcomes: [null],
-							}}
-							// onValuesChange={handleChangeValue}
-						>
-							{ste</div>ps.map((step, index) => {
-								return <Fragment key={index}>{step.content}</Fragment>;
-							})}
-							<div style={{ marginTop: 24 }}>
-								{current < steps.length - 1 && (
-									<Button
-										onClick={() => setCurrent(current + 1)}
-										className="bg-[#754FFE] text-white font-semibold"
-										size="large">
-										Next
-									</Button>
-								)}
-								{current === steps.length - 1 && (
-									<Button
-										htmlType="submit"
-										type="submit"
-										className="bg-[#754FFE] text-white font-semibold"
-										size="large">
-										Done
-									</Button>
-								)}
-								{current > 0 && (
-									<Button
-										onClick={() => setCurrent(current - 1)}
-										className="text-[#754FFE] font-semibold ml-2"
-										size="large">
-										Previous
-									</Button>
-								)}
-							</div>
-						</Form>
-					</div> */}
 						</div>
 					</Spring>
 				</section>

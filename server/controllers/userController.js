@@ -87,6 +87,17 @@ exports.get = async function (req, res) {
     }
 }
 
+exports.getAll = async function (req, res) {
+    try {
+        const result = await userModel.getAll()
+        if (result.error) return res.status(500).json({ message: "Failed to find" })
+        return res.status(200).json(result)
+
+    } catch (e) {
+        return res.status(500).json({ message: e.message })
+    }
+}
+
 exports.update = async function (req, res) {
     try {
         const userId = req.params.userId
@@ -121,5 +132,16 @@ exports.delete = async function (req, res) {
         return res.status(200).json(result)
     } catch (e) {
         return res.status(500).json({ message: e.message })
+    }
+}
+
+exports.updateVerify = async function (req, res) {
+    try {
+        const userId = req.params.userId;
+        const result = await userModel.update(userId, { is_verified: true });
+        if (result.error) return res.status(500).json({ message: "Failed to verify user" });
+        return res.status(200).json({ message: "User verified successfully", user: result });
+    } catch (e) {
+        return res.status(500).json({ message: e.message });
     }
 }

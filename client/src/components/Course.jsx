@@ -30,9 +30,6 @@ const Course = ({ list = "Grid", course = {} }) => {
           alt=""
           className="w-full h-full hover:scale-105 duration-200"
         />
-        <div className="bg-white absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full">
-          <HeartFilled className="text-[#6e798a81]" />
-        </div>
         {course.level ? (
           <div className={"courses-card-image-text " + course.level}>
             <h3>{course.level}</h3>

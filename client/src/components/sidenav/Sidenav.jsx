@@ -1,4 +1,4 @@
-import { BarChartOutlined, BilibiliOutlined, CalendarOutlined, DollarCircleOutlined, HeartOutlined, HistoryOutlined, KeyOutlined, SolutionOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BilibiliOutlined, CalendarOutlined, DollarCircleOutlined, HeartOutlined, HistoryOutlined, KeyOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { Avatar, Col, Flex, Row, Space, Typography } from 'antd'
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -30,7 +30,7 @@ const Sidenav = () => {
         },
         {
             name: 'My cart',
-            icon: DollarCircleOutlined,
+            icon: ShoppingCartOutlined, 
             path: '/home/purchase_course'
         },
         {

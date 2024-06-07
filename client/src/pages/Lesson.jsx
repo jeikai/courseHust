@@ -9,6 +9,7 @@ import {
   Space,
   TimePicker,
   Typography,
+  message
 } from "antd";
 import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
@@ -29,6 +30,7 @@ const Lesson = () => {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const viewContext = useContext(ViewContext);
   let responseAPI = useAPI(`/api/lesson/${lessonId}`, null);
+  console.log(responseAPI)
   const [isPlaying, setIsPlaying] = useState(false);
   const [time, setTime] = useState(0);
 
@@ -47,6 +49,7 @@ const Lesson = () => {
         data: data,
       });
       console.log(responseUpdate);
+      message.success("Congratulation, you have done this lesson.")
     } catch (error) {
       console.log(error);
       viewContext.handleError(error);

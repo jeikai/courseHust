@@ -22,6 +22,16 @@ exports.getById = async function (req, res) {
         return res.status(500).json({ message: error.message })
     }
 }
+ 
+exports.get = async function (req, res) { 
+    try {
+        const result = await billModel.get()
+        if (result.error) return res.status(400).json({ message: "Failed to find" })
+        return res.status(200).json(result)
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
 
 exports.getByUserIdAndCourseId = async function(req, res) {
     try {
@@ -34,3 +44,19 @@ exports.getByUserIdAndCourseId = async function(req, res) {
         return res.status(500).json({ message: error.message })
     }
 }
+
+exports.getByCourseId = async function(req, res) {
+    try {
+        const courseId = req.params.courseId;
+        const bills = await billModel.getByCourseId(courseId);
+
+        if (bills.error) {
+            return res.status(500).json({ message: bills.error });
+        }
+
+        return res.status(200).json(bills);
+    } catch (error) {
+        console.error("Error in getByCourseId controller:", error);
+        return res.status(500).json({ message: error.message });
+    }
+};

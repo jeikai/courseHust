@@ -39,7 +39,7 @@ import { AuthContext } from "../context/Auth";
 const { Header, Sider, Content, Footer } = Layout;
 
 const AdminLayout = ({ children }) => {
-  const authContext = useContext(AuthContext);
+  const authContext = useContext(AuthContext)
   let user;
   const temp = localStorage.getItem("user");
   let itemProfile = [];
@@ -91,14 +91,18 @@ const AdminLayout = ({ children }) => {
   }
   const items = [
     getItem("Courses", "courses", <ShopOutlined />, [
-      getItem("Manage courses", "/admin/manage_courses"),
-      getItem("Add new course", "/admin/add_course"),
-      getItem("Course category", "/admin/category"),
+      getItem("Manage courses", "/admin_main/manage_courses"),
+      getItem("Add new course", "/admin_main/add_course"),
+      getItem("Course category", "/admin_main/category"),
+    ]),
+    getItem("Instructors", "users", <UserOutlined />, [
+        getItem("List of instructors", "/admin_main/instructors"),
+        getItem("Request", "/admin_main/add_instructor"),
     ]),
     getItem("Quizs", "quiz", <QuestionOutlined />, [
-      getItem("Manage Quiz", "/admin/quiz"),
-      getItem("Add new question", "/admin/add_question"),
-    ]),
+      getItem("Manage Quiz", "/admin_main/quiz"),
+      getItem("Add new question", "/admin_main/add_question"),
+    ])
   ];
 
   const navigate = useNavigate();

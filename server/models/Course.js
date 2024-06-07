@@ -6,7 +6,7 @@ const courseSchema = new Schema({
 	// Basic info
 	instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	title: { type: String, required: true, unique: true },
-	shortDes: { type: String },
+	shortDes: { type: String }, 
 	description: { type: String, required: true },
 	isStream: { type: Boolean, required: true },
 	categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
@@ -21,15 +21,15 @@ const courseSchema = new Schema({
 	courseVideo: { type: String },
 	tags: [{ type: String }],
 
-	// thumbnail
-	thumbnail: { type: String, required: true },
+    // Bài học
+    sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }], 
+    
+    thumbnail: { type: String, required: true },
+    rating: { type: Number, min: 0, max: 5, default: 0 },
+    date_created: Date, 
+    date_updated: Date
+})
 
-	// Bài học
-	sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
-
-	date_created: Date,
-	date_updated: Date,
-});
 
 const Course = mongoose.model('Course', courseSchema, 'courses');
 exports.schema = Course;

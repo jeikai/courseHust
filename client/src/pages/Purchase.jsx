@@ -26,7 +26,7 @@ import {
   TwitterOutlined,
   UploadOutlined,
   UserOutlined,
-  DeleteOutlined
+  DeleteOutlined,
 } from "@ant-design/icons";
 import Spring from "../components/Spring";
 import { useAPI } from "../hooks/api";
@@ -72,6 +72,26 @@ function Purchase() {
     return total;
   };
   const total = totalPrice();
+
+  const handleDelete = async (courseId) => {
+    try {
+      setIsLoading(true);
+      await Axios({
+        url: `/api/enrollment/${userId}/${courseId}`,
+        method: "DELETE",
+      });
+      setEnrollment((prevData) =>
+        prevData.filter((course) => course.courseId._id !== courseId)
+      );
+      setIsLoading(false);
+      viewContext.handleSuccess("Course deleted successfully");
+    } catch (error) {
+      setIsLoading(false);
+      viewContext.handleError("Failed to delete the course");
+      console.log(error);
+    }
+  };
+
   const columns = [
     {
       title: "Purchased courses",
@@ -107,7 +127,7 @@ function Purchase() {
       key: "price",
       render: (_, record) => (
         <h5 className="font-bold text-base capitalize">
-          {record.courseId.price}VND
+          {record.courseId.price} VND
         </h5>
       ),
     },
@@ -129,7 +149,7 @@ function Purchase() {
         console.log(record);
         return (
           <DeleteOutlined
-            onClick={() => {}}
+            onClick={() => handleDelete(record.courseId._id)}
             className="text-2xl cursor-pointer hover:text-purple-500"
           />
         );
@@ -177,7 +197,7 @@ function Purchase() {
   };
   const handleOk = async () => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const responseAPI = await Axios({
         url: "/api/bill",
         method: "POST",
@@ -186,10 +206,10 @@ function Purchase() {
         },
       });
       console.log(responseAPI);
-      setIsLoading(false)
+      setIsLoading(false);
       fetchData();
-      
-      viewContext.handleSuccess("Buy successfully")
+
+      viewContext.handleSuccess("Buy successfully");
       setIsModalOpen(false);
     } catch (error) {
       viewContext.handleError("Buy fail!");

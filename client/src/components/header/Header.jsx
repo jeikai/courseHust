@@ -30,6 +30,7 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/Auth";
 import { useAPI } from "../../hooks/api";
+
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ const Header = () => {
         key: "user_profile",
         label: "User profile",
         icon: <UserOutlined />,
-      },
+      }, 
       {
         key: "signout",
         label: "Log out",
@@ -117,23 +118,25 @@ const Header = () => {
       },
     ];
 
-    // Conditionally hide "Become a Instructor" for teachers
-    if (user.account.role === "teacher") {
+    // Conditionally hide "Become an Instructor" for teachers
+    if (user.account.role === "teacher" || user.account.role === "admin") {
       itemProfile = itemProfile.filter(
         (item) => item.key !== "become_instructor"
       );
     } else {
       itemProfile.push({
         key: "become_instructor",
-        label: "Become a Instructor",
+        label: "Become an Instructor",
         icon: <BookOutlined />,
       });
     }
   }
+
   let enrollmentAPI;
   if (user) {
     enrollmentAPI = useAPI(`/api/enrollment/${user?.account?._id}`, null);
   }
+
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());
@@ -141,18 +144,8 @@ const Header = () => {
       navigate("/home/calendar");
     } else if (key === "my_course") {
       navigate("/home/my_courses");
-    } else if( key === "user_profile") {
+    } else if (key === "user_profile") {
       navigate("/home/user_credentials");
-    }
-  };
-
-  const handleClickCourses = (props) => {
-    try {
-      console.log(props);
-      const path = props.keyPath.reverse().join("/");
-      navigate(path, { replace: true });
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -221,7 +214,7 @@ const Header = () => {
                   </Link>
                 </Flex>
               </div>
-              {user.account.role == "teacher" ? (
+              {user.account.role === "teacher" && user.account.is_verified == true ? (
                 <div className="px-4 py-2 rounded cursor-pointer">
                   <Flex align="center" gap={0} className="text-black">
                     <Link
@@ -232,9 +225,18 @@ const Header = () => {
                     </Link>
                   </Flex>
                 </div>
-              ) : (
-                <></>
-              )}
+              ) : user.account.role === "admin" ? (
+                <div className="px-4 py-2 rounded cursor-pointer">
+                  <Flex align="center" gap={0} className="text-black">
+                    <Link
+                      to={"/admin_main"}
+                      className="text-base font-semibold"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  </Flex>
+                </div> 
+              ) : null}
 
               <div className="py-2 rounded cursor-pointer">
                 <Flex
@@ -246,8 +248,6 @@ const Header = () => {
                 >
                   <Badge count={0}>
                     <ShoppingCartOutlined className="text-2xl" />
-                    {/* ({" "}
-                    {enrollmentAPI?.data?.length} ) */}
                   </Badge>
                 </Flex>
               </div>

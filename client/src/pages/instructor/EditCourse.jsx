@@ -1550,67 +1550,70 @@ const EditCourse = () => {
 			);
 		}
 	}, [categoryDataApi]);
+	useEffect(() => {
+		return () => {};
+	}, [isLoading]);
 	return (
 		<>
-			{courseDataApi.loading || categoryDataApi.loading || isLoading ? (
-				<Loader />
-			) : (
-				<section>
-					<Spring>
-						<Bread title="Add new courses" items={breadcrumb} />
+			<section>
+				{(courseDataApi.loading || categoryDataApi.loading || isLoading) && (
+					<Loader />
+				)}
 
-						<div className="w-full p-8 my-8">
-							<Form
-								form={form}
-								layout="vertical"
-								className="flex flex-col"
-								onFinish={handleSubmit}
-								onValuesChange={(e) => console.log('Form change', e)}>
-								<Button
-									htmlType="submit"
-									className="bg-[#754FFE] text-white font-semibold self-end"
-									size="large">
-									Save
-								</Button>
+				<Spring>
+					<Bread title="Add new courses" items={breadcrumb} />
 
-								<ConfigProvider
-									theme={{
-										components: {
-											Tabs: {
-												// cardGutter: 12
-												horizontalItemGutter: 50,
-												itemHoverColor: '#754FFE',
-												itemSelectedColor: '#754FFE',
-												inkBarColor: '#754FFE',
-												horizontalItemMarginRTL: '',
-											},
+					<div className="w-full p-8 my-8">
+						<Form
+							form={form}
+							layout="vertical"
+							className="flex flex-col"
+							onFinish={handleSubmit}
+							onValuesChange={(e) => console.log('Form change', e)}>
+							<Button
+								htmlType="submit"
+								className="bg-[#754FFE] text-white font-semibold self-end"
+								size="large">
+								Save
+							</Button>
+
+							<ConfigProvider
+								theme={{
+									components: {
+										Tabs: {
+											// cardGutter: 12
+											horizontalItemGutter: 50,
+											itemHoverColor: '#754FFE',
+											itemSelectedColor: '#754FFE',
+											inkBarColor: '#754FFE',
+											horizontalItemMarginRTL: '',
 										},
-									}}>
-									<Tabs
-										centered
-										className="p-4 py-10 shadow-xl rounded-md mt-8 bg-white"
-										size="large"
-										defaultActiveKey="2"
-										items={tabs.map((item, i) => {
-											return {
-												key: i,
-												label: (
-													<span className="font-semibold text-base xl:text-lg px">
-														{item.name}
-													</span>
-												),
-												children: <item.child {...item.props} />,
-												className: '',
-												icon: <item.icon className=" text-base" />,
-											};
-										})}
-									/>
-								</ConfigProvider>
-							</Form>
-						</div>
-					</Spring>
-				</section>
-			)}
+									},
+								}}>
+								<Tabs
+									centered
+									className="p-4 py-10 shadow-xl rounded-md mt-8 bg-white"
+									size="large"
+									defaultActiveKey="2"
+									items={tabs.map((item, i) => {
+										return {
+											key: i,
+											label: (
+												<span className="font-semibold text-base xl:text-lg px">
+													{item.name}
+												</span>
+											),
+											children: <item.child {...item.props} />,
+											className: '',
+											icon: <item.icon className=" text-base" />,
+										};
+									})}
+								/>
+							</ConfigProvider>
+						</Form>
+					</div>
+				</Spring>
+			</section>
 		</>
 	);
 };

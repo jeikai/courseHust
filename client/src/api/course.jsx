@@ -18,6 +18,7 @@
  date_updated: Date 
  **/
 
+import { message } from 'antd';
 import Axios from 'axios';
 
 /* {
@@ -294,5 +295,81 @@ const handleUpdateCourse = async (data) => {
 	});
 	console.log('updatedCourse', updatedCourse.data);
 };
+const formatTime = (time) => {
+	const { hours, minutes, seconds } = {
+		hours: time['$H'],
+		minutes: time['$m'],
+		seconds: time['$s'],
+	};
 
-export { handleUpdateCourse };
+	const hoursNumber = parseInt(hours);
+	const minutesNumber = parseInt(minutes);
+	const secondsNumber = parseInt(seconds);
+
+	const formattedTime = `${hoursNumber
+		.toString()
+		.padStart(2, '0')}:${minutesNumber
+		.toString()
+		.padStart(2, '0')}:${secondsNumber.toString().padStart(2, '0')}`;
+
+	return formattedTime;
+};
+const handleCreateSchedule = async (scheduleForm) => {
+	const dataReq = {};
+	const { deadline, startTime, endTime } = scheduleForm;
+	dataReq.time_start = formatTime(startTime);
+	dataReq.time_end = formatTime(endTime);
+
+	dataReq.day_start = deadline?.[0]?.['$d']?.toString() || '';
+	dataReq.day_end = deadline?.[1]?.['$d']?.toString() || '';
+
+	dataReq.title = scheduleForm.title;
+	dataReq.description = scheduleForm.description;
+	dataReq.urlMeet = scheduleForm.urlMeet;
+
+	switch (scheduleForm.dayOfWeek) {
+		case 'Sunday':
+			dataReq.dayOfWeek = 0;
+			break;
+		case 'Monday':
+			dataReq.dayOfWeek = 1;
+			break;
+		case 'Tuesday':
+			dataReq.dayOfWeek = 2;
+			break;
+		case 'Wednesday':
+			dataReq.dayOfWeek = 3;
+			break;
+		case 'Thursday':
+			dataReq.dayOfWeek = 4;
+			break;
+		case 'Friday':
+			dataReq.dayOfWeek = 5;
+			break;
+		case 'Saturday':
+			dataReq.dayOfWeek = 6;
+			break;
+		default:
+			dataReq.dayOfWeek = null;
+	}
+	dataReq.userId = scheduleForm.userId;
+	dataReq.courseId = scheduleForm.courseId;
+	console.log({ dataReq });
+	try {
+		const newSchedule = await Axios({
+			method: 'POST',
+			url: '/api/calendar',
+			data: { ...dataReq },
+		});
+	} catch (error) {
+		return {
+			message: error.message,
+			error: true,
+		};
+	}
+	return {
+		message: 'Create schedule successfully',
+		error: false,
+	};
+};
+export { handleUpdateCourse, handleCreateSchedule };

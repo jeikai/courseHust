@@ -1136,17 +1136,19 @@ const EditCourse = () => {
 	];
 	const Schedule = () => {
 		const [schedule, setSchedule] = useState([]);
-		const scheduleDataApi = useAPI(`/api/calendar/${courseId}`, null);
-		useEffect(() => {
-			if (scheduleDataApi.data) {
-				setSchedule((prev) => scheduleDataApi.data);
-			}
-		}, [scheduleDataApi]);
+		const [reload, setReload] = useState(false);
+
 		const [openCalendar, setOpenCalendar] = useState(false);
 		const [message, setMessage] = useState({
 			message: '',
 			error: false,
 		});
+		const [openMeet, setOpenMeet] = useState({
+			open: false,
+			url: '',
+		});
+		const [scheduleFormatData, setScheduleFormatData] = useState([]);
+
 		const getDatesBetween = (startDate, endDate, dayOfWeek) => {
 			const dates = [];
 			let current = moment(startDate).startOf('day');
@@ -1165,6 +1167,7 @@ const EditCourse = () => {
 		};
 
 		const transformData = (data) => {
+			console.log({ data });
 			return data.flatMap((item) => {
 				const dates = getDatesBetween(
 					item.day_start,
@@ -1183,23 +1186,61 @@ const EditCourse = () => {
 
 		const appointmentRender = (e) => {
 			return (
-				<div>
-					<div>{e.appointmentData.title}</div>
+				<div className="flex flex-col items-center justify-center align-middle h-full w-full">
+					<div className="text-lg font-bold">{e.appointmentData.title}</div>
 				</div>
 			);
 		};
-
-		const appointmentTooltipRender = (e) => {
+		const handleDeleteAppointment = async (data) => {
+			setIsLoading(true);
+			console.log('Delete', data);
+			const startDate = data.displayStartDate;
+			const id = data._id;
+			const exceptions = data.exceptions;
+			exceptions.push(new Date(startDate));
+			const updateSchedule = await Axios({
+				method: 'PUT',
+				url: `/api/calendar/${id}`,
+				data: {
+					exceptions: exceptions,
+				},
+			});
+			setIsLoading(false);
+			setReload((prev) => !prev);
+		};
+		const appointmentTooltipRender = ({
+			targetedAppointmentData,
+			appointmentData,
+		}) => {
 			return (
-				<div>
-					<div>{e.appointmentData.title}</div>
-					<div>{e.appointmentData.description}</div>
-					<Button href={e.appointmentData.urlMeet}> Join Meeting </Button>
-				</div>
+				<>
+					<div className="flex flex-col w-full items-start px-5 pt-5">
+						<Flex vertical={false} justify="space-between" className="w-full">
+							<div>
+								<span className="text-base font-bold">Title: </span>
+								{appointmentData.title}
+							</div>
+							<Button
+								icon={<DeleteOutlined />}
+								className=""
+								onClick={() =>
+									handleDeleteAppointment(targetedAppointmentData)
+								}>
+								Delete
+							</Button>
+						</Flex>
+						<div>
+							<span className="text-base font-bold">Description: </span>
+							{appointmentData.description}
+						</div>
+					</div>
+					<Button className="mt-3" href={appointmentData.urlMeet}>
+						Join Meeting
+					</Button>
+				</>
 			);
 		};
 
-		const formattedSourceData = transformData(schedule);
 		const formatTime = (time) => {
 			const { hours, minutes, seconds } = {
 				hours: time['$H'],
@@ -1249,6 +1290,15 @@ const EditCourse = () => {
 				error: newSchedule.error,
 			}));
 		};
+		const handleUpdateAppointment = (appointmentData) => {
+			const startDate = appointmentData.startDate;
+			const endDate = appointmentData.endDate;
+			const text = appointmentData.text;
+			const description = appointmentData.description;
+		};
+		const handleOpenMeet = (e) => {
+			console.log('open', e);
+		};
 		const dayOfWeek = [
 			{
 				value: 'Monday',
@@ -1279,18 +1329,36 @@ const EditCourse = () => {
 				label: 'Sunday',
 			},
 		];
+		const scheduleDataApi = useAPI(`/api/calendar/${courseId}`, null);
+		useEffect(() => {
+			if (scheduleDataApi.data) {
+				console.log({ scheduleData: scheduleDataApi.data });
+				setSchedule((prev) => scheduleDataApi.data);
+				const formatData = transformData(scheduleDataApi.data || []);
+				setScheduleFormatData((prev) => [...formatData]);
+			}
+		}, [scheduleDataApi]);
+		useCallback(() => {
+			const fetchData = async () =>
+				await Axios({ method: 'GET', url: `/api/calendar/${courseId}` });
+			if (fetchData.data) {
+				setSchedule((prev) => fetchData.data);
+			}
+			const formatData = transformData(fetchData.data);
+			setScheduleFormatData((prev) => [...formatData]);
+		}, [reload]);
 		return (
 			<>
 				<Flex vertical={true} align="center" justify="center" gap={10}>
 					<Button
 						onClick={() => {
 							setOpenCalendar((prev) => true);
-							console.log({ formattedSourceData });
 						}}
 						className="bg-[#754FFE] text-white font-semibold self-end"
 						size="large">
 						Add Schedule
 					</Button>
+
 					<Drawer
 						title="Add Schedule"
 						width={'35rem'}
@@ -1446,31 +1514,25 @@ const EditCourse = () => {
 							</Row>
 						</Form>
 					</Drawer>
+
 					<Scheduler
 						height={730}
 						showAllDayPanel={false}
-						dataSource={formattedSourceData}
+						dataSource={scheduleFormatData}
 						currentView={'week'}
+						onAppointmentUpdated={({ appointmentData }) =>
+							handleUpdateAppointment(appointmentData)
+						}
 						appointmentRender={appointmentRender}
 						appointmentTooltipRender={appointmentTooltipRender}
 						startDayHour={7}
+						onAppointmentFormOpening={(e) => {
+							e.cancel = true;
+						}}
 						crossScrollingEnabled={true}>
-						<Editing
-							allowAdding={false}
-							allowDeleting={false}
-							allowResizing={false}
-							allowDragging={false}
-							allowUpdating={false}
-						/>
 						<Scrolling mode="virtual" />
 					</Scheduler>
 				</Flex>
-				{/* <AddScheduleModal
-					open={openCalendar}
-					onCancel={() => setOpenCalendar((prev) => false)}
-					onFinish={onOkSchedule}
-				/> */}
-				{/* <Modal open={openCalendar}>Hi</Modal> */}
 			</>
 		);
 	};

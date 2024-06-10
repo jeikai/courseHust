@@ -1069,7 +1069,7 @@ const EditCourse = () => {
 								},
 							}}>
 							<Button
-								onClick={setOpenInputSections(true)}
+								onClick={() => setOpenInputSections(true)}
 								className="mt-8 text-[#754FFE] font-semibold">
 								Add section
 							</Button>
@@ -1541,7 +1541,8 @@ const EditCourse = () => {
 		);
 	};
 	// Tabs
-	const [tabs, setTabs] = useState([
+
+	let tabs = [
 		{
 			icon: TagsOutlined,
 			name: 'Overview',
@@ -1557,8 +1558,18 @@ const EditCourse = () => {
 			name: 'Curriculum',
 			child: Curriculum,
 		},
-	]);
+	];
+	if (data.isStream) {
+		const schedule = tabs.find((tab) => tab.name == 'Schedule');
+		console.log({ schedule });
 
+		tabs.push({
+			icon: ScheduleOutlined,
+			name: 'Schedule',
+			child: Schedule,
+			props: {},
+		});
+	}
 	useEffect(() => {
 		if (courseDataApi.data) {
 			const courseData = courseDataApi.data;
@@ -1578,20 +1589,6 @@ const EditCourse = () => {
 				isStream: isStream,
 			}));
 
-			if (isStream) {
-				const schedule = tabs.find((tab) => tab.name == 'Schedule');
-				if (!schedule) {
-					setTabs((prev) => [
-						...prev,
-						{
-							icon: ScheduleOutlined,
-							name: 'Schedule',
-							child: Schedule,
-							props: {},
-						},
-					]);
-				}
-			}
 			setThumbnail((prev) => [
 				{
 					url: courseData.thumbnail,
@@ -1612,7 +1609,7 @@ const EditCourse = () => {
 			);
 		}
 	}, [categoryDataApi]);
-	useEffect(() => {}, [isLoading]);
+
 	return (
 		<>
 			<section>

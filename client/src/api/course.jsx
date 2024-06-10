@@ -18,7 +18,6 @@
  date_updated: Date 
  **/
 
-import { message } from 'antd';
 import Axios from 'axios';
 
 /* {
@@ -356,7 +355,7 @@ const handleCreateSchedule = async (scheduleForm) => {
 	dataReq.courseId = scheduleForm.courseId;
 	console.log({ dataReq });
 	try {
-		const newSchedule = await Axios({
+		await Axios({
 			method: 'POST',
 			url: '/api/calendar',
 			data: { ...dataReq },
@@ -372,4 +371,61 @@ const handleCreateSchedule = async (scheduleForm) => {
 		error: false,
 	};
 };
-export { handleUpdateCourse, handleCreateSchedule };
+const handleUpdateSchedule = async (data) => {
+	const dataReq = {
+		title: data.title,
+		description: data.description,
+		urlMeet: data.urlMeet,
+	};
+	dataReq.day_start = data.deadline?.[0]?.['$d']?.toString() || '';
+	dataReq.day_end = data.deadline?.[1]?.['$d']?.toString() || '';
+
+	dataReq.time_start = formatTime(data.startTime);
+	dataReq.time_end = formatTime(data.endTime);
+	switch (data.dayOfWeek) {
+		case 'Sunday':
+			dataReq.dayOfWeek = 0;
+			break;
+		case 'Monday':
+			dataReq.dayOfWeek = 1;
+			break;
+		case 'Tuesday':
+			dataReq.dayOfWeek = 2;
+			break;
+		case 'Wednesday':
+			dataReq.dayOfWeek = 3;
+			break;
+		case 'Thursday':
+			dataReq.dayOfWeek = 4;
+			break;
+		case 'Friday':
+			dataReq.dayOfWeek = 5;
+			break;
+		case 'Saturday':
+			dataReq.dayOfWeek = 6;
+			break;
+		default:
+			dataReq.dayOfWeek = null;
+	}
+	dataReq.userId = data.userId;
+	dataReq.courseId = data.courseId;
+	try {
+		await Axios({
+			method: 'PUT',
+			url: `/api/calendar/${data._id}`,
+			data: {
+				...dataReq,
+			},
+		});
+	} catch (error) {
+		return {
+			message: error.message,
+			error: true,
+		};
+	}
+	return {
+		message: 'Create schedule successfully',
+		error: false,
+	};
+};
+export { handleUpdateCourse, handleCreateSchedule, handleUpdateSchedule };

@@ -392,7 +392,7 @@ const EditCourse = () => {
 		const handleBasicInfoData = (basicInfo) => {
 			console.log('data', data);
 		};
-		return (
+		return ( 
 			<Spring className={''}>
 				<Typography.Title level={4}>Basic Information</Typography.Title>
 
@@ -488,15 +488,11 @@ const EditCourse = () => {
 								</Typography.Title>
 							}
 							name="description">
-							<Editor
-								apiKey="by05nyt9dhljko786tzo81q4vzgsn5hrdjq81e4kb3wi5yyp"
-								init={{
-									plugins:
-										'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-									toolbar:
-										'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-									placeholder: 'Write something awesome',
-								}}
+							<Input.TextArea
+								className="py-2"
+								rows={6}
+								placeholder="Detail description for course"
+								maxLength={50}
 							/>
 						</Form.Item>
 					</Col>

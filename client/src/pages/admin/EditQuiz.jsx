@@ -45,7 +45,7 @@ const EditQuiz = () => {
 	const breadcrumb = [
 		{
 			title: 'Home',
-			href: '',
+			href: '/admin_main/quiz',
 		},
 		{
 			title: 'Quiz',
@@ -240,28 +240,32 @@ const EditQuiz = () => {
 																		/>
 																	</Form.Item>
 																</Flex>
-																<Flex gap={4}>
-																	<Form.Item
-																		name={[field.name, 'type']}
-																		initialValue={'mcq'}
-																		noStyle>
-																		<Select placeholder="Select question type">
-																			<Select.Option value="mcq">
-																				Multiple choice
-																			</Select.Option>
-																			<Select.Option value="scq">
-																				Single choice and True/False
-																			</Select.Option>
-																			<Select.Option value="fill">
-																				Fill in the blank
-																			</Select.Option>
-																		</Select>
-																	</Form.Item>
-																	<Button
-																		onClick={() => remove(field.name)}
-																		danger
-																		icon={<DeleteOutlined />}></Button>
-																</Flex>
+																<Flex vertical={false} gap={5} align="center">
+																		<p className="font-bold">Level:</p>
+																		<Form.Item
+																			name={[field.name, 'level']}
+																			initialValue={'perception'}
+																			noStyle>
+																			<Select placeholder="Select question type">
+																				<Select.Option value="perception">
+																					Perception
+																				</Select.Option>
+																				<Select.Option value="comprehension">
+																					Comprehension
+																				</Select.Option>
+																				<Select.Option value="application">
+																					Application
+																				</Select.Option>
+																				<Select.Option value="advanced application">
+																					Advanced application
+																				</Select.Option>
+																			</Select>
+																		</Form.Item>
+																		<Button
+																			onClick={() => remove(field.name)}
+																			danger
+																			icon={<DeleteOutlined />}></Button>
+																	</Flex>
 															</Flex>
 															<Form.Item>
 																<Form.List

@@ -392,13 +392,14 @@ const EditCourse = () => {
       url: `/api/process/course/${courseId}`,
       method: "GET",
     });
+    console.log(responseUser?.data?.data);
     responseUser?.data?.data.forEach((userData) => {
       socket.emit("sendNotification", {
-        senderId: user,
-		courseId: courseId,
-		receiverId: userData?._id,
-		title: "Demo",
-		body: "Hello world"
+        senderId: user?.account?._id,
+        courseId: courseId,
+        receiverId: userData?._id,
+        title: "Demo",
+        body: "Hello world",
       });
     });
 

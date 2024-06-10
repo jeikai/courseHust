@@ -4,7 +4,7 @@ import {
   Badge,
   Button,
   ConfigProvider,
-  Dropdown,
+  Dropdown, 
   Empty,
   Flex,
   Space,
@@ -98,8 +98,8 @@ const Header = () => {
 
   useEffect(() => {
     const newSocket = io("http://localhost:5000");
+    console.log(newSocket)
     setSocket(newSocket);
-    return () => newSocket.close();
   }, []);
 
   useEffect(() => {

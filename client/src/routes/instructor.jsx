@@ -20,7 +20,7 @@ const Routes = [
 	{
 		path: '/admin/manage_courses',
 		view: Courses,
-		layout: 'admin',
+		layout: 'admin', 
 		// permission: 'student',
 		title: 'FunCourse - Manage courses | E-Learning',
 	},

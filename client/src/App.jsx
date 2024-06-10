@@ -6,6 +6,7 @@ import websiteRoutes from './routes/website'
 import authRoutes from './routes/auth'
 import appRoutes from './routes/app'
 import adminRoutes from './routes/admin'
+import instructorRoutes from './routes/instructor'
 import PrivateRoute from './components/PrivateRoute'
 import { AuthContext, AuthProvider } from './context/Auth'
 import Axios from 'axios';
@@ -17,6 +18,7 @@ const routes = [
   ...authRoutes,
   ...appRoutes,
   ...adminRoutes,
+  ...instructorRoutes
 
 ]
 function App() {

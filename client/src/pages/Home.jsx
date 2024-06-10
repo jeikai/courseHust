@@ -20,7 +20,7 @@ import {
   RightOutlined,
   RubyOutlined,
   SearchOutlined,
-} from "@ant-design/icons";
+} from "@ant-design/icons"; 
 import banner from "../assets/home-3.png";
 import banner1 from "../assets/banner-1.png";
 import banner2 from "../assets/banner-2.png";
@@ -109,7 +109,6 @@ const Home = () => {
   ];
   const carousel1 = useRef();
   const carousel2 = useRef();
-  const carousel = useRef();
 
   const navigate = useNavigate();
   const handleSearch = (e) => {

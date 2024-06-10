@@ -84,9 +84,13 @@ import Spring from '../../components/Spring';
 import { useAPI } from '../../hooks/api';
 import Loader from '../../components/Loader';
 import { uploadFile } from '../../helpers';
-import { handleCreateSchedule, handleUpdateCourse } from '../../api/course';
+import {
+	handleCreateSchedule,
+	handleUpdateCourse,
+	handleUpdateSchedule,
+} from '../../api/course';
 import { ViewContext } from '../../context/View';
-
+import dayjs from 'dayjs';
 const EditCourse = () => {
 	const [courseId, setCourseId] = useState(useParams().id);
 	const userId = JSON.parse(localStorage.getItem('user')).account._id;
@@ -116,6 +120,7 @@ const EditCourse = () => {
 	const [openEditQuiz, setOpenEditQuiz] = useState(false);
 	const [courseCategory, setCourseCategory] = useState([]);
 	const [formSchedule] = Form.useForm();
+
 	const [data, setData] = useState({
 		_id: courseId,
 		title: '',
@@ -1136,16 +1141,13 @@ const EditCourse = () => {
 	];
 	const Schedule = () => {
 		const [schedule, setSchedule] = useState([]);
-
+		const [openEditSchedule, setOpenEditSchedule] = useState(false);
 		const [openCalendar, setOpenCalendar] = useState(false);
 		const [message, setMessage] = useState({
 			message: '',
 			error: false,
 		});
-		const [openMeet, setOpenMeet] = useState({
-			open: false,
-			url: '',
-		});
+		const [targetScheduleId, setTargetScheduleId] = useState('');
 		const [scheduleFormatData, setScheduleFormatData] = useState([]);
 
 		const getDatesBetween = (startDate, endDate, dayOfWeek) => {
@@ -1166,7 +1168,6 @@ const EditCourse = () => {
 		};
 
 		const transformData = (data) => {
-			console.log({ data });
 			return data.flatMap((item) => {
 				const dates = getDatesBetween(
 					item.day_start,
@@ -1227,22 +1228,34 @@ const EditCourse = () => {
 			return (
 				<>
 					<div className="flex flex-col w-full items-start px-5 pt-5">
-						<Flex vertical={false} justify="space-between" className="w-full">
+						<Flex
+							vertical={false}
+							justify="space-between"
+							className="w-full"
+							align="center">
 							<div>
 								<span className="text-base font-bold">Title: </span>
 								{appointmentData.title}
 							</div>
-							<Button
-								icon={<DeleteOutlined />}
-								className=""
-								onClick={() =>
-									handleDeleteAppointment(targetedAppointmentData)
-								}>
-								Delete
-							</Button>
+							<Flex vertical={false} gap={3}>
+								<Button
+									icon={<DeleteOutlined />}
+									className=""
+									danger
+									onClick={() =>
+										handleDeleteAppointment(targetedAppointmentData)
+									}></Button>
+								<Button
+									icon={<EditOutlined />}
+									className=""
+									type="primary"
+									onClick={() =>
+										handleOpenEditSchedule(appointmentData)
+									}></Button>
+							</Flex>
 						</Flex>
-						<div>
-							<span className="text-base font-bold">Description: </span>
+						<div className="w-full overflow-hidden text-ellipsis">
+							<span className="text-base w-full font-bold">Description:</span>
 							{appointmentData.description}
 						</div>
 					</div>
@@ -1297,17 +1310,67 @@ const EditCourse = () => {
 			scheduleForm.courseId = courseId;
 			const newSchedule = await handleCreateSchedule(scheduleForm);
 			setIsLoading(false);
+			formSchedule.resetFields();
 			setMessage((prev) => ({
 				message: newSchedule.message,
 				error: newSchedule.error,
 			}));
 		};
-		const handleUpdateAppointment = (appointmentData) => {
-			const startDate = appointmentData.startDate;
-			const endDate = appointmentData.endDate;
-			const text = appointmentData.text;
-			const description = appointmentData.description;
+		const handleOpenEditSchedule = async (appointmentData) => {
+			console.log({ appointmentData });
+			//title, description, deadline, dayOfWeek, startTime, endTime, urlMeet
+			const data = {
+				title: appointmentData.title,
+				description: appointmentData.description,
+				urlMeet: appointmentData.urlMeet,
+			};
+			const startDay = dayjs(appointmentData.day_start, 'YYYY-MM-DD');
+			const endDay = dayjs(appointmentData.day_end, 'YYYY-MM-DD');
+			data.deadline = [startDay, endDay];
+			data.startTime = dayjs(appointmentData.time_start, 'HH:mm:ss');
+			data.endTime = dayjs(appointmentData.time_end, 'HH:mm:ss');
+			switch (appointmentData.dayOfWeek) {
+				case 1:
+					data.dayOfWeek = 'Monday';
+					break;
+				case 2:
+					data.dayOfWeek = 'Tuesday';
+					break;
+				case 3:
+					data.dayOfWeek = 'Wednesday';
+					break;
+				case 4:
+					data.dayOfWeek = 'Thursday';
+					break;
+				case 5:
+					data.dayOfWeek = 'Friday';
+					break;
+				case 6:
+					data.dayOfWeek = 'Saturday';
+					break;
+				default:
+					data.dayOfWeek = 'Sunday';
+			}
+			data._id = appointmentData._id;
+			setTargetScheduleId((prev) => appointmentData._id);
+			formSchedule.setFieldsValue(data);
+			setOpenEditSchedule((prev) => true);
 		};
+
+		const handleOkEditSchedule = async () => {
+			setIsLoading(true);
+			const data = formSchedule.getFieldsValue();
+			data.courseId = courseId;
+			data.userId = userId;
+			data._id = targetScheduleId;
+			const update = await handleUpdateSchedule(data);
+			setMessage((prev) => ({
+				error: true,
+				message: update.message,
+			}));
+			setIsLoading(false);
+		};
+
 		const handleOpenMeet = (e) => {
 			console.log('open', e);
 		};
@@ -1363,6 +1426,149 @@ const EditCourse = () => {
 						Add Schedule
 					</Button>
 
+					<Drawer
+						title="Edit Schedule"
+						width={'35rem'}
+						onClose={() => setOpenEditSchedule((prev) => false)}
+						open={openEditSchedule}
+						styles={{
+							body: {
+								paddingBottom: 80,
+							},
+						}}
+						extra={
+							<Space>
+								<Button
+									onClick={() => {
+										setOpenEditSchedule((prev) => false);
+										formSchedule.resetFields();
+									}}>
+									Cancel
+								</Button>
+								<Button onClick={handleOkEditSchedule} type="primary">
+									Update
+								</Button>
+							</Space>
+						}>
+						{message.message != '' &&
+							(message.error ? (
+								<Alert message={message.message} type="error" showIcon />
+							) : (
+								<Alert message={message.message} type="success" showIcon />
+							))}
+
+						<Form form={formSchedule}>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Schedule Title</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="title"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter lesson title',
+											},
+										]}>
+										<Input placeholder="Please enter lesson title" />
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Description</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="description"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter description',
+											},
+										]}>
+										<Input.TextArea
+											rows={4}
+											placeholder="Please enter description"
+										/>
+									</Form.Item>
+								</Col>
+								<Row gutter={16} className='w-full'>
+									<Col>
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Start Date - End Date
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="deadline">
+												<DatePicker.RangePicker
+													className="w-full"
+													format={'YYYY-MM-DD'}
+													onChange={(value, dateString) =>
+														console.log(value, dateString)
+													}
+													onOk={(value) => console.log(value)}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+								</Row>
+
+								<Row
+									className="flex flex-row w-full gap-3 justify-between"
+									gutter={16}>
+									<Col id="day-of-week" className="w-[40%]">
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Date Of Week
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="dayOfWeek">
+												<Select
+													showSearch
+													placeholder="Day Of Week"
+													options={dayOfWeek}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+									<Row className="flex flex-row flex-1 gap-3">
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>
+													Start Time
+												</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="startTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>End Time</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="endTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+									</Row>
+								</Row>
+								<Col span={24}>
+									<Typography.Title level={5}>Meet URL</Typography.Title>
+									<Form.Item name="urlMeet">
+										<Input />
+									</Form.Item>
+								</Col>
+							</Row>
+						</Form>
+					</Drawer>
 					<Drawer
 						title="Add Schedule"
 						width={'35rem'}
@@ -1447,22 +1653,6 @@ const EditCourse = () => {
 											</Form.Item>
 										</Col>
 									</Col>
-									<Col>
-										<Col span={24}>
-											<Typography.Title level={5}>Recurring</Typography.Title>
-										</Col>
-										<Form.Item
-											name="isRecurring"
-											className="flex flex-row items-center justify-center"
-											valuePropName="checked"
-											initialValue={true}>
-											<Switch
-												defaultChecked
-												checkedChildren="True"
-												unCheckedChildren="False"
-											/>
-										</Form.Item>
-									</Col>
 								</Row>
 
 								<Row
@@ -1524,14 +1714,12 @@ const EditCourse = () => {
 						showAllDayPanel={false}
 						dataSource={scheduleFormatData}
 						currentView={'week'}
-						onAppointmentUpdated={({ appointmentData }) =>
-							handleUpdateAppointment(appointmentData)
-						}
 						appointmentRender={appointmentRender}
 						appointmentTooltipRender={appointmentTooltipRender}
 						startDayHour={7}
 						onAppointmentFormOpening={(e) => {
 							e.cancel = true;
+							setOpenEditSchedule(true);
 						}}
 						crossScrollingEnabled={true}>
 						<Scrolling mode="virtual" />
@@ -1561,7 +1749,6 @@ const EditCourse = () => {
 	];
 	if (data.isStream) {
 		const schedule = tabs.find((tab) => tab.name == 'Schedule');
-		console.log({ schedule });
 
 		tabs.push({
 			icon: ScheduleOutlined,
@@ -1594,7 +1781,7 @@ const EditCourse = () => {
 					url: courseData.thumbnail,
 				},
 			]);
-			console.log({ data });
+
 			form.setFieldsValue(data);
 		}
 	}, [courseDataApi]);

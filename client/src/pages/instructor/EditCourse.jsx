@@ -88,20 +88,23 @@ import { handleCreateSchedule, handleUpdateCourse } from '../../api/course';
 import { ViewContext } from '../../context/View';
 
 const EditCourse = () => {
-	const courseId = useParams().id;
+	const [courseId, setCourseId] = useState(useParams().id);
 	const userId = JSON.parse(localStorage.getItem('user')).account._id;
 	const [isLoading, setIsLoading] = useState(false);
-	const viewContext = useContext(ViewContext);
+
 	const [form] = Form.useForm();
-	const [basicInfoForm] = Form.useForm();
+
 	const [current, setCurrent] = useState(0);
 	const [formLesson] = Form.useForm();
 	const [formEditLesson] = Form.useForm();
 	const [formSection] = Form.useForm();
 	const [formEditSection] = Form.useForm();
 	const [formQuiz] = Form.useForm();
-	const [formEditQuiz] = Form.useForm();
 
+	//MEDIA TAB
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
+	//CURRICULUM TAB
 	const [idEditSection, setIdEditSection] = useState();
 	const [idEditLesson, setIdEditLesson] = useState();
 
@@ -111,11 +114,6 @@ const EditCourse = () => {
 	const [openEditLesson, setOpenEditLesson] = useState(false);
 	const [openInputQuiz, setOpenInputQuiz] = useState(false);
 	const [openEditQuiz, setOpenEditQuiz] = useState(false);
-	//MEDIA TAB
-	const [previewOpen, setPreviewOpen] = useState(false);
-	const [previewImage, setPreviewImage] = useState('');
-	//CALENDAR TAB
-
 	const [courseCategory, setCourseCategory] = useState([]);
 	const [formSchedule] = Form.useForm();
 	const [data, setData] = useState({
@@ -155,203 +153,6 @@ const EditCourse = () => {
 	const [video, setVideo] = useState([]);
 
 	//*Handle create new lesson
-	const handleOkLesson = async () => {
-		// debugger
-		// callback()
-		setIsLoading((prev) => true);
-		const fieldLessons = formLesson.getFieldsValue();
-		let lessonId = uuidv4();
-		let sectionId = fieldLessons.sectionId;
-		fieldLessons.id = lessonId;
-
-		const { sections } = data;
-		//get video URL
-		let videoURL = '';
-		let duration;
-		if (fieldLessons.file && fieldLessons.file != undefined) {
-			const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
-			videoURL = upFile.file_url;
-			duration = upFile.duration;
-		}
-
-		sections.forEach((section) => {
-			if (section._id === sectionId) {
-				if (!section?.specs) {
-					(section.specs = []), (section.specs = []);
-				}
-				let obj = {
-					_id: {
-						...fieldLessons,
-						videoURL: videoURL,
-						duration: duration,
-					},
-					type: 'lesson',
-				};
-				section.specs.push(obj);
-			}
-		});
-
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-
-		setOpenInputLesson(false);
-		formLesson.resetFields();
-
-		setIsLoading((prev) => false);
-		console.log('data', data);
-		console.log(JSON.stringify(data));
-		console.log('fieldLessons', fieldLessons);
-	};
-
-	const handleEditLesson = async () => {
-		setIsLoading((prev) => true);
-
-		let newLesson = formEditLesson.getFieldsValue();
-
-		if (newLesson.file && newLesson.file != undefined) {
-			const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-			newLesson.videoURL = uploadedFile.file_url || '';
-			newLesson.duration = uploadedFile.duration;
-		}
-		newLesson.docURL = '';
-		let { sections } = data;
-		sections.forEach((section) => {
-			let { specs } = section;
-
-			let specIndex = -1;
-			specs.forEach((spec, index) => {
-				if (spec._id._id == idEditLesson) specIndex = index;
-			});
-
-			if (specIndex !== -1) {
-				specs.splice(specIndex, 1, {
-					_id: { ...newLesson },
-					type: 'lesson',
-				});
-			}
-		});
-
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-		console.log(data);
-		setIdEditLesson(0);
-		setOpenEditLesson(false);
-		formEditLesson.resetFields();
-		setIsLoading(false);
-	};
-
-	const openModalEditLesson = (id) => {
-		const { sections } = data;
-		console.log(id);
-		sections.forEach((section) => {
-			section?.specs?.forEach((item) => {
-				if (item._id._id === id) {
-					console.log('item lesson', item._id);
-
-					formEditLesson.setFieldsValue({
-						title: item._id.title,
-						content: item._id.content,
-						docURL: item._id.docURL,
-						videoURL: item._id.videoURL,
-						sectionId: section._id,
-						duration: item._id.duration,
-					});
-
-					setIdEditLesson(item._id._id);
-					setOpenEditLesson(true);
-				}
-			});
-		});
-	};
-
-	const handleOkSection = () => {
-		// debugger
-
-		const fieldSections = formSection.getFieldsValue();
-		let sectionId = uuidv4();
-		fieldSections._id = sectionId;
-
-		data.sections.push({
-			_id: fieldSections._id,
-			title: fieldSections.sectionName,
-			specs: [],
-		});
-
-		console.log('fieldSections', fieldSections);
-		console.log(data);
-
-		setData(data);
-		setOpenInputSections(false);
-
-		formSection.resetFields();
-	};
-
-	const handleEditSection = () => {
-		data.sections.forEach((section) => {
-			if (section._id === idEditSection) {
-				let newName = formEditSection.getFieldValue('sectionName');
-				section.title = newName;
-				setData(data);
-
-				formEditSection.resetFields();
-				setOpenEditSections(false);
-			}
-		});
-	};
-
-	const openModalEditSection = (id) => {
-		console.log(id);
-		data.sections.forEach((section) => {
-			if (section._id === id) {
-				console.log(data.sections);
-				formEditSection.setFieldValue('sectionName', section.title);
-				setIdEditSection(id);
-				setOpenEditSections(true);
-			}
-		});
-	};
-
-	const handleRemoveLesson = (id) => {
-		let { sections } = data;
-		sections.forEach((section) => {
-			let { specs } = section;
-			let index = specs.findIndex((spec) => spec._id._id === id);
-			console.log(index);
-
-			if (index !== -1) {
-				// Tìm thấy đối tượng với id tương ứng
-				// Xóa phần tử cũ
-				specs.splice(index, 1);
-			}
-		});
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-	};
-
-	const handleRemoveSection = (id) => {
-		console.log(id);
-		// Xóa phần tử trong mảng sections
-		const updatedSections = data.sections.filter(
-			(section) => section._id !== id
-		);
-
-		// Xóa id trong mảng sectionIds
-		const updatedSectionIds = data.sections.filter(
-			(section) => section._id !== id
-		);
-
-		// Cập nhật dữ liệu mới
-		setData((prevData) => ({
-			...prevData,
-			sections: updatedSections,
-		}));
-	};
 
 	const getFile = (e) => {
 		console.log('Upload event:', e);
@@ -822,6 +623,204 @@ const EditCourse = () => {
 	};
 
 	const Curriculum = () => {
+		const handleOkLesson = async () => {
+			// debugger
+			// callback()
+			setIsLoading((prev) => true);
+			const fieldLessons = formLesson.getFieldsValue();
+			let lessonId = uuidv4();
+			let sectionId = fieldLessons.sectionId;
+			fieldLessons.id = lessonId;
+
+			const { sections } = data;
+			//get video URL
+			let videoURL = '';
+			let duration;
+			if (fieldLessons.file && fieldLessons.file != undefined) {
+				const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
+				videoURL = upFile.file_url;
+				duration = upFile.duration;
+			}
+
+			sections.forEach((section) => {
+				if (section._id === sectionId) {
+					if (!section?.specs) {
+						(section.specs = []), (section.specs = []);
+					}
+					let obj = {
+						_id: {
+							...fieldLessons,
+							videoURL: videoURL,
+							duration: duration,
+						},
+						type: 'lesson',
+					};
+					section.specs.push(obj);
+				}
+			});
+
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+
+			setOpenInputLesson(false);
+			formLesson.resetFields();
+
+			setIsLoading((prev) => false);
+			console.log('data', data);
+			console.log(JSON.stringify(data));
+			console.log('fieldLessons', fieldLessons);
+		};
+
+		const handleEditLesson = async () => {
+			setIsLoading((prev) => true);
+
+			let newLesson = formEditLesson.getFieldsValue();
+
+			if (newLesson.file && newLesson.file != undefined) {
+				const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
+				newLesson.videoURL = uploadedFile.file_url || '';
+				newLesson.duration = uploadedFile.duration;
+			}
+			newLesson.docURL = '';
+			let { sections } = data;
+			sections.forEach((section) => {
+				let { specs } = section;
+
+				let specIndex = -1;
+				specs.forEach((spec, index) => {
+					if (spec._id._id == idEditLesson) specIndex = index;
+				});
+
+				if (specIndex !== -1) {
+					specs.splice(specIndex, 1, {
+						_id: { ...newLesson },
+						type: 'lesson',
+					});
+				}
+			});
+
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+			console.log(data);
+			setIdEditLesson(0);
+			setOpenEditLesson(false);
+			formEditLesson.resetFields();
+			setIsLoading(false);
+		};
+
+		const openModalEditLesson = (id) => {
+			const { sections } = data;
+			console.log(id);
+			sections.forEach((section) => {
+				section?.specs?.forEach((item) => {
+					if (item._id._id === id) {
+						console.log('item lesson', item._id);
+
+						formEditLesson.setFieldsValue({
+							title: item._id.title,
+							content: item._id.content,
+							docURL: item._id.docURL,
+							videoURL: item._id.videoURL,
+							sectionId: section._id,
+							duration: item._id.duration,
+						});
+
+						setIdEditLesson(item._id._id);
+						setOpenEditLesson(true);
+					}
+				});
+			});
+		};
+
+		const handleOkSection = () => {
+			// debugger
+
+			const fieldSections = formSection.getFieldsValue();
+			let sectionId = uuidv4();
+			fieldSections._id = sectionId;
+
+			data.sections.push({
+				_id: fieldSections._id,
+				title: fieldSections.sectionName,
+				specs: [],
+			});
+
+			console.log('fieldSections', fieldSections);
+			console.log(data);
+
+			setData(data);
+			setOpenInputSections(false);
+
+			formSection.resetFields();
+		};
+
+		const handleEditSection = () => {
+			data.sections.forEach((section) => {
+				if (section._id === idEditSection) {
+					let newName = formEditSection.getFieldValue('sectionName');
+					section.title = newName;
+					setData(data);
+
+					formEditSection.resetFields();
+					setOpenEditSections(false);
+				}
+			});
+		};
+
+		const openModalEditSection = (id) => {
+			console.log(id);
+			data.sections.forEach((section) => {
+				if (section._id === id) {
+					console.log(data.sections);
+					formEditSection.setFieldValue('sectionName', section.title);
+					setIdEditSection(id);
+					setOpenEditSections(true);
+				}
+			});
+		};
+
+		const handleRemoveLesson = (id) => {
+			let { sections } = data;
+			sections.forEach((section) => {
+				let { specs } = section;
+				let index = specs.findIndex((spec) => spec._id._id === id);
+				console.log(index);
+
+				if (index !== -1) {
+					// Tìm thấy đối tượng với id tương ứng
+					// Xóa phần tử cũ
+					specs.splice(index, 1);
+				}
+			});
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+		};
+
+		const handleRemoveSection = (id) => {
+			console.log(id);
+			// Xóa phần tử trong mảng sections
+			const updatedSections = data.sections.filter(
+				(section) => section._id !== id
+			);
+
+			// Xóa id trong mảng sectionIds
+			const updatedSectionIds = data.sections.filter(
+				(section) => section._id !== id
+			);
+
+			// Cập nhật dữ liệu mới
+			setData((prevData) => ({
+				...prevData,
+				sections: updatedSections,
+			}));
+		};
+
 		return (
 			<div className={''}>
 				<Typography.Title level={4}>Curriculum</Typography.Title>
@@ -836,6 +835,7 @@ const EditCourse = () => {
 									items={data?.sections}
 									strategy={verticalListSortingStrategy}>
 									{data?.sections.map((section) => {
+										console.log({ dataSections: section });
 										return (
 											<RowSection
 												key={section._id}
@@ -1069,7 +1069,7 @@ const EditCourse = () => {
 								},
 							}}>
 							<Button
-								onClick={() => setOpenInputSections(true)}
+								onClick={setOpenInputSections(true)}
 								className="mt-8 text-[#754FFE] font-semibold">
 								Add section
 							</Button>
@@ -1136,7 +1136,6 @@ const EditCourse = () => {
 	];
 	const Schedule = () => {
 		const [schedule, setSchedule] = useState([]);
-		const [reload, setReload] = useState(false);
 
 		const [openCalendar, setOpenCalendar] = useState(false);
 		const [message, setMessage] = useState({
@@ -1174,8 +1173,13 @@ const EditCourse = () => {
 					item.day_end,
 					item.dayOfWeek
 				);
-
-				return dates.map((date) => ({
+				let temp = dates;
+				const exceptions = item.exceptions;
+				exceptions.forEach((exceptDate) => {
+					const tempDate = moment(exceptDate).format('YYYY-MM-DD');
+					temp = temp.filter((date) => date != tempDate);
+				});
+				return temp.map((date) => ({
 					...item,
 					text: item.title,
 					startDate: moment(date + 'T' + item.time_start).toISOString(),
@@ -1205,8 +1209,16 @@ const EditCourse = () => {
 					exceptions: exceptions,
 				},
 			});
+			const scheduleDataApi = await Axios({
+				url: `/api/calendar/${courseId}`,
+				method: 'GET',
+			});
+
+			setSchedule((prev) => scheduleDataApi.data);
+			const formatData = transformData(scheduleDataApi.data || []);
+			setScheduleFormatData((prev) => [...formatData]);
+
 			setIsLoading(false);
-			setReload((prev) => !prev);
 		};
 		const appointmentTooltipRender = ({
 			targetedAppointmentData,
@@ -1338,15 +1350,7 @@ const EditCourse = () => {
 				setScheduleFormatData((prev) => [...formatData]);
 			}
 		}, [scheduleDataApi]);
-		useCallback(() => {
-			const fetchData = async () =>
-				await Axios({ method: 'GET', url: `/api/calendar/${courseId}` });
-			if (fetchData.data) {
-				setSchedule((prev) => fetchData.data);
-			}
-			const formatData = transformData(fetchData.data);
-			setScheduleFormatData((prev) => [...formatData]);
-		}, [reload]);
+
 		return (
 			<>
 				<Flex vertical={true} align="center" justify="center" gap={10}>
@@ -1542,19 +1546,16 @@ const EditCourse = () => {
 			icon: TagsOutlined,
 			name: 'Overview',
 			child: BasicInformation,
-			props: {},
 		},
 		{
 			icon: UserOutlined,
 			name: 'Media',
 			child: Media,
-			props: { index: 2 },
 		},
 		{
 			icon: CommentOutlined,
 			name: 'Curriculum',
 			child: Curriculum,
-			props: { index: 4 },
 		},
 	]);
 
@@ -1596,10 +1597,9 @@ const EditCourse = () => {
 					url: courseData.thumbnail,
 				},
 			]);
-
+			console.log({ data });
 			form.setFieldsValue(data);
 		}
-		return () => {};
 	}, [courseDataApi]);
 	useEffect(() => {
 		if (categoryDataApi.data) {
@@ -1612,9 +1612,7 @@ const EditCourse = () => {
 			);
 		}
 	}, [categoryDataApi]);
-	useEffect(() => {
-		return () => {};
-	}, [isLoading]);
+	useEffect(() => {}, [isLoading]);
 	return (
 		<>
 			<section>

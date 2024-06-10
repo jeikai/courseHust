@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import moment from 'moment';
 import AddScheduleModal from '../../components/admin/AddScheduleModal';
+
 import React, {
 	Fragment,
 	useCallback,
@@ -62,7 +63,7 @@ import {
 	ScheduleOutlined,
 } from '@ant-design/icons';
 import { Link, useParams } from 'react-router-dom';
-import { Editor } from '@tinymce/tinymce-react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -294,15 +295,11 @@ const EditCourse = () => {
 								</Typography.Title>
 							}
 							name="description">
-							<Editor
-								apiKey="by05nyt9dhljko786tzo81q4vzgsn5hrdjq81e4kb3wi5yyp"
-								init={{
-									plugins:
-										'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-									toolbar:
-										'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-									placeholder: 'Write something awesome',
-								}}
+							<Input.TextArea
+								className="py-2"
+								rows={6}
+								placeholder=" Description for course"
+								maxLength={5}
 							/>
 						</Form.Item>
 					</Col>
@@ -1494,7 +1491,7 @@ const EditCourse = () => {
 										/>
 									</Form.Item>
 								</Col>
-								<Row gutter={16} className='w-full'>
+								<Row gutter={16} className="w-full">
 									<Col>
 										<Col span={24}>
 											<Typography.Title level={5}>

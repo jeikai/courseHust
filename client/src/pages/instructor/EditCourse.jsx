@@ -1240,6 +1240,14 @@ const EditCourse = () => {
 
 			setIsLoading(false);
 		};
+		const handleDeleteSchedule = async () => {
+			setIsLoading(true);
+			await Axios({
+				method: 'DELETE',
+				url: `/api/calendar/${targetScheduleId}`,
+			});
+			setIsLoading(false);
+		};
 		const appointmentTooltipRender = ({
 			targetedAppointmentData,
 			appointmentData,
@@ -1587,6 +1595,15 @@ const EditCourse = () => {
 								</Col>
 							</Row>
 						</Form>
+						<div className="flex flex-row justify-end w-full">
+							<Button
+								icon={<DeleteOutlined />}
+								onClick={() => handleDeleteSchedule()}
+								className=""
+								danger>
+								Delete
+							</Button>
+						</div>
 					</Drawer>
 					<Drawer
 						title="Add Schedule"

@@ -145,7 +145,7 @@ const EditCourse = () => {
 	const breadcrumb = [
 		{
 			title: 'Home',
-			href: '/',
+			href: '/admin/manage_courses',
 		},
 		{
 			title: 'Add New Course',
@@ -1123,19 +1123,6 @@ const EditCourse = () => {
 		);
 	};
 
-	const progressData = [
-		{
-			id: 1,
-			photo:
-				'https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png',
-			name: 'Signe Thomson',
-			email: 'signeiner@gmail.com',
-			enrolledDate: '11 Now 2020',
-			completeOn: 'Not completed yet',
-			quizDone: 1,
-			quizs: 10,
-		},
-	];
 	const Schedule = () => {
 		const [schedule, setSchedule] = useState([]);
 		const [openEditSchedule, setOpenEditSchedule] = useState(false);

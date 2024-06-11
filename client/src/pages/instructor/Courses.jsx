@@ -139,7 +139,7 @@ const Courses = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "",
+      href: "/",
     },
     {
       title: "Application Center",

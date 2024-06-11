@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import moment from 'moment';
 import AddScheduleModal from '../../components/admin/AddScheduleModal';
+
 import React, {
 	Fragment,
 	useCallback,
@@ -62,7 +63,7 @@ import {
 	ScheduleOutlined,
 } from '@ant-design/icons';
 import { Link, useParams } from 'react-router-dom';
-import { Editor } from '@tinymce/tinymce-react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -84,24 +85,31 @@ import Spring from '../../components/Spring';
 import { useAPI } from '../../hooks/api';
 import Loader from '../../components/Loader';
 import { uploadFile } from '../../helpers';
-import { handleCreateSchedule, handleUpdateCourse } from '../../api/course';
+import {
+	handleCreateSchedule,
+	handleUpdateCourse,
+	handleUpdateSchedule,
+} from '../../api/course';
 import { ViewContext } from '../../context/View';
-
+import dayjs from 'dayjs';
 const EditCourse = () => {
-	const courseId = useParams().id;
+	const [courseId, setCourseId] = useState(useParams().id);
 	const userId = JSON.parse(localStorage.getItem('user')).account._id;
 	const [isLoading, setIsLoading] = useState(false);
-	const viewContext = useContext(ViewContext);
+
 	const [form] = Form.useForm();
-	const [basicInfoForm] = Form.useForm();
+
 	const [current, setCurrent] = useState(0);
 	const [formLesson] = Form.useForm();
 	const [formEditLesson] = Form.useForm();
 	const [formSection] = Form.useForm();
 	const [formEditSection] = Form.useForm();
 	const [formQuiz] = Form.useForm();
-	const [formEditQuiz] = Form.useForm();
 
+	//MEDIA TAB
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
+	//CURRICULUM TAB
 	const [idEditSection, setIdEditSection] = useState();
 	const [idEditLesson, setIdEditLesson] = useState();
 
@@ -111,13 +119,9 @@ const EditCourse = () => {
 	const [openEditLesson, setOpenEditLesson] = useState(false);
 	const [openInputQuiz, setOpenInputQuiz] = useState(false);
 	const [openEditQuiz, setOpenEditQuiz] = useState(false);
-	//MEDIA TAB
-	const [previewOpen, setPreviewOpen] = useState(false);
-	const [previewImage, setPreviewImage] = useState('');
-	//CALENDAR TAB
-
 	const [courseCategory, setCourseCategory] = useState([]);
 	const [formSchedule] = Form.useForm();
+
 	const [data, setData] = useState({
 		_id: courseId,
 		title: '',
@@ -155,203 +159,6 @@ const EditCourse = () => {
 	const [video, setVideo] = useState([]);
 
 	//*Handle create new lesson
-	const handleOkLesson = async () => {
-		// debugger
-		// callback()
-		setIsLoading((prev) => true);
-		const fieldLessons = formLesson.getFieldsValue();
-		let lessonId = uuidv4();
-		let sectionId = fieldLessons.sectionId;
-		fieldLessons.id = lessonId;
-
-		const { sections } = data;
-		//get video URL
-		let videoURL = '';
-		let duration;
-		if (fieldLessons.file && fieldLessons.file != undefined) {
-			const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
-			videoURL = upFile.file_url;
-			duration = upFile.duration;
-		}
-
-		sections.forEach((section) => {
-			if (section._id === sectionId) {
-				if (!section?.specs) {
-					(section.specs = []), (section.specs = []);
-				}
-				let obj = {
-					_id: {
-						...fieldLessons,
-						videoURL: videoURL,
-						duration: duration,
-					},
-					type: 'lesson',
-				};
-				section.specs.push(obj);
-			}
-		});
-
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-
-		setOpenInputLesson(false);
-		formLesson.resetFields();
-
-		setIsLoading((prev) => false);
-		console.log('data', data);
-		console.log(JSON.stringify(data));
-		console.log('fieldLessons', fieldLessons);
-	};
-
-	const handleEditLesson = async () => {
-		setIsLoading((prev) => true);
-
-		let newLesson = formEditLesson.getFieldsValue();
-
-		if (newLesson.file && newLesson.file != undefined) {
-			const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-			newLesson.videoURL = uploadedFile.file_url || '';
-			newLesson.duration = uploadedFile.duration;
-		}
-		newLesson.docURL = '';
-		let { sections } = data;
-		sections.forEach((section) => {
-			let { specs } = section;
-
-			let specIndex = -1;
-			specs.forEach((spec, index) => {
-				if (spec._id._id == idEditLesson) specIndex = index;
-			});
-
-			if (specIndex !== -1) {
-				specs.splice(specIndex, 1, {
-					_id: { ...newLesson },
-					type: 'lesson',
-				});
-			}
-		});
-
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-		console.log(data);
-		setIdEditLesson(0);
-		setOpenEditLesson(false);
-		formEditLesson.resetFields();
-		setIsLoading(false);
-	};
-
-	const openModalEditLesson = (id) => {
-		const { sections } = data;
-		console.log(id);
-		sections.forEach((section) => {
-			section?.specs?.forEach((item) => {
-				if (item._id._id === id) {
-					console.log('item lesson', item._id);
-
-					formEditLesson.setFieldsValue({
-						title: item._id.title,
-						content: item._id.content,
-						docURL: item._id.docURL,
-						videoURL: item._id.videoURL,
-						sectionId: section._id,
-						duration: item._id.duration,
-					});
-
-					setIdEditLesson(item._id._id);
-					setOpenEditLesson(true);
-				}
-			});
-		});
-	};
-
-	const handleOkSection = () => {
-		// debugger
-
-		const fieldSections = formSection.getFieldsValue();
-		let sectionId = uuidv4();
-		fieldSections._id = sectionId;
-
-		data.sections.push({
-			_id: fieldSections._id,
-			title: fieldSections.sectionName,
-			specs: [],
-		});
-
-		console.log('fieldSections', fieldSections);
-		console.log(data);
-
-		setData(data);
-		setOpenInputSections(false);
-
-		formSection.resetFields();
-	};
-
-	const handleEditSection = () => {
-		data.sections.forEach((section) => {
-			if (section._id === idEditSection) {
-				let newName = formEditSection.getFieldValue('sectionName');
-				section.title = newName;
-				setData(data);
-
-				formEditSection.resetFields();
-				setOpenEditSections(false);
-			}
-		});
-	};
-
-	const openModalEditSection = (id) => {
-		console.log(id);
-		data.sections.forEach((section) => {
-			if (section._id === id) {
-				console.log(data.sections);
-				formEditSection.setFieldValue('sectionName', section.title);
-				setIdEditSection(id);
-				setOpenEditSections(true);
-			}
-		});
-	};
-
-	const handleRemoveLesson = (id) => {
-		let { sections } = data;
-		sections.forEach((section) => {
-			let { specs } = section;
-			let index = specs.findIndex((spec) => spec._id._id === id);
-			console.log(index);
-
-			if (index !== -1) {
-				// Tìm thấy đối tượng với id tương ứng
-				// Xóa phần tử cũ
-				specs.splice(index, 1);
-			}
-		});
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-	};
-
-	const handleRemoveSection = (id) => {
-		console.log(id);
-		// Xóa phần tử trong mảng sections
-		const updatedSections = data.sections.filter(
-			(section) => section._id !== id
-		);
-
-		// Xóa id trong mảng sectionIds
-		const updatedSectionIds = data.sections.filter(
-			(section) => section._id !== id
-		);
-
-		// Cập nhật dữ liệu mới
-		setData((prevData) => ({
-			...prevData,
-			sections: updatedSections,
-		}));
-	};
 
 	const getFile = (e) => {
 		console.log('Upload event:', e);
@@ -818,6 +625,204 @@ const EditCourse = () => {
 	};
 
 	const Curriculum = () => {
+		const handleOkLesson = async () => {
+			// debugger
+			// callback()
+			setIsLoading((prev) => true);
+			const fieldLessons = formLesson.getFieldsValue();
+			let lessonId = uuidv4();
+			let sectionId = fieldLessons.sectionId;
+			fieldLessons.id = lessonId;
+
+			const { sections } = data;
+			//get video URL
+			let videoURL = '';
+			let duration;
+			if (fieldLessons.file && fieldLessons.file != undefined) {
+				const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
+				videoURL = upFile.file_url;
+				duration = upFile.duration;
+			}
+
+			sections.forEach((section) => {
+				if (section._id === sectionId) {
+					if (!section?.specs) {
+						(section.specs = []), (section.specs = []);
+					}
+					let obj = {
+						_id: {
+							...fieldLessons,
+							videoURL: videoURL,
+							duration: duration,
+						},
+						type: 'lesson',
+					};
+					section.specs.push(obj);
+				}
+			});
+
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+
+			setOpenInputLesson(false);
+			formLesson.resetFields();
+
+			setIsLoading((prev) => false);
+			console.log('data', data);
+			console.log(JSON.stringify(data));
+			console.log('fieldLessons', fieldLessons);
+		};
+
+		const handleEditLesson = async () => {
+			setIsLoading((prev) => true);
+
+			let newLesson = formEditLesson.getFieldsValue();
+
+			if (newLesson.file && newLesson.file != undefined) {
+				const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
+				newLesson.videoURL = uploadedFile.file_url || '';
+				newLesson.duration = uploadedFile.duration;
+			}
+			newLesson.docURL = '';
+			let { sections } = data;
+			sections.forEach((section) => {
+				let { specs } = section;
+
+				let specIndex = -1;
+				specs.forEach((spec, index) => {
+					if (spec._id._id == idEditLesson) specIndex = index;
+				});
+
+				if (specIndex !== -1) {
+					specs.splice(specIndex, 1, {
+						_id: { ...newLesson },
+						type: 'lesson',
+					});
+				}
+			});
+
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+			console.log(data);
+			setIdEditLesson(0);
+			setOpenEditLesson(false);
+			formEditLesson.resetFields();
+			setIsLoading(false);
+		};
+
+		const openModalEditLesson = (id) => {
+			const { sections } = data;
+			console.log(id);
+			sections.forEach((section) => {
+				section?.specs?.forEach((item) => {
+					if (item._id._id === id) {
+						console.log('item lesson', item._id);
+
+						formEditLesson.setFieldsValue({
+							title: item._id.title,
+							content: item._id.content,
+							docURL: item._id.docURL,
+							videoURL: item._id.videoURL,
+							sectionId: section._id,
+							duration: item._id.duration,
+						});
+
+						setIdEditLesson(item._id._id);
+						setOpenEditLesson(true);
+					}
+				});
+			});
+		};
+
+		const handleOkSection = () => {
+			// debugger
+
+			const fieldSections = formSection.getFieldsValue();
+			let sectionId = uuidv4();
+			fieldSections._id = sectionId;
+
+			data.sections.push({
+				_id: fieldSections._id,
+				title: fieldSections.sectionName,
+				specs: [],
+			});
+
+			console.log('fieldSections', fieldSections);
+			console.log(data);
+
+			setData(data);
+			setOpenInputSections(false);
+
+			formSection.resetFields();
+		};
+
+		const handleEditSection = () => {
+			data.sections.forEach((section) => {
+				if (section._id === idEditSection) {
+					let newName = formEditSection.getFieldValue('sectionName');
+					section.title = newName;
+					setData(data);
+
+					formEditSection.resetFields();
+					setOpenEditSections(false);
+				}
+			});
+		};
+
+		const openModalEditSection = (id) => {
+			console.log(id);
+			data.sections.forEach((section) => {
+				if (section._id === id) {
+					console.log(data.sections);
+					formEditSection.setFieldValue('sectionName', section.title);
+					setIdEditSection(id);
+					setOpenEditSections(true);
+				}
+			});
+		};
+
+		const handleRemoveLesson = (id) => {
+			let { sections } = data;
+			sections.forEach((section) => {
+				let { specs } = section;
+				let index = specs.findIndex((spec) => spec._id._id === id);
+				console.log(index);
+
+				if (index !== -1) {
+					// Tìm thấy đối tượng với id tương ứng
+					// Xóa phần tử cũ
+					specs.splice(index, 1);
+				}
+			});
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+		};
+
+		const handleRemoveSection = (id) => {
+			console.log(id);
+			// Xóa phần tử trong mảng sections
+			const updatedSections = data.sections.filter(
+				(section) => section._id !== id
+			);
+
+			// Xóa id trong mảng sectionIds
+			const updatedSectionIds = data.sections.filter(
+				(section) => section._id !== id
+			);
+
+			// Cập nhật dữ liệu mới
+			setData((prevData) => ({
+				...prevData,
+				sections: updatedSections,
+			}));
+		};
+
 		return (
 			<div className={''}>
 				<Typography.Title level={4}>Curriculum</Typography.Title>
@@ -832,6 +837,7 @@ const EditCourse = () => {
 									items={data?.sections}
 									strategy={verticalListSortingStrategy}>
 									{data?.sections.map((section) => {
+										console.log({ dataSections: section });
 										return (
 											<RowSection
 												key={section._id}
@@ -1132,17 +1138,13 @@ const EditCourse = () => {
 	];
 	const Schedule = () => {
 		const [schedule, setSchedule] = useState([]);
-		const [reload, setReload] = useState(false);
-
+		const [openEditSchedule, setOpenEditSchedule] = useState(false);
 		const [openCalendar, setOpenCalendar] = useState(false);
 		const [message, setMessage] = useState({
 			message: '',
 			error: false,
 		});
-		const [openMeet, setOpenMeet] = useState({
-			open: false,
-			url: '',
-		});
+		const [targetScheduleId, setTargetScheduleId] = useState('');
 		const [scheduleFormatData, setScheduleFormatData] = useState([]);
 
 		const getDatesBetween = (startDate, endDate, dayOfWeek) => {
@@ -1163,15 +1165,19 @@ const EditCourse = () => {
 		};
 
 		const transformData = (data) => {
-			console.log({ data });
 			return data.flatMap((item) => {
 				const dates = getDatesBetween(
 					item.day_start,
 					item.day_end,
 					item.dayOfWeek
 				);
-
-				return dates.map((date) => ({
+				let temp = dates;
+				const exceptions = item.exceptions;
+				exceptions.forEach((exceptDate) => {
+					const tempDate = moment(exceptDate).format('YYYY-MM-DD');
+					temp = temp.filter((date) => date != tempDate);
+				});
+				return temp.map((date) => ({
 					...item,
 					text: item.title,
 					startDate: moment(date + 'T' + item.time_start).toISOString(),
@@ -1201,8 +1207,16 @@ const EditCourse = () => {
 					exceptions: exceptions,
 				},
 			});
+			const scheduleDataApi = await Axios({
+				url: `/api/calendar/${courseId}`,
+				method: 'GET',
+			});
+
+			setSchedule((prev) => scheduleDataApi.data);
+			const formatData = transformData(scheduleDataApi.data || []);
+			setScheduleFormatData((prev) => [...formatData]);
+
 			setIsLoading(false);
-			setReload((prev) => !prev);
 		};
 		const appointmentTooltipRender = ({
 			targetedAppointmentData,
@@ -1211,22 +1225,34 @@ const EditCourse = () => {
 			return (
 				<>
 					<div className="flex flex-col w-full items-start px-5 pt-5">
-						<Flex vertical={false} justify="space-between" className="w-full">
+						<Flex
+							vertical={false}
+							justify="space-between"
+							className="w-full"
+							align="center">
 							<div>
 								<span className="text-base font-bold">Title: </span>
 								{appointmentData.title}
 							</div>
-							<Button
-								icon={<DeleteOutlined />}
-								className=""
-								onClick={() =>
-									handleDeleteAppointment(targetedAppointmentData)
-								}>
-								Delete
-							</Button>
+							<Flex vertical={false} gap={3}>
+								<Button
+									icon={<DeleteOutlined />}
+									className=""
+									danger
+									onClick={() =>
+										handleDeleteAppointment(targetedAppointmentData)
+									}></Button>
+								<Button
+									icon={<EditOutlined />}
+									className=""
+									type="primary"
+									onClick={() =>
+										handleOpenEditSchedule(appointmentData)
+									}></Button>
+							</Flex>
 						</Flex>
-						<div>
-							<span className="text-base font-bold">Description: </span>
+						<div className="w-full overflow-hidden text-ellipsis">
+							<span className="text-base w-full font-bold">Description:</span>
 							{appointmentData.description}
 						</div>
 					</div>
@@ -1281,17 +1307,67 @@ const EditCourse = () => {
 			scheduleForm.courseId = courseId;
 			const newSchedule = await handleCreateSchedule(scheduleForm);
 			setIsLoading(false);
+			formSchedule.resetFields();
 			setMessage((prev) => ({
 				message: newSchedule.message,
 				error: newSchedule.error,
 			}));
 		};
-		const handleUpdateAppointment = (appointmentData) => {
-			const startDate = appointmentData.startDate;
-			const endDate = appointmentData.endDate;
-			const text = appointmentData.text;
-			const description = appointmentData.description;
+		const handleOpenEditSchedule = async (appointmentData) => {
+			console.log({ appointmentData });
+			//title, description, deadline, dayOfWeek, startTime, endTime, urlMeet
+			const data = {
+				title: appointmentData.title,
+				description: appointmentData.description,
+				urlMeet: appointmentData.urlMeet,
+			};
+			const startDay = dayjs(appointmentData.day_start, 'YYYY-MM-DD');
+			const endDay = dayjs(appointmentData.day_end, 'YYYY-MM-DD');
+			data.deadline = [startDay, endDay];
+			data.startTime = dayjs(appointmentData.time_start, 'HH:mm:ss');
+			data.endTime = dayjs(appointmentData.time_end, 'HH:mm:ss');
+			switch (appointmentData.dayOfWeek) {
+				case 1:
+					data.dayOfWeek = 'Monday';
+					break;
+				case 2:
+					data.dayOfWeek = 'Tuesday';
+					break;
+				case 3:
+					data.dayOfWeek = 'Wednesday';
+					break;
+				case 4:
+					data.dayOfWeek = 'Thursday';
+					break;
+				case 5:
+					data.dayOfWeek = 'Friday';
+					break;
+				case 6:
+					data.dayOfWeek = 'Saturday';
+					break;
+				default:
+					data.dayOfWeek = 'Sunday';
+			}
+			data._id = appointmentData._id;
+			setTargetScheduleId((prev) => appointmentData._id);
+			formSchedule.setFieldsValue(data);
+			setOpenEditSchedule((prev) => true);
 		};
+
+		const handleOkEditSchedule = async () => {
+			setIsLoading(true);
+			const data = formSchedule.getFieldsValue();
+			data.courseId = courseId;
+			data.userId = userId;
+			data._id = targetScheduleId;
+			const update = await handleUpdateSchedule(data);
+			setMessage((prev) => ({
+				error: true,
+				message: update.message,
+			}));
+			setIsLoading(false);
+		};
+
 		const handleOpenMeet = (e) => {
 			console.log('open', e);
 		};
@@ -1334,15 +1410,7 @@ const EditCourse = () => {
 				setScheduleFormatData((prev) => [...formatData]);
 			}
 		}, [scheduleDataApi]);
-		useCallback(() => {
-			const fetchData = async () =>
-				await Axios({ method: 'GET', url: `/api/calendar/${courseId}` });
-			if (fetchData.data) {
-				setSchedule((prev) => fetchData.data);
-			}
-			const formatData = transformData(fetchData.data);
-			setScheduleFormatData((prev) => [...formatData]);
-		}, [reload]);
+
 		return (
 			<>
 				<Flex vertical={true} align="center" justify="center" gap={10}>
@@ -1355,6 +1423,149 @@ const EditCourse = () => {
 						Add Schedule
 					</Button>
 
+					<Drawer
+						title="Edit Schedule"
+						width={'35rem'}
+						onClose={() => setOpenEditSchedule((prev) => false)}
+						open={openEditSchedule}
+						styles={{
+							body: {
+								paddingBottom: 80,
+							},
+						}}
+						extra={
+							<Space>
+								<Button
+									onClick={() => {
+										setOpenEditSchedule((prev) => false);
+										formSchedule.resetFields();
+									}}>
+									Cancel
+								</Button>
+								<Button onClick={handleOkEditSchedule} type="primary">
+									Update
+								</Button>
+							</Space>
+						}>
+						{message.message != '' &&
+							(message.error ? (
+								<Alert message={message.message} type="error" showIcon />
+							) : (
+								<Alert message={message.message} type="success" showIcon />
+							))}
+
+						<Form form={formSchedule}>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Schedule Title</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="title"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter lesson title',
+											},
+										]}>
+										<Input placeholder="Please enter lesson title" />
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Description</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="description"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter description',
+											},
+										]}>
+										<Input.TextArea
+											rows={4}
+											placeholder="Please enter description"
+										/>
+									</Form.Item>
+								</Col>
+								<Row gutter={16} className="w-full">
+									<Col>
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Start Date - End Date
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="deadline">
+												<DatePicker.RangePicker
+													className="w-full"
+													format={'YYYY-MM-DD'}
+													onChange={(value, dateString) =>
+														console.log(value, dateString)
+													}
+													onOk={(value) => console.log(value)}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+								</Row>
+
+								<Row
+									className="flex flex-row w-full gap-3 justify-between"
+									gutter={16}>
+									<Col id="day-of-week" className="w-[40%]">
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Date Of Week
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="dayOfWeek">
+												<Select
+													showSearch
+													placeholder="Day Of Week"
+													options={dayOfWeek}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+									<Row className="flex flex-row flex-1 gap-3">
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>
+													Start Time
+												</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="startTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>End Time</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="endTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+									</Row>
+								</Row>
+								<Col span={24}>
+									<Typography.Title level={5}>Meet URL</Typography.Title>
+									<Form.Item name="urlMeet">
+										<Input />
+									</Form.Item>
+								</Col>
+							</Row>
+						</Form>
+					</Drawer>
 					<Drawer
 						title="Add Schedule"
 						width={'35rem'}
@@ -1439,22 +1650,6 @@ const EditCourse = () => {
 											</Form.Item>
 										</Col>
 									</Col>
-									<Col>
-										<Col span={24}>
-											<Typography.Title level={5}>Recurring</Typography.Title>
-										</Col>
-										<Form.Item
-											name="isRecurring"
-											className="flex flex-row items-center justify-center"
-											valuePropName="checked"
-											initialValue={true}>
-											<Switch
-												defaultChecked
-												checkedChildren="True"
-												unCheckedChildren="False"
-											/>
-										</Form.Item>
-									</Col>
 								</Row>
 
 								<Row
@@ -1516,14 +1711,12 @@ const EditCourse = () => {
 						showAllDayPanel={false}
 						dataSource={scheduleFormatData}
 						currentView={'week'}
-						onAppointmentUpdated={({ appointmentData }) =>
-							handleUpdateAppointment(appointmentData)
-						}
 						appointmentRender={appointmentRender}
 						appointmentTooltipRender={appointmentTooltipRender}
 						startDayHour={7}
 						onAppointmentFormOpening={(e) => {
 							e.cancel = true;
+							setOpenEditSchedule(true);
 						}}
 						crossScrollingEnabled={true}>
 						<Scrolling mode="virtual" />
@@ -1533,27 +1726,34 @@ const EditCourse = () => {
 		);
 	};
 	// Tabs
-	const [tabs, setTabs] = useState([
+
+	let tabs = [
 		{
 			icon: TagsOutlined,
 			name: 'Overview',
 			child: BasicInformation,
-			props: {},
 		},
 		{
 			icon: UserOutlined,
 			name: 'Media',
 			child: Media,
-			props: { index: 2 },
 		},
 		{
 			icon: CommentOutlined,
 			name: 'Curriculum',
 			child: Curriculum,
-			props: { index: 4 },
 		},
-	]);
+	];
+	if (data.isStream) {
+		const schedule = tabs.find((tab) => tab.name == 'Schedule');
 
+		tabs.push({
+			icon: ScheduleOutlined,
+			name: 'Schedule',
+			child: Schedule,
+			props: {},
+		});
+	}
 	useEffect(() => {
 		if (courseDataApi.data) {
 			const courseData = courseDataApi.data;
@@ -1573,20 +1773,6 @@ const EditCourse = () => {
 				isStream: isStream,
 			}));
 
-			if (isStream) {
-				const schedule = tabs.find((tab) => tab.name == 'Schedule');
-				if (!schedule) {
-					setTabs((prev) => [
-						...prev,
-						{
-							icon: ScheduleOutlined,
-							name: 'Schedule',
-							child: Schedule,
-							props: {},
-						},
-					]);
-				}
-			}
 			setThumbnail((prev) => [
 				{
 					url: courseData.thumbnail,
@@ -1595,7 +1781,6 @@ const EditCourse = () => {
 
 			form.setFieldsValue(data);
 		}
-		return () => {};
 	}, [courseDataApi]);
 	useEffect(() => {
 		if (categoryDataApi.data) {
@@ -1608,9 +1793,7 @@ const EditCourse = () => {
 			);
 		}
 	}, [categoryDataApi]);
-	useEffect(() => {
-		return () => {};
-	}, [isLoading]);
+
 	return (
 		<>
 			<section>

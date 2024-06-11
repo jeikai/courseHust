@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -34,43 +34,9 @@ import { useAPI } from "../../hooks/api";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
 
   let user;
-  const itemCart = [
-    {
-      key: "1",
-      label: <Empty />,
-    },
-    {
-      key: "2",
-      label: (
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                defaultHoverBg: "#754FFE",
-                defaultHoverBorderColor: "#754FFE",
-                defaultActiveBorderColor: "#754FFE",
-                defaultActiveColor: "#754FFE",
-                defaultHoverColor: "white",
-              },
-            },
-          }}
-        >
-          <Button
-            icon={<ShopOutlined />}
-            size="large"
-            className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
-            onClick={() => {
-              navigate("/home/purchase_course");
-            }}
-          >
-            Check out
-          </Button>
-        </ConfigProvider>
-      ),
-    },
-  ];
 
   //check if localStorage has item user
   const temp = localStorage.getItem("user");
@@ -110,7 +76,7 @@ const Header = () => {
         key: "user_profile",
         label: "User profile",
         icon: <UserOutlined />,
-      }, 
+      },
       {
         key: "signout",
         label: "Log out",
@@ -132,11 +98,6 @@ const Header = () => {
     }
   }
 
-  let enrollmentAPI;
-  if (user) {
-    enrollmentAPI = useAPI(`/api/enrollment/${user?.account?._id}`, null);
-  }
-
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());
@@ -149,6 +110,23 @@ const Header = () => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    // Handle notification click (e.g., navigate to a specific page)
+    console.log("Notification clicked:", notification);
+  };
+
+  const notificationItems = notifications.map((notification) => ({
+    key: notification.id,
+    label: (
+      // <div onClick={() => handleNotificationClick(notification)}>
+      //   <Typography.Text strong>{notification.title}</Typography.Text>
+      //   <Typography.Paragraph ellipsis={{ rows: 2 }}>
+      //     {notification.body}
+      //   </Typography.Paragraph>
+      // </div>
+      <></>
+    ),
+  }));
   return (
     <header className="py-1">
       <div className="container mx-auto max-w-screen-xl flex gap-4 items-center p-1">
@@ -214,7 +192,8 @@ const Header = () => {
                   </Link>
                 </Flex>
               </div>
-              {user.account.role === "teacher" && user.account.is_verified == true ? (
+              {user.account.role === "teacher" &&
+              user.account.is_verified == true ? (
                 <div className="px-4 py-2 rounded cursor-pointer">
                   <Flex align="center" gap={0} className="text-black">
                     <Link
@@ -235,7 +214,7 @@ const Header = () => {
                       Admin Dashboard
                     </Link>
                   </Flex>
-                </div> 
+                </div>
               ) : null}
 
               <div className="py-2 rounded cursor-pointer">
@@ -268,11 +247,11 @@ const Header = () => {
                 <Flex align="center" gap={2}>
                   <Dropdown
                     menu={{
-                      items: [],
+                      items: notificationItems,
                     }}
                     placement="bottomRight"
                   >
-                    <Badge count={0}>
+                    <Badge count={notifications.length}>
                       <BellOutlined className="text-2xl" />
                     </Badge>
                   </Dropdown>

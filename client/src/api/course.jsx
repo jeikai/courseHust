@@ -98,13 +98,12 @@ const handleUpdateCourse = async (data) => {
 
 	await Promise.all(
 		sections.map(async (section) => {
-			console.log('each section', section);
 			//If section existed
 			if (!section._id.includes('-')) {
 				const newSpecs = [];
 				const sectionId = section._id;
 				const { specs } = section;
-				console.log('specs', specs);
+
 				await Promise.all(
 					specs.map(async (spec) => {
 						if (spec._id._id) {
@@ -117,7 +116,7 @@ const handleUpdateCourse = async (data) => {
 								url: `/api/lesson/${lessonId}`,
 								data: lessonData,
 							});
-							console.log('updateLesson-1', updateLesson.data);
+
 							newSpecs.push({
 								_id: updateLesson.data.data._id,
 								type: 'lesson',
@@ -138,7 +137,7 @@ const handleUpdateCourse = async (data) => {
 									sectionId: sectionId,
 								},
 							});
-							console.log('createLesson-1', createLesson.data);
+
 							newSpecs.push({
 								_id: createLesson.data.data._id,
 								type: 'lesson',
@@ -147,7 +146,7 @@ const handleUpdateCourse = async (data) => {
 					})
 				);
 				//Update existed section
-				console.log('specs-1', newSpecs);
+
 				try {
 					const prevSection = await Axios({
 						method: 'POST',
@@ -193,8 +192,6 @@ const handleUpdateCourse = async (data) => {
 					},
 				});
 				newSections.push(updateSection.data.data._id);
-				console.log('updateSection-1', updateSection.data);
-				console.log('new section array-1', newSections);
 			} else {
 				//If section not existed
 				const newSection = await Axios({
@@ -204,13 +201,13 @@ const handleUpdateCourse = async (data) => {
 						title: section.title,
 					},
 				});
-				console.log('createSection-2', newSection.data);
+
 				const sectionId = newSection.data.data._id;
-				console.log('create section id', sectionId);
+
 				newSections.push(sectionId);
 				const newSpecs = [];
 				const specs = section.specs;
-				console.log('specs', specs);
+
 				await Promise.all(
 					specs.map(async (spec) => {
 						// lesson not existed
@@ -227,7 +224,6 @@ const handleUpdateCourse = async (data) => {
 								sectionId: sectionId,
 							},
 						});
-						console.log('createLesson-2', createLesson.data);
 
 						newSpecs.push({
 							_id: createLesson.data.data._id,
@@ -235,7 +231,7 @@ const handleUpdateCourse = async (data) => {
 						});
 					})
 				);
-				console.log('specs-2', newSpecs);
+
 				const updateSection = await Axios({
 					method: 'PUT',
 					url: `/api/section/${sectionId}`,
@@ -243,8 +239,6 @@ const handleUpdateCourse = async (data) => {
 						specs: newSpecs,
 					},
 				});
-				console.log('updateSection-2', updateSection.data);
-				console.log('new section array-2', newSections);
 			}
 		})
 	);
@@ -262,7 +256,7 @@ const handleUpdateCourse = async (data) => {
 		prevSections = prevSections.filter(
 			(id) => newSections.findIndex((secId) => secId == id) == -1
 		);
-		console.log('prev sections', prevSections);
+		
 		//! Delete unused section
 		if (prevSections.length != 0) {
 			try {

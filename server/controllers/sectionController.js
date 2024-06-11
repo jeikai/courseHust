@@ -24,11 +24,11 @@ exports.create = async function (req, res) {
 exports.getById = async function (req, res) {
 	try {
 		const data = await req.body;
-		console.log('get by id', data);
 		utility.validate(data, ['sectionId', 'specType']);
+		console.log('get by id', data);
 
 		const section = await sectionModel.get(data);
-		if (!section) return res.status(500).json({ message: 'bad request' });
+		if (!section) return res.status(500).json({ message: section.error });
 		if (section.hasOwnProperty('error'))
 			return res.status(500).json({ message: section.error });
 

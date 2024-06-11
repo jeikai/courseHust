@@ -92,6 +92,7 @@ import {
 } from '../../api/course';
 import { ViewContext } from '../../context/View';
 import dayjs from 'dayjs';
+import { string } from 'mathjs';
 const EditCourse = () => {
 	const [courseId, setCourseId] = useState(useParams().id);
 	const userId = JSON.parse(localStorage.getItem('user')).account._id;
@@ -185,13 +186,21 @@ const EditCourse = () => {
 	const handleSubmit = async (formData) => {
 		setIsLoading(true);
 		console.log(data, formData);
-		if (data.thumbnail.file && data.thumbnail.file != undefined) {
-			let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
-			data.thumbnail = thumbnail.file_url;
+		const dataReq = data;
+		dataReq.title = formData.title;
+		dataReq.category = formData.category;
+		dataReq.description = formData.description;
+		dataReq.shortDes = formData.shortDes;
+		dataReq.level = formData.level;
+		console.log({ thumbnail: data.thumbnail.file });
+		if (data.thumbnail && typeof data.thumbnail != 'string') {
+			let thumbnail = await uploadFile(data.thumbnail);
+			dataReq.thumbnail = thumbnail.file_url;
+			console.log('get new link');
 		}
-		console.log(data.thumbnail);
-		const result = await handleUpdateCourse(data);
-
+		console.log(dataReq.thumbnail);
+		setData((prev) => dataReq);
+		const result = await handleUpdateCourse(dataReq);
 		setIsLoading(false);
 	};
 
@@ -324,6 +333,7 @@ const EditCourse = () => {
 			setPreviewOpen(true);
 		};
 		const handleChange = async (e) => {
+			console.log('change thumbnail');
 			setIsLoading((prev) => true);
 			if (e.fileList.length > 0 && !e.file.url && !e.file.preview) {
 				e.file.preview = await getBase64(e.file.originFileObj);
@@ -334,7 +344,16 @@ const EditCourse = () => {
 						url: e.file.url || e.file.preview,
 					},
 				]);
+				setData((prev) => ({
+					...prev,
+					thumbnail: e.file.originFileObj,
+				}));
 			}
+			console.log('new thumb', {
+				uid: e.file.uid,
+				name: e.file.name,
+				url: e.file.url || e.file.preview,
+			});
 			setIsLoading((prev) => false);
 		};
 
@@ -629,6 +648,7 @@ const EditCourse = () => {
 			// debugger
 			// callback()
 			setIsLoading((prev) => true);
+			setOpenInputLesson(false);
 			const fieldLessons = formLesson.getFieldsValue();
 			let lessonId = uuidv4();
 			let sectionId = fieldLessons.sectionId;
@@ -637,13 +657,13 @@ const EditCourse = () => {
 			const { sections } = data;
 			//get video URL
 			let videoURL = '';
-			let duration;
+			let duration = 0;
 			if (fieldLessons.file && fieldLessons.file != undefined) {
 				const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
 				videoURL = upFile.file_url;
-				duration = upFile.duration;
+				duration = upFile.duration || 0;
 			}
-
+			console.log({ fieldLessons });
 			sections.forEach((section) => {
 				if (section._id === sectionId) {
 					if (!section?.specs) {
@@ -651,7 +671,10 @@ const EditCourse = () => {
 					}
 					let obj = {
 						_id: {
-							...fieldLessons,
+							content: fieldLessons.content,
+							id: fieldLessons.id,
+							sectionId: fieldLessons.sectionId,
+							title: fieldLessons.title,
 							videoURL: videoURL,
 							duration: duration,
 						},
@@ -666,7 +689,6 @@ const EditCourse = () => {
 				sections: sections,
 			}));
 
-			setOpenInputLesson(false);
 			formLesson.resetFields();
 
 			setIsLoading((prev) => false);
@@ -677,6 +699,7 @@ const EditCourse = () => {
 
 		const handleEditLesson = async () => {
 			setIsLoading((prev) => true);
+			setOpenEditLesson(false);
 
 			let newLesson = formEditLesson.getFieldsValue();
 
@@ -709,7 +732,7 @@ const EditCourse = () => {
 			}));
 			console.log(data);
 			setIdEditLesson(0);
-			setOpenEditLesson(false);
+
 			formEditLesson.resetFields();
 			setIsLoading(false);
 		};
@@ -1205,6 +1228,14 @@ const EditCourse = () => {
 
 			setIsLoading(false);
 		};
+		const handleDeleteSchedule = async () => {
+			setIsLoading(true);
+			await Axios({
+				method: 'DELETE',
+				url: `/api/calendar/${targetScheduleId}`,
+			});
+			setIsLoading(false);
+		};
 		const appointmentTooltipRender = ({
 			targetedAppointmentData,
 			appointmentData,
@@ -1552,6 +1583,15 @@ const EditCourse = () => {
 								</Col>
 							</Row>
 						</Form>
+						<div className="flex flex-row justify-end w-full">
+							<Button
+								icon={<DeleteOutlined />}
+								onClick={() => handleDeleteSchedule()}
+								className=""
+								danger>
+								Delete
+							</Button>
+						</div>
 					</Drawer>
 					<Drawer
 						title="Add Schedule"

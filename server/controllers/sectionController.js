@@ -1,6 +1,5 @@
 const sectionModel = require('../models/Section');
 const utility = require('../helper/utility');
-const { message } = require('antd');
 
 exports.create = async function (req, res) {
 	try {

@@ -83,6 +83,7 @@ exports.getAllQuestionsBySection = async function (sectionId) {
 		await Promise.all(
 			quizzesId.map(async (quiz) => {
 				const ques = await quizModel.getAllQuestions(quiz);
+				console.log('quiz:', quiz, { ques });
 				questions.push(...ques);
 			})
 		);

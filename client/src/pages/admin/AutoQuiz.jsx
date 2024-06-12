@@ -12,6 +12,7 @@ import {
 	Select,
 	Switch,
 	TimePicker,
+	InputNumber,
 	Typography,
 } from 'antd';
 import Loader from '../../components/Loader';
@@ -49,7 +50,7 @@ const AutoQuiz = () => {
 		console.log('quiz fetch', fetchQuiz.data.randomQuestions);
 		const quizzes = fetchQuiz.data.randomQuestions;
 
-		setGeneratedQuestions(quizzes);
+		setGeneratedQuestions((prev) => quizzes);
 		setLoadingGenQuiz(false);
 		console.log('Generated Quiz', generatedQuestions);
 		return;
@@ -84,14 +85,15 @@ const AutoQuiz = () => {
 		formQuiz.setFieldsValue({ section: null });
 	}, [selectedCourseId, courseResponseApi]);
 
-	const handleFinish = (data) => {
+	const handleFinish = async (data) => {
 		console.log(data);
 		data = {
 			...data,
 			preProcessQues: true,
 			ques: generatedQuestions,
 		};
-		createQuiz(data)
+		console.log('submittedData', data);
+		await createQuiz(data)
 			.then((res) => {
 				if (res == true) {
 					viewContext.handleSuccess('Create quiz successfully!');
@@ -197,7 +199,7 @@ const AutoQuiz = () => {
 		<Spring>
 			<Bread title="Add a new quiz" items={breadcrumb} />
 			<div>
-				<Form form={formQuiz} layout="vertical" onFinish={handleFinish}>
+				<Form form={formQuiz} layout="vertical" onFinish={() => handleFinish()}>
 					<Row gutter={12}>
 						<Col span={8}>
 							<Row className="shadow-md border bg-white p-8">
@@ -267,9 +269,6 @@ const AutoQuiz = () => {
 										}>
 										<Select
 											showSearch
-											onSelect={(e) => {
-												setSelectedSection(e);
-											}}
 											placeholder="Select a section"
 											optionFilterProp="children"
 											filterOption={filterOption}
@@ -280,6 +279,24 @@ const AutoQuiz = () => {
 											size="large"
 											disabled={!selectedCourseId}
 										/>
+									</Form.Item>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name={'totalMarks'}
+										label={
+											<Typography.Title level={5}>Total Marks</Typography.Title>
+										}>
+										<InputNumber className="w-full" min={1} changeOnWheel />
+									</Form.Item>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name={'passMarks'}
+										label={
+											<Typography.Title level={5}>Pass Marks</Typography.Title>
+										}>
+										<InputNumber className="w-full" min={1} changeOnWheel />
 									</Form.Item>
 								</Col>
 							</Row>

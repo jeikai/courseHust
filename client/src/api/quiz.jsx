@@ -7,8 +7,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 const getQuizs = async (userId) => {
 	const data = QuizData;
-	const responseAPI = (await useAPI(`/api/quiz/instructor/${userId}`, null))
-		.data;
+	const responseAPI = useAPI(`/api/quiz/instructor/${userId}`, null).data;
 	return data;
 };
 
@@ -113,6 +112,12 @@ const createQuiz = async (data) => {
 			dataReq.ques = [];
 			dataReq.startTime = data.deadline?.[0]?.['$d']?.toString() || '';
 			dataReq.endTime = data.deadline?.[1]?.['$d']?.toString() || '';
+			dataReq.totalMarks = data.totalMarks;
+			dataReq.passMarks = data.passMarks;
+			console.log({ ques: data.ques });
+			data.ques.map((question) => {
+				dataReq.ques.push(question.data._id);
+			});
 			console.log(dataReq);
 			const createQuizAPI = await Axios({
 				url: `/api/quiz/${data.section}`,

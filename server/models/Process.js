@@ -51,6 +51,16 @@ exports.getById = async function (id) {
     }
 };
 
+exports.getByCourseId = async function (courseId) {
+    try {
+        const process = await Process.find({ courseId: courseId })
+        return process;
+    } catch (error) {
+        console.log(error)
+        return { error: error }
+    }
+}
+
 exports.getByUserIdAndCourseId = async function (userId, courseId) {
     try {
         const process = await Process.findOne({ userId: userId, courseId: courseId })

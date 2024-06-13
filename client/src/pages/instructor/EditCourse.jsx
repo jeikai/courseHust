@@ -208,7 +208,7 @@ const EditCourse = () => {
 		const handleBasicInfoData = (basicInfo) => {
 			console.log('data', data);
 		};
-		return (
+		return ( 
 			<Spring className={''}>
 				<Typography.Title level={4}>Basic Information</Typography.Title>
 
@@ -307,7 +307,8 @@ const EditCourse = () => {
 							<Input.TextArea
 								className="py-2"
 								rows={6}
-								placeholder=" Description for course"
+								placeholder="Detail description for course"
+								maxLength={50}
 							/>
 						</Form.Item>
 					</Col>

@@ -1,14 +1,15 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
   Button,
   ConfigProvider,
-  Dropdown,
+  Dropdown, 
   Empty,
   Flex,
   Space,
   Typography,
+  Menu,
 } from "antd";
 import {
   BellOutlined,
@@ -30,49 +31,13 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/Auth";
 import { useAPI } from "../../hooks/api";
-
+import { io } from "socket.io-client";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-
+  const [socket, setSocket] = useState(null);
+  const [notifications, setNotifications] = useState([]);
   let user;
-  const itemCart = [
-    {
-      key: "1",
-      label: <Empty />,
-    },
-    {
-      key: "2",
-      label: (
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                defaultHoverBg: "#754FFE",
-                defaultHoverBorderColor: "#754FFE",
-                defaultActiveBorderColor: "#754FFE",
-                defaultActiveColor: "#754FFE",
-                defaultHoverColor: "white",
-              },
-            },
-          }}
-        >
-          <Button
-            icon={<ShopOutlined />}
-            size="large"
-            className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
-            onClick={() => {
-              navigate("/home/purchase_course");
-            }}
-          >
-            Check out
-          </Button>
-        </ConfigProvider>
-      ),
-    },
-  ];
-
-  //check if localStorage has item user
   const temp = localStorage.getItem("user");
   let itemProfile = [];
   if (temp != null) {
@@ -118,7 +83,6 @@ const Header = () => {
       },
     ];
 
-    // Conditionally hide "Become an Instructor" for teachers
     if (user.account.role === "teacher" || user.account.role === "admin") {
       itemProfile = itemProfile.filter(
         (item) => item.key !== "become_instructor"
@@ -132,10 +96,75 @@ const Header = () => {
     }
   }
 
-  let enrollmentAPI;
-  if (user) {
-    enrollmentAPI = useAPI(`/api/enrollment/${user?.account?._id}`, null);
-  }
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+    console.log(newSocket)
+    setSocket(newSocket);
+  }, []);
+
+  useEffect(() => {
+    if (socket && user) {
+      socket.emit("newUser", user.account._id);
+      socket.on("getNotification", (data) => {
+        setNotifications((prev) => [...prev, data]);
+      });
+    }
+  }, [socket, user]);
+
+  console.log(notifications);
+
+  const handleNotificationClick = (notification) => {
+    // Handle notification click (e.g., navigate to a specific page)
+    console.log("Notification clicked:", notification);
+  };
+
+  const notificationItems = notifications.map((notification) => ({
+    key: notification.id,
+    label: (
+      <div onClick={() => handleNotificationClick(notification)}>
+        <Typography.Text strong>{notification?.title}</Typography.Text>
+        <Typography.Paragraph ellipsis={{ rows: 2 }}>
+          {notification?.body}
+        </Typography.Paragraph>
+      </div>
+    ),
+  }));
+
+  const itemCart = [
+    {
+      key: "1",
+      label: <Empty />,
+    },
+    {
+      key: "2",
+      label: (
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                defaultHoverBg: "#754FFE",
+                defaultHoverBorderColor: "#754FFE",
+                defaultActiveBorderColor: "#754FFE",
+                defaultActiveColor: "#754FFE",
+                defaultHoverColor: "white",
+              },
+            },
+          }}
+        >
+          <Button
+            icon={<ShopOutlined />}
+            size="large"
+            className="w-full bg-[#F8F7FF] text-purple-500 font-semibold border-purple-500"
+            onClick={() => {
+              navigate("/home/purchase_course");
+            }}
+          >
+            Check out
+          </Button>
+        </ConfigProvider>
+      ),
+    },
+  ];
 
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
@@ -268,11 +297,11 @@ const Header = () => {
                 <Flex align="center" gap={2}>
                   <Dropdown
                     menu={{
-                      items: [],
+                      items: notificationItems,
                     }}
                     placement="bottomRight"
                   >
-                    <Badge count={0}>
+                    <Badge count={notifications.length}>
                       <BellOutlined className="text-2xl" />
                     </Badge>
                   </Dropdown>

@@ -9,6 +9,7 @@ export const AuthContext = createContext();
 export function AuthProvider(props) {
     const cache = JSON.parse(localStorage.getItem('user'));
     const [user, setUser] = useState(cache);
+    const [notification, setNotification] = useState([]);
     const auth = useAPI(user ? '/api/auth' : null, null, (err) => {
         if(err.response.status === 403) signout();
     });
@@ -75,8 +76,9 @@ export function AuthProvider(props) {
             signin,
             signout,
             update,
-            permission: permissions[user?.permission]
-
+            permission: permissions[user?.permission],
+            notification,
+            setNotification
         }}
 
             {...props}>

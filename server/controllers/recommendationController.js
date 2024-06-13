@@ -25,7 +25,7 @@ function buildSeparateMatrices(favorites, feedbacks) {
             if (!ratingMatrix[userId]) {
                 ratingMatrix[userId] = {};
             }
-            ratingMatrix[userId][courseId] = fb.rating; 
+            ratingMatrix[userId][courseId] = fb.rating;
 
             if (!courseRatings[courseId]) {
                 courseRatings[courseId] = [];
@@ -50,21 +50,21 @@ function buildSeparateMatrices(favorites, feedbacks) {
             let randomCourseId;
             do {
                 randomCourseId = allCourseIds[Math.floor(Math.random() * allCourseIds.length)];
-            } while (favoriteMatrix[userId][randomCourseId]); 
+            } while (favoriteMatrix[userId][randomCourseId]);
 
-            favoriteMatrix[userId][randomCourseId] = 1; 
+            favoriteMatrix[userId][randomCourseId] = 1;
 
             if (courseRatings[randomCourseId] && courseRatings[randomCourseId].length > 0) {
                 const randomRating = courseRatings[randomCourseId][Math.floor(Math.random() * courseRatings[randomCourseId].length)];
                 if (!ratingMatrix[userId][randomCourseId]) {
-                    ratingMatrix[userId][randomCourseId] = randomRating; 
+                    ratingMatrix[userId][randomCourseId] = randomRating;
                 } else {
                     let newCourseId;
                     do {
                         newCourseId = allCourseIds[Math.floor(Math.random() * allCourseIds.length)];
                     } while (ratingMatrix[userId][newCourseId]);
 
-                    ratingMatrix[userId][newCourseId] = randomRating; 
+                    ratingMatrix[userId][newCourseId] = randomRating;
                 }
             }
         });
@@ -81,12 +81,9 @@ function cosineSimilarity(ratings1, ratings2) {
     let normRatings1 = 0;
     let normRatings2 = 0;
 
-    // Iterate over the ratings of the first user
     for (const courseId in ratings1) {
         if (ratings2[courseId]) {
-            // Calculate the dot product
             dotProduct += ratings1[courseId] * ratings2[courseId];
-            // Calculate the norm for each user
             normRatings1 += ratings1[courseId] ** 2;
             normRatings2 += ratings2[courseId] ** 2;
         }
@@ -95,7 +92,6 @@ function cosineSimilarity(ratings1, ratings2) {
     normRatings1 = Math.sqrt(normRatings1);
     normRatings2 = Math.sqrt(normRatings2);
 
-    // Avoid division by zero
     if (normRatings1 > 0 && normRatings2 > 0) {
         return dotProduct / (normRatings1 * normRatings2);
     } else {
@@ -109,42 +105,41 @@ async function recommendCourses(userId) {
         const { favoriteMatrix, ratingMatrix } = buildSeparateMatrices(favorites, feedbacks);
 
         const userRatings = ratingMatrix[userId];
+        if (!userRatings) {
+            return {}; // Return empty object if no ratings found for the user
+        }
+
         const userFavorites = favoriteMatrix[userId] || {};
         let similarityScores = {};
 
-        // Compute similarity scores between the user and all other users
         Object.keys(ratingMatrix).forEach(otherUserId => {
             if (otherUserId !== userId) {
                 const otherUserRatings = ratingMatrix[otherUserId];
                 const similarity = cosineSimilarity(userRatings, otherUserRatings);
-                console.log(similarity)
                 similarityScores[otherUserId] = similarity;
             }
         });
 
-        // Sort users by similarity score in descending order
         const sortedSimilarUsers = Object.keys(similarityScores).sort((a, b) => similarityScores[b] - similarityScores[a]);
         let recommendedCourses = {};
 
         sortedSimilarUsers.forEach(similarUserId => {
-            Object.keys(ratingMatrix[similarUserId]).forEach(courseId => {
-                if (!(courseId in userRatings)) { // Only recommend courses not already rated by the user
+            const similarUserRatings = ratingMatrix[similarUserId] || {};
+            Object.keys(similarUserRatings).forEach(courseId => {
+                if (!(courseId in userRatings)) {
                     if (!recommendedCourses[courseId]) {
                         recommendedCourses[courseId] = { score: 0, count: 0 };
                     }
-                    // Weight recommendation by similarity score
-                    recommendedCourses[courseId].score += similarityScores[similarUserId] * ratingMatrix[similarUserId][courseId];
+                    recommendedCourses[courseId].score += similarityScores[similarUserId] * similarUserRatings[courseId];
 
-                    // Check if the course is a favorite of the similar user
                     const isFavorite = favoriteMatrix[similarUserId] && favoriteMatrix[similarUserId][courseId] ? 1 : 0;
                     recommendedCourses[courseId].count += similarityScores[similarUserId] * (isFavorite ? 1.1 : 1);
                 }
             });
         });
 
-        // Normalize the score by the count to get an average weighted score
         Object.keys(recommendedCourses).forEach(courseId => {
-            if (recommendedCourses[courseId].count > 0) { // Ensure there is at least one contribution to the score
+            if (recommendedCourses[courseId].count > 0) {
                 recommendedCourses[courseId] = recommendedCourses[courseId].score / recommendedCourses[courseId].count;
             }
         });

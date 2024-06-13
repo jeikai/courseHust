@@ -4,10 +4,12 @@ import {
   RetweetOutlined,
   StarFilled,
 } from "@ant-design/icons";
-import { Button, Flex, Space } from "antd";
+import { Button, Flex, Rate, Space } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useAPI } from "../hooks/api";
 
 const Course = ({ list = "Grid", course = {} }) => {
+  const reviews = useAPI(`/api/feedback/${course?._id}`, null);
   const layout = list === "Grid" ? "vertical" : "horizontal";
   const navigate = useNavigate();
   return (
@@ -42,11 +44,8 @@ const Course = ({ list = "Grid", course = {} }) => {
         </h5>
         <Flex justify="space-between">
           <Flex align="center" gap={8} className="text-[#6e798a]">
-            <p>4</p>
-            <p>
-              <StarFilled className="text-[#ffc107]" />
-            </p>
-            <p>(2 Reviews)</p>
+            <Rate disabled defaultValue={course?.rating} />
+            <p>({reviews?.data?.length} Reviews)</p>
           </Flex>
         </Flex>
         <p className="my-2 text-line-2 text-[#6e798a]">{course.shortDes}</p>
@@ -62,10 +61,6 @@ const Course = ({ list = "Grid", course = {} }) => {
             {/*<p className="text-sm text-[#6e798a]">*/}
             {/*    <del>$11.99</del>*/}
             {/*</p>*/}
-          </Flex>
-          <Flex align="center" gap={4}>
-            <ClockCircleOutlined className="text-[#754FFE]" />
-            <span> 24:11:44 Hours</span>
           </Flex>
         </Flex>
       </div>

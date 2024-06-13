@@ -7,7 +7,7 @@ api.post('/section/:courseId', use(sectionController.create));
 
 api.post('/section', use(sectionController.getById));
 api.get(
-	'/section/:sectionId/random-questions',
+	'/section/:courseId/random-questions',
 	use(sectionController.getRandomQuestions)
 );
 api.delete('/section/quiz/:quizId', use(sectionController.deleteQuiz));

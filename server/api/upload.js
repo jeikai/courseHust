@@ -1,6 +1,6 @@
 const api = require('express').Router();
 const uploadCloud = require('../middlewares/upload');
-// const { getVideoDurationInSeconds } = require('get-video-duration');
+const { getVideoDurationInSeconds } = require('get-video-duration');
 
 api.post('/upload', uploadCloud.single('file'), async (req, res, next) => {
   // Check for upload errors

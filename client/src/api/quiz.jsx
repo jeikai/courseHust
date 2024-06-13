@@ -90,7 +90,6 @@ const createQuiz = async (data) => {
 			const dataReq = {};
 			dataReq.title = data.title;
 			const duration = data.duration;
-			console.log(duration['$H']);
 			const { hours, minutes, seconds } = {
 				hours: duration['$H'],
 				minutes: duration['$m'],
@@ -116,7 +115,7 @@ const createQuiz = async (data) => {
 			dataReq.passMarks = data.passMarks;
 			console.log({ ques: data.ques });
 			data.ques.map((question) => {
-				dataReq.ques.push(question.data._id);
+				dataReq.ques.push(question._id);
 			});
 			console.log(dataReq);
 			const createQuizAPI = await Axios({

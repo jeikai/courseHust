@@ -48,7 +48,7 @@ app.use(function (err, req, res, next) {
 });
 
 const server = app.listen(5050, () =>
-  console.log(`Scoket started on 5050`)
+  console.log(`Socket started on 5050`)
 );
 
 const io = socket(server, {

@@ -11,11 +11,9 @@ import { AuthContext, AuthProvider } from "./context/Auth";
 import Axios from "axios";
 import { message } from "antd";
 import "devextreme/dist/css/dx.light.css";
-
 import routes from "./routes";
 
 function App() {
-
   const user = JSON.parse(localStorage.getItem("user"));
   Axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
   if (user?.authenticated) {

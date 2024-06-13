@@ -45,6 +45,7 @@ import {
   Tabs,
   DatePicker,
   TimePicker,
+  message,
 } from "antd";
 import {
   CreditCardOutlined,
@@ -62,7 +63,7 @@ import {
   DeleteOutlined,
   ScheduleOutlined,
 } from "@ant-design/icons";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -97,7 +98,7 @@ const EditCourse = () => {
   const [courseId, setCourseId] = useState(useParams().id);
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigate = useNavigate();
   const [form] = Form.useForm();
 
   const [current, setCurrent] = useState(0);
@@ -193,6 +194,7 @@ const EditCourse = () => {
       dataReq.description = formData.description;
       dataReq.shortDes = formData.shortDes;
       dataReq.level = formData.level;
+
       console.log({ thumbnail: data.thumbnail.file });
       if (data.thumbnail && typeof data.thumbnail != "string") {
         let thumbnail = await uploadFile(data.thumbnail);
@@ -203,7 +205,9 @@ const EditCourse = () => {
       setData((prev) => dataReq);
       const result = await handleUpdateCourse(dataReq);
       setIsLoading(false);
+      message.success("Update successfully");
     } catch (error) {
+      message.error(error.toString());
       setIsLoading(false);
       console.log(error);
     }
@@ -555,6 +559,7 @@ const EditCourse = () => {
       transform: CSS.Translate.toString(transform),
       transition,
     };
+    console.log(item);
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <Flex
@@ -563,7 +568,7 @@ const EditCourse = () => {
           justify="space-between"
         >
           <Flex align="center" gap={6}>
-            {section?.specs?.filter((spec) => spec.type === "lesson") ? (
+            {item?.videoURL !== "" && item?.videoURL ? (
               <VideoCameraOutlined />
             ) : (
               <QuestionCircleOutlined />
@@ -573,7 +578,13 @@ const EditCourse = () => {
             </Typography.Title>
           </Flex>
           <Space>
-            <EditOutlined onClick={() => openModalEditLesson(item._id)} />
+            <EditOutlined
+              onClick={() =>
+                item?.videoURL !== "" && item?.videoURL
+                  ? openModalEditLesson(item._id)
+                  : navigate(`/admin/edit_quiz/${item._id}`)
+              }
+            />
             <DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
           </Space>
         </Flex>

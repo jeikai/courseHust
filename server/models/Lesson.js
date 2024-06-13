@@ -60,7 +60,7 @@ exports.update = async (lessonId, data) => {
 			new: true,
 		});
 		return updatedLesson;
-	} catch (error) {
+	} catch (error) { 
 		return { error };
 	}
 };

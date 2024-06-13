@@ -45,8 +45,9 @@ exports.update = async (req, res) => {
 		const result = await lessonModel.update(lessonId, data);
 		return res.status(200).json({ data: result });
 	} catch (error) {
+		console.log(error)
 		return res.status(500).json({
-			message: error.message,
+			message: error.message, 
 		});
 	}
 };

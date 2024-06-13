@@ -26,6 +26,19 @@ exports.getByUserIdAndCourseId = async (req, res) => {
     }
 }
 
+exports.getByCourseId = async (req, res) => {
+    try {
+        const { courseId }= req.params;
+        const result = await processModel.getByCourseId(courseId);
+        if (!result) {
+            return res.status(200).json({ message: "No course found" })
+        }
+        return res.status(200).json({ data: result })
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
 exports.updateLesson = async (req, res) => {
     try {
         const { userId, courseId, lessonId } = req.body

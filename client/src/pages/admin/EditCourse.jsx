@@ -1,11 +1,31 @@
 /* eslint-disable no-unused-vars */
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import moment from 'moment';
+import AddScheduleModal from '../../components/admin/AddScheduleModal';
+
+import React, {
+	Fragment,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+	useContext,
+} from 'react';
+import { Scheduler } from 'devextreme-react';
+import { Editing, Scrolling } from 'devextreme-react/scheduler';
 import Bread from '../../components/Bread';
+import Axios from 'axios';
 import {
 	Avatar,
+	Radio,
+	Alert,
+	Switch,
 	Button,
 	Checkbox,
 	Col,
+	Badge,
+	Calendar,
 	ConfigProvider,
 	Divider,
 	Drawer,
@@ -18,11 +38,13 @@ import {
 	Row,
 	Select,
 	Space,
-	Steps, 
+	Steps,
 	Table,
 	Typography,
 	Upload,
 	Tabs,
+	DatePicker,
+	TimePicker,
 } from 'antd';
 import {
 	CreditCardOutlined,
@@ -38,9 +60,10 @@ import {
 	QuestionCircleOutlined,
 	EditOutlined,
 	DeleteOutlined,
+	ScheduleOutlined,
 } from '@ant-design/icons';
 import { Link, useParams } from 'react-router-dom';
-import { Editor } from '@tinymce/tinymce-react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -62,22 +85,32 @@ import Spring from '../../components/Spring';
 import { useAPI } from '../../hooks/api';
 import Loader from '../../components/Loader';
 import { uploadFile } from '../../helpers';
-import { handleUpdateCourse } from '../../api/course';
-
+import {
+	handleCreateSchedule,
+	handleUpdateCourse,
+	handleUpdateSchedule,
+} from '../../api/course';
+import { ViewContext } from '../../context/View';
+import dayjs from 'dayjs';
+import { string } from 'mathjs';
 const EditCourse = () => {
-	const courseId = useParams().id;
+	const [courseId, setCourseId] = useState(useParams().id);
+	const userId = JSON.parse(localStorage.getItem('user')).account._id;
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [form] = Form.useForm();
-	const [basicInfoForm] = Form.useForm();
+
 	const [current, setCurrent] = useState(0);
 	const [formLesson] = Form.useForm();
 	const [formEditLesson] = Form.useForm();
 	const [formSection] = Form.useForm();
 	const [formEditSection] = Form.useForm();
 	const [formQuiz] = Form.useForm();
-	const [formEditQuiz] = Form.useForm();
 
+	//MEDIA TAB
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
+	//CURRICULUM TAB
 	const [idEditSection, setIdEditSection] = useState();
 	const [idEditLesson, setIdEditLesson] = useState();
 
@@ -87,11 +120,8 @@ const EditCourse = () => {
 	const [openEditLesson, setOpenEditLesson] = useState(false);
 	const [openInputQuiz, setOpenInputQuiz] = useState(false);
 	const [openEditQuiz, setOpenEditQuiz] = useState(false);
-	//MEDIA TAB
-	const [previewOpen, setPreviewOpen] = useState(false);
-	const [previewImage, setPreviewImage] = useState('');
-
 	const [courseCategory, setCourseCategory] = useState([]);
+	const [formSchedule] = Form.useForm();
 
 	const [data, setData] = useState({
 		_id: courseId,
@@ -108,58 +138,15 @@ const EditCourse = () => {
 		thumbnail: null,
 		video: null,
 		sections: [],
+		isStream: false,
 	});
 	const courseDataApi = useAPI(`/api/course/${courseId}`, null);
 	const categoryDataApi = useAPI(`/api/category`, null);
-	// useEffect(() => {
-	// 	if (categoryDataApi.data) {
-	// 		setCourseCategory((prev) =>
-	// 			categoryDataApi.data.map((category) => ({
-	// 				label: category.title,
-	// 				value: category.title,
-	// 				_id: category._id,
-	// 			}))
-	// 		);
-	// 	}
-	// }, [categoryDataApi]);
-	useEffect(() => {
-		if (categoryDataApi.data) {
-			setCourseCategory((prev) =>
-				categoryDataApi.data.map((category) => ({
-					label: category.title,
-					value: category.title,
-					_id: category._id,
-				}))
-			);
-		}
-		if (courseDataApi.data) {
-			const courseData = courseDataApi.data;
-
-			setData((prev) => ({
-				...prev,
-				description: courseData.description,
-				title: courseData.title,
-				level: courseData.level,
-				shortDes: courseData.shortDes,
-				category: courseData.categoryId.title,
-				thumbnail: courseData.thumbnail,
-				sections: courseData.sections,
-			}));
-			setThumbnail((prev) => [
-				{
-					url: courseData.thumbnail,
-				},
-			]);
-
-			form.setFieldsValue(data);
-		}
-		return () => {};
-	}, [courseDataApi, categoryDataApi]);
 
 	const breadcrumb = [
 		{
 			title: 'Home',
-			href: '',
+			href: '/admin_main/manage_courses',
 		},
 		{
 			title: 'Add New Course',
@@ -173,186 +160,6 @@ const EditCourse = () => {
 	const [video, setVideo] = useState([]);
 
 	//*Handle create new lesson
-	const handleOkLesson = () => {
-		// debugger
-		// callback()
-		const fieldLessons = formLesson.getFieldsValue();
-		let lessonId = uuidv4();
-		let sectionId = fieldLessons.sectionId;
-		fieldLessons.id = lessonId;
-
-		const { sections } = data;
-
-		sections.forEach((section) => {
-			if (section._id === sectionId) {
-				if (!section?.specs) {
-					(section.specs = []), (section.specs = []);
-				}
-				let obj = {
-					_id: {
-						...fieldLessons,
-					},
-					type: 'lesson',
-				};
-				section.specs.push(obj);
-			}
-		});
-
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-
-		setOpenInputLesson(false);
-		formLesson.resetFields();
-
-		console.log('data', data);
-		console.log(JSON.stringify(data));
-		console.log('fieldLessons', fieldLessons);
-	};
-
-	const handleEditLesson = async () => {
-		setIsLoading((prev) => true);
-		let newLesson = formEditLesson.getFieldsValue();
-		// const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-		newLesson.videoURL = '';
-		newLesson.docURL = '';
-		let { sections } = data;
-		sections.forEach((section) => {
-			let { specs } = section;
-
-			let specIndex = -1;
-			specs.forEach((spec, index) => {
-				if (spec._id._id == idEditLesson) specIndex = index;
-			});
-
-			if (specIndex !== -1) {
-				specs.splice(specIndex, 1, {
-					_id: { ...newLesson },
-					type: 'lesson',
-				});
-			}
-		});
-
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-
-		setIdEditLesson(0);
-		setOpenEditLesson(false);
-		formEditLesson.resetFields();
-		setIsLoading(false);
-	};
-
-	const openModalEditLesson = (id) => {
-		const { sections } = data;
-		console.log(id);
-		sections.forEach((section) => {
-			section?.specs?.forEach((item) => {
-				if (item._id._id === id) {
-					console.log('item lesson', item._id);
-
-					formEditLesson.setFieldsValue({
-						title: item._id.title,
-						content: item._id.content,
-						docURL: item._id.docURL,
-						videoURL: item._id.videoURL,
-						sectionId: section._id,
-						duration: item._id.duration,
-					});
-
-					setIdEditLesson(item._id._id);
-					setOpenEditLesson(true);
-				}
-			});
-		});
-	};
-
-	const handleOkSection = () => {
-		// debugger
-
-		const fieldSections = formSection.getFieldsValue();
-		let sectionId = uuidv4();
-		fieldSections._id = sectionId;
-
-		data.sections.push({
-			_id: fieldSections._id,
-			title: fieldSections.sectionName,
-			specs: [],
-		});
-
-		console.log('fieldSections', fieldSections);
-		console.log(data);
-
-		setData(data);
-		setOpenInputSections(false);
-
-		formSection.resetFields();
-	};
-
-	const handleEditSection = () => {
-		data.sections.forEach((section) => {
-			if (section._id === idEditSection) {
-				let newName = formEditSection.getFieldValue('sectionName');
-				section.title = newName;
-				setData(data);
-
-				formEditSection.resetFields();
-				setOpenEditSections(false);
-			}
-		});
-	};
-
-	const openModalEditSection = (id) => {
-		console.log(id);
-		data.sections.forEach((section) => {
-			if (section._id === id) {
-				console.log(data.sections);
-				formEditSection.setFieldValue('sectionName', section.title);
-				setIdEditSection(id);
-				setOpenEditSections(true);
-			}
-		});
-	};
-
-	const handleRemoveLesson = (id) => {
-		let { sections } = data;
-		sections.forEach((section) => {
-			let { specs } = section;
-			let index = specs.findIndex((spec) => spec._id._id === id);
-			console.log(index);
-
-			if (index !== -1) {
-				// Tìm thấy đối tượng với id tương ứng
-				// Xóa phần tử cũ
-				specs.splice(index, 1);
-			}
-		});
-		setData((prevData) => ({
-			...prevData,
-			sections: sections,
-		}));
-	};
-
-	const handleRemoveSection = (id) => {
-		console.log(id);
-		// Xóa phần tử trong mảng sections
-		const updatedSections = data.sections.filter(
-			(section) => section._id !== id
-		);
-
-		// Xóa id trong mảng sectionIds
-		const updatedSectionIds = data.sections.filter(
-			(section) => section._id !== id
-		);
-
-		// Cập nhật dữ liệu mới
-		setData((prevData) => ({
-			...prevData,
-			sections: updatedSections,
-		}));
-	};
 
 	const getFile = (e) => {
 		console.log('Upload event:', e);
@@ -375,15 +182,25 @@ const EditCourse = () => {
 		callback([file]);
 		onSuccess('ok');
 	};
-
+	// set thumbnail
 	const handleSubmit = async (formData) => {
-		
-		// let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
-		// data.thumbnail = thumbnail.file_url;
-		// console.log(data.thumbnail);
 		setIsLoading(true);
-		const result = await handleUpdateCourse(data);
-
+		console.log(data, formData);
+		const dataReq = data;
+		dataReq.title = formData.title;
+		dataReq.category = formData.category;
+		dataReq.description = formData.description;
+		dataReq.shortDes = formData.shortDes;
+		dataReq.level = formData.level;
+		console.log({ thumbnail: data.thumbnail.file });
+		if (data.thumbnail && typeof data.thumbnail != 'string') {
+			let thumbnail = await uploadFile(data.thumbnail);
+			dataReq.thumbnail = thumbnail.file_url;
+			console.log('get new link');
+		}
+		console.log(dataReq.thumbnail);
+		setData((prev) => dataReq);
+		const result = await handleUpdateCourse(dataReq);
 		setIsLoading(false);
 	};
 
@@ -391,7 +208,7 @@ const EditCourse = () => {
 		const handleBasicInfoData = (basicInfo) => {
 			console.log('data', data);
 		};
-		return (
+		return ( 
 			<Spring className={''}>
 				<Typography.Title level={4}>Basic Information</Typography.Title>
 
@@ -438,22 +255,27 @@ const EditCourse = () => {
 									{
 										label: 'Specialized',
 										value: 'specialized',
+										key: 'specialized',
 									},
 									{
 										label: 'Advanced',
 										value: 'advanced',
+										key: 'advanced',
 									},
 									{
 										label: 'Intermediate',
 										value: 'intermediate',
+										key: 'intermediate',
 									},
 									{
 										label: 'Beginner',
 										value: 'beginner',
+										key: 'beginner',
 									},
 									{
 										label: 'Basic',
 										value: 'basic',
+										key: 'basic',
 									},
 								]}
 								size="large"
@@ -470,7 +292,7 @@ const EditCourse = () => {
 								className="py-2"
 								rows={6}
 								placeholder="Short description for course"
-								maxLength={50}
+								maxLength={5}
 							/>
 						</Form.Item>
 					</Col>
@@ -511,6 +333,8 @@ const EditCourse = () => {
 			setPreviewOpen(true);
 		};
 		const handleChange = async (e) => {
+			console.log('change thumbnail');
+			setIsLoading((prev) => true);
 			if (e.fileList.length > 0 && !e.file.url && !e.file.preview) {
 				e.file.preview = await getBase64(e.file.originFileObj);
 				setThumbnail((prev) => [
@@ -520,7 +344,17 @@ const EditCourse = () => {
 						url: e.file.url || e.file.preview,
 					},
 				]);
+				setData((prev) => ({
+					...prev,
+					thumbnail: e.file.originFileObj,
+				}));
 			}
+			console.log('new thumb', {
+				uid: e.file.uid,
+				name: e.file.name,
+				url: e.file.url || e.file.preview,
+			});
+			setIsLoading((prev) => false);
 		};
 
 		return (
@@ -757,7 +591,7 @@ const EditCourse = () => {
 			data: { ...section },
 		});
 
-		const style = { 
+		const style = {
 			transform: CSS.Translate.toString(transform),
 			transition,
 		};
@@ -810,6 +644,208 @@ const EditCourse = () => {
 	};
 
 	const Curriculum = () => {
+		const handleOkLesson = async () => {
+			// debugger
+			// callback()
+			setIsLoading((prev) => true);
+			setOpenInputLesson(false);
+			const fieldLessons = formLesson.getFieldsValue();
+			let lessonId = uuidv4();
+			let sectionId = fieldLessons.sectionId;
+			fieldLessons.id = lessonId;
+
+			const { sections } = data;
+			//get video URL
+			let videoURL = '';
+			let duration = 0;
+			if (fieldLessons.file && fieldLessons.file != undefined) {
+				const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
+				videoURL = upFile.file_url;
+				duration = upFile.duration || 0;
+			}
+			console.log({ fieldLessons });
+			sections.forEach((section) => {
+				if (section._id === sectionId) {
+					if (!section?.specs) {
+						(section.specs = []), (section.specs = []);
+					}
+					let obj = {
+						_id: {
+							content: fieldLessons.content,
+							id: fieldLessons.id,
+							sectionId: fieldLessons.sectionId,
+							title: fieldLessons.title,
+							videoURL: videoURL,
+							duration: duration,
+						},
+						type: 'lesson',
+					};
+					section.specs.push(obj);
+				}
+			});
+
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+
+			formLesson.resetFields();
+
+			setIsLoading((prev) => false);
+			console.log('data', data);
+			console.log(JSON.stringify(data));
+			console.log('fieldLessons', fieldLessons);
+		};
+
+		const handleEditLesson = async () => {
+			setIsLoading((prev) => true);
+			setOpenEditLesson(false);
+
+			let newLesson = formEditLesson.getFieldsValue();
+
+			if (newLesson.file && newLesson.file != undefined) {
+				const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
+				newLesson.videoURL = uploadedFile.file_url || '';
+				newLesson.duration = uploadedFile.duration;
+			}
+			newLesson.docURL = '';
+			let { sections } = data;
+			sections.forEach((section) => {
+				let { specs } = section;
+
+				let specIndex = -1;
+				specs.forEach((spec, index) => {
+					if (spec._id._id == idEditLesson) specIndex = index;
+				});
+
+				if (specIndex !== -1) {
+					specs.splice(specIndex, 1, {
+						_id: { ...newLesson },
+						type: 'lesson',
+					});
+				}
+			});
+
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+			console.log(data);
+			setIdEditLesson(0);
+
+			formEditLesson.resetFields();
+			setIsLoading(false);
+		};
+
+		const openModalEditLesson = (id) => {
+			const { sections } = data;
+			console.log(id);
+			sections.forEach((section) => {
+				section?.specs?.forEach((item) => {
+					if (item._id._id === id) {
+						console.log('item lesson', item._id);
+
+						formEditLesson.setFieldsValue({
+							title: item._id.title,
+							content: item._id.content,
+							docURL: item._id.docURL,
+							videoURL: item._id.videoURL,
+							sectionId: section._id,
+							duration: item._id.duration,
+						});
+
+						setIdEditLesson(item._id._id);
+						setOpenEditLesson(true);
+					}
+				});
+			});
+		};
+
+		const handleOkSection = () => {
+			// debugger
+
+			const fieldSections = formSection.getFieldsValue();
+			let sectionId = uuidv4();
+			fieldSections._id = sectionId;
+
+			data.sections.push({
+				_id: fieldSections._id,
+				title: fieldSections.sectionName,
+				specs: [],
+			});
+
+			console.log('fieldSections', fieldSections);
+			console.log(data);
+
+			setData(data);
+			setOpenInputSections(false);
+
+			formSection.resetFields();
+		};
+
+		const handleEditSection = () => {
+			data.sections.forEach((section) => {
+				if (section._id === idEditSection) {
+					let newName = formEditSection.getFieldValue('sectionName');
+					section.title = newName;
+					setData(data);
+
+					formEditSection.resetFields();
+					setOpenEditSections(false);
+				}
+			});
+		};
+
+		const openModalEditSection = (id) => {
+			console.log(id);
+			data.sections.forEach((section) => {
+				if (section._id === id) {
+					console.log(data.sections);
+					formEditSection.setFieldValue('sectionName', section.title);
+					setIdEditSection(id);
+					setOpenEditSections(true);
+				}
+			});
+		};
+
+		const handleRemoveLesson = (id) => {
+			let { sections } = data;
+			sections.forEach((section) => {
+				let { specs } = section;
+				let index = specs.findIndex((spec) => spec._id._id === id);
+				console.log(index);
+
+				if (index !== -1) {
+					// Tìm thấy đối tượng với id tương ứng
+					// Xóa phần tử cũ
+					specs.splice(index, 1);
+				}
+			});
+			setData((prevData) => ({
+				...prevData,
+				sections: sections,
+			}));
+		};
+
+		const handleRemoveSection = (id) => {
+			console.log(id);
+			// Xóa phần tử trong mảng sections
+			const updatedSections = data.sections.filter(
+				(section) => section._id !== id
+			);
+
+			// Xóa id trong mảng sectionIds
+			const updatedSectionIds = data.sections.filter(
+				(section) => section._id !== id
+			);
+
+			// Cập nhật dữ liệu mới
+			setData((prevData) => ({
+				...prevData,
+				sections: updatedSections,
+			}));
+		};
+
 		return (
 			<div className={''}>
 				<Typography.Title level={4}>Curriculum</Typography.Title>
@@ -824,6 +860,7 @@ const EditCourse = () => {
 									items={data?.sections}
 									strategy={verticalListSortingStrategy}>
 									{data?.sections.map((section) => {
+										console.log({ dataSections: section });
 										return (
 											<RowSection
 												key={section._id}
@@ -1109,340 +1146,742 @@ const EditCourse = () => {
 		);
 	};
 
-	const progressData = [
-		{
-			id: 1,
-			photo:
-				'https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png',
-			name: 'Signe Thomson',
-			email: 'signeiner@gmail.com',
-			enrolledDate: '11 Now 2020',
-			completeOn: 'Not completed yet',
-			quizDone: 1,
-			quizs: 10,
-		},
-	];
+	const Schedule = () => {
+		const [schedule, setSchedule] = useState([]);
+		const [openEditSchedule, setOpenEditSchedule] = useState(false);
+		const [openCalendar, setOpenCalendar] = useState(false);
+		const [message, setMessage] = useState({
+			message: '',
+			error: false,
+		});
+		const [targetScheduleId, setTargetScheduleId] = useState('');
+		const [scheduleFormatData, setScheduleFormatData] = useState([]);
 
-	const ProgressAcademy = ({ index }) => {
+		const getDatesBetween = (startDate, endDate, dayOfWeek) => {
+			const dates = [];
+			let current = moment(startDate).startOf('day');
+			if (current.day() !== dayOfWeek) {
+				current.day(dayOfWeek);
+			}
+
+			while (current.isSameOrBefore(endDate)) {
+				if (current.isSameOrAfter(startDate)) {
+					dates.push(current.clone().format('YYYY-MM-DD'));
+				}
+				current.add(1, 'week');
+			}
+
+			return dates;
+		};
+
+		const transformData = (data) => {
+			return data.flatMap((item) => {
+				const dates = getDatesBetween(
+					item.day_start,
+					item.day_end,
+					item.dayOfWeek
+				);
+				let temp = dates;
+				const exceptions = item.exceptions;
+				exceptions.forEach((exceptDate) => {
+					const tempDate = moment(exceptDate).format('YYYY-MM-DD');
+					temp = temp.filter((date) => date != tempDate);
+				});
+				return temp.map((date) => ({
+					...item,
+					text: item.title,
+					startDate: moment(date + 'T' + item.time_start).toISOString(),
+					endDate: moment(date + 'T' + item.time_end).toISOString(),
+				}));
+			});
+		};
+
+		const appointmentRender = (e) => {
+			return (
+				<div className="flex flex-col items-center justify-center align-middle h-full w-full">
+					<div className="text-lg font-bold">{e.appointmentData.title}</div>
+				</div>
+			);
+		};
+		const handleDeleteAppointment = async (data) => {
+			setIsLoading(true);
+			console.log('Delete', data);
+			const startDate = data.displayStartDate;
+			const id = data._id;
+			const exceptions = data.exceptions;
+			exceptions.push(new Date(startDate));
+			const updateSchedule = await Axios({
+				method: 'PUT',
+				url: `/api/calendar/${id}`,
+				data: {
+					exceptions: exceptions,
+				},
+			});
+			const scheduleDataApi = await Axios({
+				url: `/api/calendar/${courseId}`,
+				method: 'GET',
+			});
+
+			setSchedule((prev) => scheduleDataApi.data);
+			const formatData = transformData(scheduleDataApi.data || []);
+			setScheduleFormatData((prev) => [...formatData]);
+
+			setIsLoading(false);
+		};
+		const handleDeleteSchedule = async () => {
+			setIsLoading(true);
+			await Axios({
+				method: 'DELETE',
+				url: `/api/calendar/${targetScheduleId}`,
+			});
+			setIsLoading(false);
+		};
+		const appointmentTooltipRender = ({
+			targetedAppointmentData,
+			appointmentData,
+		}) => {
+			return (
+				<>
+					<div className="flex flex-col w-full items-start px-5 pt-5">
+						<Flex
+							vertical={false}
+							justify="space-between"
+							className="w-full"
+							align="center">
+							<div>
+								<span className="text-base font-bold">Title: </span>
+								{appointmentData.title}
+							</div>
+							<Flex vertical={false} gap={3}>
+								<Button
+									icon={<DeleteOutlined />}
+									className=""
+									danger
+									onClick={() =>
+										handleDeleteAppointment(targetedAppointmentData)
+									}></Button>
+								<Button
+									icon={<EditOutlined />}
+									className=""
+									type="primary"
+									onClick={() =>
+										handleOpenEditSchedule(appointmentData)
+									}></Button>
+							</Flex>
+						</Flex>
+						<div className="w-full overflow-hidden text-ellipsis">
+							<span className="text-base w-full font-bold">Description:</span>
+							{appointmentData.description}
+						</div>
+					</div>
+					<Button className="mt-3" href={appointmentData.urlMeet}>
+						Join Meeting
+					</Button>
+				</>
+			);
+		};
+
+		const formatTime = (time) => {
+			const { hours, minutes, seconds } = {
+				hours: time['$H'],
+				minutes: time['$m'],
+				seconds: time['$s'],
+			};
+
+			const hoursNumber = parseInt(hours);
+			const minutesNumber = parseInt(minutes);
+			const secondsNumber = parseInt(seconds);
+
+			const formattedTime = `${hoursNumber
+				.toString()
+				.padStart(2, '0')}:${minutesNumber
+				.toString()
+				.padStart(2, '0')}:${secondsNumber.toString().padStart(2, '0')}`;
+
+			return formattedTime;
+		};
+		const onOkSchedule = async () => {
+			setIsLoading(true);
+			const scheduleForm = formSchedule.getFieldsValue();
+			const { startTime, endTime } = scheduleForm;
+			for (const prop in scheduleForm) {
+				console.log('prop: ', scheduleForm[prop]);
+				if (scheduleForm[prop] == undefined) {
+					setMessage((prev) => ({
+						message: `${prop} must be filled`,
+						error: true,
+					}));
+					return;
+				}
+			}
+			if (startTime >= endTime) {
+				setMessage((prev) => ({
+					message: `"Start time" cannot be greater than "End time"`,
+					error: true,
+				}));
+				return;
+			}
+			scheduleForm.userId = userId;
+			scheduleForm.courseId = courseId;
+			const newSchedule = await handleCreateSchedule(scheduleForm);
+			setIsLoading(false);
+			formSchedule.resetFields();
+			setMessage((prev) => ({
+				message: newSchedule.message,
+				error: newSchedule.error,
+			}));
+		};
+		const handleOpenEditSchedule = async (appointmentData) => {
+			console.log({ appointmentData });
+			//title, description, deadline, dayOfWeek, startTime, endTime, urlMeet
+			const data = {
+				title: appointmentData.title,
+				description: appointmentData.description,
+				urlMeet: appointmentData.urlMeet,
+			};
+			const startDay = dayjs(appointmentData.day_start, 'YYYY-MM-DD');
+			const endDay = dayjs(appointmentData.day_end, 'YYYY-MM-DD');
+			data.deadline = [startDay, endDay];
+			data.startTime = dayjs(appointmentData.time_start, 'HH:mm:ss');
+			data.endTime = dayjs(appointmentData.time_end, 'HH:mm:ss');
+			switch (appointmentData.dayOfWeek) {
+				case 1:
+					data.dayOfWeek = 'Monday';
+					break;
+				case 2:
+					data.dayOfWeek = 'Tuesday';
+					break;
+				case 3:
+					data.dayOfWeek = 'Wednesday';
+					break;
+				case 4:
+					data.dayOfWeek = 'Thursday';
+					break;
+				case 5:
+					data.dayOfWeek = 'Friday';
+					break;
+				case 6:
+					data.dayOfWeek = 'Saturday';
+					break;
+				default:
+					data.dayOfWeek = 'Sunday';
+			}
+			data._id = appointmentData._id;
+			setTargetScheduleId((prev) => appointmentData._id);
+			formSchedule.setFieldsValue(data);
+			setOpenEditSchedule((prev) => true);
+		};
+
+		const handleOkEditSchedule = async () => {
+			setIsLoading(true);
+			const data = formSchedule.getFieldsValue();
+			data.courseId = courseId;
+			data.userId = userId;
+			data._id = targetScheduleId;
+			const update = await handleUpdateSchedule(data);
+			setMessage((prev) => ({
+				error: true,
+				message: update.message,
+			}));
+			setIsLoading(false);
+		};
+
+		const handleOpenMeet = (e) => {
+			console.log('open', e);
+		};
+		const dayOfWeek = [
+			{
+				value: 'Monday',
+				label: 'Monday',
+			},
+			{
+				value: 'Tuesday',
+				label: 'Tuesday',
+			},
+			{
+				value: 'Wednesday',
+				label: 'Wednesday',
+			},
+			{
+				value: 'Thursday',
+				label: 'Thursday',
+			},
+			{
+				value: 'Friday',
+				label: 'Friday',
+			},
+			{
+				value: 'Saturday',
+				label: 'Saturday',
+			},
+			{
+				value: 'Sunday',
+				label: 'Sunday',
+			},
+		];
+		const scheduleDataApi = useAPI(`/api/calendar/${courseId}`, null);
+		useEffect(() => {
+			if (scheduleDataApi.data) {
+				console.log({ scheduleData: scheduleDataApi.data });
+				setSchedule((prev) => scheduleDataApi.data);
+				const formatData = transformData(scheduleDataApi.data || []);
+				setScheduleFormatData((prev) => [...formatData]);
+			}
+		}, [scheduleDataApi]);
+
 		return (
-			<div className={''}>
-				<Table dataSource={progressData}>
-					<Table.Column
-						width={50}
-						title="Avatar"
-						render={(_, record) => {
-							return (
-								<div>
-									<Avatar size={48} shape="circle" src={record.photo} />
-								</div>
-							);
+			<>
+				<Flex vertical={true} align="center" justify="center" gap={10}>
+					<Button
+						onClick={() => {
+							setOpenCalendar((prev) => true);
 						}}
-					/>
-					<Table.Column
-						title="Student"
-						render={(_, record) => {
-							return (
-								<Flex vertical>
-									<Typography.Title level={5}>{record.name}</Typography.Title>
-									<Typography.Text className="p-1 shadow bg-[#e3eaef] w-fit rounded">
-										{record.email}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Date"
-						render={(_, record) => {
-							return (
-								<Flex vertical>
-									<Typography.Text>
-										<span className="font-semibold">Enroll from: </span>
-										{record.enrolledDate}
-									</Typography.Text>
-									<Typography.Text>
-										<span className="font-semibold">Last seen on: </span>
-										{record.completeOn}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Progress"
-						render={(_, record) => {
-							return (
-								<Flex vertical className="w-[85%]">
-									<Progress percent={20} />
-									<Typography.Text>
-										<span className="font-semibold">Complete quiz: </span>
-										{record.quizDone}
-										<span> out of </span>
-										{record.quizs}
-									</Typography.Text>
-								</Flex>
-							);
-						}}
-					/>
-					<Table.Column
-						title="Actions"
-						render={(_, record) => {
-							return (
-								<Flex align="center">
-									<Button icon={<CreditCardOutlined />}></Button>
-								</Flex>
-							);
-						}}
-					/>
-				</Table>
+						className="bg-[#754FFE] text-white font-semibold self-end"
+						size="large">
+						Add Schedule
+					</Button>
 
-				<Table>
-					<Table.Column title="#" key={'id'} dataIndex={'id'} />
-					<Table.Column
-						title="Student"
-						render={(_, record) => {
-							return (
-								<Flex vertical>
-									<Typography.Title level={5}>{record.name}</Typography.Title>
-									<Typography.Text className="p-1 shadow bg-[#e3eaef] w-fit rounded">
-										{record.email}
-									</Typography.Text>
-								</Flex>
-							);
+					<Drawer
+						title="Edit Schedule"
+						width={'35rem'}
+						onClose={() => setOpenEditSchedule((prev) => false)}
+						open={openEditSchedule}
+						styles={{
+							body: {
+								paddingBottom: 80,
+							},
 						}}
-					/>
-					<Table.Column title="Mark" key={'mark'} dataIndex={'mark'} />
-					<Table.Column title="Status" key={'status'} dataIndex={'status'} />
-					{/* <Table.Column
-                        title="#"
-                        key={"id"}
-                        dataIndex={"id"}
-                    /> */}
-				</Table>
-			</div>
+						extra={
+							<Space>
+								<Button
+									onClick={() => {
+										setOpenEditSchedule((prev) => false);
+										formSchedule.resetFields();
+									}}>
+									Cancel
+								</Button>
+								<Button onClick={handleOkEditSchedule} type="primary">
+									Update
+								</Button>
+							</Space>
+						}>
+						{message.message != '' &&
+							(message.error ? (
+								<Alert message={message.message} type="error" showIcon />
+							) : (
+								<Alert message={message.message} type="success" showIcon />
+							))}
+
+						<Form form={formSchedule}>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Schedule Title</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="title"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter lesson title',
+											},
+										]}>
+										<Input placeholder="Please enter lesson title" />
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Description</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="description"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter description',
+											},
+										]}>
+										<Input.TextArea
+											rows={4}
+											placeholder="Please enter description"
+										/>
+									</Form.Item>
+								</Col>
+								<Row gutter={16} className="w-full">
+									<Col>
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Start Date - End Date
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="deadline">
+												<DatePicker.RangePicker
+													className="w-full"
+													format={'YYYY-MM-DD'}
+													onChange={(value, dateString) =>
+														console.log(value, dateString)
+													}
+													onOk={(value) => console.log(value)}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+								</Row>
+
+								<Row
+									className="flex flex-row w-full gap-3 justify-between"
+									gutter={16}>
+									<Col id="day-of-week" className="w-[40%]">
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Date Of Week
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="dayOfWeek">
+												<Select
+													showSearch
+													placeholder="Day Of Week"
+													options={dayOfWeek}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+									<Row className="flex flex-row flex-1 gap-3">
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>
+													Start Time
+												</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="startTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>End Time</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="endTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+									</Row>
+								</Row>
+								<Col span={24}>
+									<Typography.Title level={5}>Meet URL</Typography.Title>
+									<Form.Item name="urlMeet">
+										<Input />
+									</Form.Item>
+								</Col>
+							</Row>
+						</Form>
+						<div className="flex flex-row justify-end w-full">
+							<Button
+								icon={<DeleteOutlined />}
+								onClick={() => handleDeleteSchedule()}
+								className=""
+								danger>
+								Delete
+							</Button>
+						</div>
+					</Drawer>
+					<Drawer
+						title="Add Schedule"
+						width={'35rem'}
+						onClose={() => setOpenCalendar((prev) => false)}
+						open={openCalendar}
+						styles={{
+							body: {
+								paddingBottom: 80,
+							},
+						}}
+						extra={
+							<Space>
+								<Button onClick={() => setOpenCalendar((prev) => false)}>
+									Cancel
+								</Button>
+								<Button onClick={onOkSchedule} type="primary">
+									Submit
+								</Button>
+							</Space>
+						}>
+						{message.message != '' &&
+							(message.error ? (
+								<Alert message={message.message} type="error" showIcon />
+							) : (
+								<Alert message={message.message} type="success" showIcon />
+							))}
+
+						<Form form={formSchedule}>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Schedule Title</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="title"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter lesson title',
+											},
+										]}>
+										<Input placeholder="Please enter lesson title" />
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row gutter={16}>
+								<Col span={24}>
+									<Typography.Title level={5}>Description</Typography.Title>
+								</Col>
+								<Col span={24}>
+									<Form.Item
+										name="description"
+										rules={[
+											{
+												required: true,
+												message: 'Please enter description',
+											},
+										]}>
+										<Input.TextArea
+											rows={4}
+											placeholder="Please enter description"
+										/>
+									</Form.Item>
+								</Col>
+								<Row gutter={16}>
+									<Col>
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Start Date - End Date
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="deadline">
+												<DatePicker.RangePicker
+													className="w-full"
+													format={'YYYY-MM-DD'}
+													onChange={(value, dateString) =>
+														console.log(value, dateString)
+													}
+													onOk={(value) => console.log(value)}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+								</Row>
+
+								<Row
+									className="flex flex-row w-full gap-3 justify-between"
+									gutter={16}>
+									<Col id="day-of-week" className="w-[40%]">
+										<Col span={24}>
+											<Typography.Title level={5}>
+												Date Of Week
+											</Typography.Title>
+										</Col>
+										<Col span={24}>
+											<Form.Item name="dayOfWeek">
+												<Select
+													showSearch
+													placeholder="Day Of Week"
+													options={dayOfWeek}
+												/>
+											</Form.Item>
+										</Col>
+									</Col>
+									<Row className="flex flex-row flex-1 gap-3">
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>
+													Start Time
+												</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="startTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+										<Col className="">
+											<Col span={24}>
+												<Typography.Title level={5}>End Time</Typography.Title>
+											</Col>
+											<Col span={24}>
+												<Form.Item name="endTime">
+													<TimePicker className="" />
+												</Form.Item>
+											</Col>
+										</Col>
+									</Row>
+								</Row>
+								<Col span={24}>
+									<Typography.Title level={5}>Meet URL</Typography.Title>
+									<Form.Item name="urlMeet">
+										<Input />
+									</Form.Item>
+								</Col>
+							</Row>
+						</Form>
+					</Drawer>
+
+					<Scheduler
+						height={730}
+						showAllDayPanel={false}
+						dataSource={scheduleFormatData}
+						currentView={'week'}
+						appointmentRender={appointmentRender}
+						appointmentTooltipRender={appointmentTooltipRender}
+						startDayHour={7}
+						onAppointmentFormOpening={(e) => {
+							e.cancel = true;
+							setOpenEditSchedule(true);
+						}}
+						crossScrollingEnabled={true}>
+						<Scrolling mode="virtual" />
+					</Scheduler>
+				</Flex>
+			</>
 		);
 	};
+	// Tabs
 
-	// const steps = [
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Basic infomation
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <BasicInformation index={0} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Info
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Information index={1} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Pricing
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Pricing index={2} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Media
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Media index={3} />,
-	// 	},
-	// 	{
-	// 		title: (
-	// 			<Typography.Title
-	// 				level={5}
-	// 				style={{ display: 'inline-block', marginBottom: 0 }}>
-	// 				Curriculum
-	// 			</Typography.Title>
-	// 		),
-	// 		content: <Curriculum index={4} />,
-	// 	},
-	// {
-	//     title: <Typography.Title level={5} style={{ display: 'inline-block', marginBottom: 0 }}>Academic progress</Typography.Title>,
-	//     content: <ProgressAcademy index={5} />,
-	// },
-	// ];
-	//TABS
-	const items = [
+	let tabs = [
 		{
 			icon: TagsOutlined,
 			name: 'Overview',
 			child: BasicInformation,
-			props: {},
 		},
 		{
 			icon: UserOutlined,
 			name: 'Media',
 			child: Media,
-			props: { index: 2 },
 		},
 		{
 			icon: CommentOutlined,
 			name: 'Curriculum',
 			child: Curriculum,
-			props: { index: 4 },
 		},
 	];
+	if (data.isStream) {
+		const schedule = tabs.find((tab) => tab.name == 'Schedule');
+
+		tabs.push({
+			icon: ScheduleOutlined,
+			name: 'Schedule',
+			child: Schedule,
+			props: {},
+		});
+	}
+	useEffect(() => {
+		if (courseDataApi.data) {
+			const courseData = courseDataApi.data;
+			const isStream =
+				courseData.isStream != null || courseData.isStream != undefined
+					? courseData.isStream
+					: false;
+			setData((prev) => ({
+				...prev,
+				description: courseData.description,
+				title: courseData.title,
+				level: courseData.level,
+				shortDes: courseData.shortDes,
+				category: courseData.categoryId.title,
+				thumbnail: courseData.thumbnail,
+				sections: courseData.sections,
+				isStream: isStream,
+			}));
+
+			setThumbnail((prev) => [
+				{
+					url: courseData.thumbnail,
+				},
+			]);
+
+			form.setFieldsValue(data);
+		}
+	}, [courseDataApi]);
+	useEffect(() => {
+		if (categoryDataApi.data) {
+			setCourseCategory((prev) =>
+				categoryDataApi.data.map((category) => ({
+					label: category.title,
+					value: category.title,
+					_id: category._id,
+				}))
+			);
+		}
+	}, [categoryDataApi]);
+
 	return (
 		<>
-			{courseDataApi.loading || categoryDataApi.loading || isLoading ? (
-				<Loader />
-			) : (
-				<section>
-					<Spring>
-						<Bread title="Add new courses" items={breadcrumb} />
+			<section>
+				{(courseDataApi.loading || categoryDataApi.loading || isLoading) && (
+					<Loader />
+				)}
 
-						<div className="w-full p-8 my-8">
-							<Form
-								form={form}
-								layout="vertical"
-								className="flex flex-col"
-								onFinish={handleSubmit}
-								onValuesChange={(e) => console.log('Form change', e)}>
-								<Button
-									htmlType="submit"
-									className="bg-[#754FFE] text-white font-semibold self-end"
-									size="large">
-									Save
-								</Button>
+				<Spring>
+					<Bread title="Add new courses" items={breadcrumb} />
 
-								<ConfigProvider
-									theme={{
-										components: {
-											Tabs: {
-												// cardGutter: 12
-												horizontalItemGutter: 50,
-												itemHoverColor: '#754FFE',
-												itemSelectedColor: '#754FFE',
-												inkBarColor: '#754FFE',
-												horizontalItemMarginRTL: '',
-											},
-										},
-									}}>
-									<Tabs
-										centered
-										className="p-4 py-10 shadow-xl rounded-md mt-8 bg-white"
-										size="large"
-										defaultActiveKey="2"
-										items={items.map((item, i) => {
-											return {
-												key: i,
-												label: (
-													<span className="font-semibold text-base xl:text-lg px">
-														{item.name}
-													</span>
-												),
-												children: <item.child {...item.props} />,
-												className: '',
-												icon: <item.icon className=" text-base" />,
-											};
-										})}
-									/>
-								</ConfigProvider>
-							</Form>
-							{/* <div className="w-full overflow-x-auto">
-						<Flex
-							align="center"
-							justify="space-between"
-							className="px-5"
-							gap={6}>
-							{steps.map((step, index) => {
-								return (
-									<Fragment key={index}>
-										<Flex
-											className="flex-1 cursor-pointer min-w-max"
-											align="center"
-											gap={12}
-											onClick={() => setCurrent(index)}>
-											<Flex
-												align="center"
-												justify="center"
-												className={`font-semibold w-10 h-10 ${
-													current >= index
-														? 'bg-[#754FFE] text-white'
-														: 'bg-gray-200'
-												} rounded-full`}>
-												{index + 1}
-											</Flex>
-											{step.title}
-										</Flex>
-
-	</span>									{index < steps.length - 1 && (
-											<Flex className="flex-1">
-												<Divider className={`bg-[#754FFE]`} />
-											</Flex>
-										)}
-									</Fragment>
-								);
-							})}
-						</Flex>
-					</div> */}
-
-							{/* <div className="mt-8">
+					<div className="w-full p-8 my-8">
 						<Form
 							form={form}
 							layout="vertical"
+							className="flex flex-col"
 							onFinish={handleSubmit}
-							initialValues={{
-								faq: [null],
-								requirements: [null],
-								outcomes: [null],
-							}}
-							// onValuesChange={handleChangeValue}
-						>
-							{ste</div>ps.map((step, index) => {
-								return <Fragment key={index}>{step.content}</Fragment>;
-							})}
-							<div style={{ marginTop: 24 }}>
-								{current < steps.length - 1 && (
-									<Button
-										onClick={() => setCurrent(current + 1)}
-										className="bg-[#754FFE] text-white font-semibold"
-										size="large">
-										Next
-									</Button>
-								)}
-								{current === steps.length - 1 && (
-									<Button
-										htmlType="submit"
-										type="submit"
-										className="bg-[#754FFE] text-white font-semibold"
-										size="large">
-										Done
-									</Button>
-								)}
-								{current > 0 && (
-									<Button
-										onClick={() => setCurrent(current - 1)}
-										className="text-[#754FFE] font-semibold ml-2"
-										size="large">
-										Previous
-									</Button>
-								)}
-							</div>
+							onValuesChange={(e) => console.log('Form change', e)}>
+							<Button
+								htmlType="submit"
+								className="bg-[#754FFE] text-white font-semibold self-end"
+								size="large">
+								Save
+							</Button>
+
+							<ConfigProvider
+								theme={{
+									components: {
+										Tabs: {
+											// cardGutter: 12
+											horizontalItemGutter: 50,
+											itemHoverColor: '#754FFE',
+											itemSelectedColor: '#754FFE',
+											inkBarColor: '#754FFE',
+											horizontalItemMarginRTL: '',
+										},
+									},
+								}}>
+								<Tabs
+									centered
+									className="p-4 py-10 shadow-xl rounded-md mt-8 bg-white"
+									size="large"
+									defaultActiveKey="2"
+									items={tabs.map((item, i) => {
+										return {
+											key: i,
+											label: (
+												<span className="font-semibold text-base xl:text-lg px">
+													{item.name}
+												</span>
+											),
+											children: <item.child {...item.props} />,
+											className: '',
+											icon: <item.icon className=" text-base" />,
+										};
+									})}
+								/>
+							</ConfigProvider>
 						</Form>
-					</div> */}
-						</div>
-					</Spring>
-				</section>
-			)}
+					</div>
+				</Spring>
+			</section>
 		</>
 	);
 };

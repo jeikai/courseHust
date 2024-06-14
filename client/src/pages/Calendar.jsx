@@ -66,12 +66,17 @@ const Calendar = () => {
         item.day_end,
         item.dayOfWeek
       );
-
-      return dates.map((date) => ({
+      let temp = dates;
+      const exceptions = item.exceptions;
+      exceptions.forEach((exceptDate) => {
+        const tempDate = moment(exceptDate).format('YYYY-MM-DD');
+        temp = temp.filter((date) => date != tempDate);
+      });
+      return temp.map((date) => ({
         ...item,
         text: item.title,
-        startDate: moment(date + "T" + item.time_start).toISOString(),
-        endDate: moment(date + "T" + item.time_end).toISOString(),
+        startDate: moment(date + 'T' + item.time_start).toISOString(),
+        endDate: moment(date + 'T' + item.time_end).toISOString(),
       }));
     });
   };

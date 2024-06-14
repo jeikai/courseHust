@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const courseModel = require('./Course');
 const quizModel = require('./Quiz');
 const lessonModal = require('./Lesson');
+const questionModel = require('./Question')
 const SectionSchema = new Schema({
 	title: { type: String, required: true },
 	specs: [
@@ -72,30 +73,26 @@ exports.get = async function (data) {
 	}
 };
 
-exports.getAllQuestionsBySection = async function (sectionId) {
+exports.getAllQuestionsByCategory = async function (courseId) {
 	try {
-		const section = await Section.findById(sectionId);
-		const quizzesId = [];
-		section.specs.forEach((spec) => {
-			if (spec.type === 'quiz') quizzesId.push(spec._id.toString());
-		});
-		const questions = [];
-		await Promise.all(
-			quizzesId.map(async (quiz) => {
-				const ques = await quizModel.getAllQuestions(quiz);
-				console.log('quiz:', quiz, { ques });
-				questions.push(...ques);
-			})
-		);
+		const course = await courseModel.get({courseId: courseId});
+		if (!course) return { error: 'Course not found' };
 
-		if (questions.length < 10) return questions;
-		const randQuestions = [];
-		for (let i = 0; i < 10; i++)
-			randQuestions.push(
-				questions[Math.floor(Math.random() * questions.length)]
-			);
-		return randQuestions;
+		const categoryId = course.categoryId;
+		const questionsResult = await questionModel.getQuestionByCategory(categoryId)
+		if (!questionsResult?.data) return { error: 'No questions found for this category' };
+		
+		let randomQuestions;
+
+		if (questionsResult?.data.length > 10) {
+			randomQuestions = questionsResult?.data.sort(() => 0.5 - Math.random()).slice(0, 10);
+		} else {
+			randomQuestions = questionsResult?.data;
+		}
+ 
+		return randomQuestions;
 	} catch (error) {
+		console.log(error)
 		return { error };
 	}
 };

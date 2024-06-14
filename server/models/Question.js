@@ -28,10 +28,9 @@ exports.singleCreate = async (data) => {
 	try {
 		const questionData = {
 			question: data.question,
-
 			options: data.options,
 			answer: data.answer,
-
+			categoryId: data.categoryId,
 			type: data.type,
 			date_created: new Date(),
 			date_updated: new Date(),

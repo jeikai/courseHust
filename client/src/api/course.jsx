@@ -1,425 +1,336 @@
-/*
- // Basic info
- instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
- title: { type: String, required: true, unique: true },
- shortDes: { type: String },
- description: { type: String, required: true },
- isStream: {type: Boolean, required: true},
- categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
- level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic' },
+import Axios from "axios";
 
- // thumbnail 
- thumbnail: { type: String, required: true },
-
- // Bài học
- sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
-
- date_created: Date, 
- date_updated: Date 
- **/
-
-import Axios from 'axios';
-
-/* {
-    _id:..
-    "title": "test",
-    "category": "Software Engineer",
-    "level": "intermediate",
-    "shortDes": "hehe",
-    "description": "<p>hehe</p>",
-    "faq": [],
-    "outcomes": [],
-    "requirements": [],
-    "free": false,
-    "thumbnail": "https://res.cloudinary.com/dvezv6uvw/image/upload/v1715409873/course_HUST/images/thhiqlqfoka7pbcj0rns.jpg",
-    "video": null,
-    "sections": [
-        {
-            "_id": "663f13db5cd1708e4e35d93f",
-            "title": "section 1",
-            "date_created": "2024-05-11T06:44:43.200Z",
-            "date_updated": "2024-05-11T06:44:44.625Z",
-            "specs": [
-                {
-                    "_id": {
-                        "_id": "663f13dc5cd1708e4e35d943",
-                        "title": "lesson 1",
-                        "content": "hehe",
-                        "videoURL": "https://res.cloudinary.com/dvezv6uvw/video/upload/v1715409877/course_HUST/videos/s04vot3nrte36tnpvisy.mp4",
-                        "docURL": "",
-                        "duration": 3.8498,
-                        "date_created": "2024-05-11T06:44:44.110Z",
-                        "date_updated": "2024-05-11T06:44:44.110Z",
-                        "__v": 0
-                    },
-                    "type": "lesson"
-                },
-                {
-                    "_id": {
-                        "title": "fdas",
-                        "content": "fdas",
-                        "sectionId": "663f13db5cd1708e4e35d93f",
-                        "id": "67dd9a7f-2003-444e-abbe-504fa9623824"
-                    },
-                    "type": "lesson"
-                }
-            ],
-            "__v": 1
-        },
-        {
-            "_id": "6d4df7e3-491f-47cc-a31e-8e4550bd57e2",
-            "title": "Test",
-            "specs": [
-                {
-                    "_id": {
-                        "title": "tew",
-                        "content": "fdasf",
-                        "sectionId": "6d4df7e3-491f-47cc-a31e-8e4550bd57e2",
-                        "id": "eb731454-db98-45a2-a7f3-b7eca56a57bc"
-                    },
-                    "type": "lesson"
-                }
-            ]
-        }
-    ],
-    "sectionIds": [
-        "ddcdab0e-d264-4d48-aa4f-3a3b0a1ef24d",
-        "59daa483-6fec-4eb3-99a4-6210149a1d72"
-    ]
-}
-**/
 const handleUpdateCourse = async (data) => {
-	console.log('submitted data', data);
+  console.log("submitted data", data);
 
-	const sections = data.sections;
-	const courseId = data._id;
-	const newSections = [];
-	//Create new sections and add to course
+  const sections = data.sections;
+  const courseId = data._id;
+  const newSections = [];
+  //Create new sections and add to course
 
-	await Promise.all(
-		sections.map(async (section) => {
-			//If section existed
-			if (!section._id.includes('-')) {
-				const newSpecs = [];
-				const sectionId = section._id;
-				const { specs } = section;
+  await Promise.all(
+    sections.map(async (section) => {
+      //If section existed
+      if (!section._id.includes("-")) {
+        const newSpecs = [];
+        const sectionId = section._id;
+        const { specs } = section;
 
-				await Promise.all(
-					specs.map(async (spec) => {
-						if (spec._id._id) {
-							//If lesson existed
-							const lessonId = spec._id._id;
-							const lessonData = spec._id;
+        await Promise.all(
+          specs.map(async (spec) => {
+            if (spec._id._id && spec.type == "lesson") {
+              //If lesson existed
+              const lessonId = spec._id._id;
+              const lessonData = spec._id;
 
-							const updateLesson = await Axios({
-								method: 'PUT',
-								url: `/api/lesson/${lessonId}`,
-								data: lessonData,
-							});
+              const updateLesson = await Axios({
+                method: "PUT",
+                url: `/api/lesson/${lessonId}`,
+                data: lessonData,
+              });
 
-							newSpecs.push({
-								_id: updateLesson.data.data._id,
-								type: 'lesson',
-							});
-						} else {
-							//If lesson not existed
-							const lessonData = spec._id;
-							//! Bug duration
+              newSpecs.push({
+                _id: updateLesson.data.data._id,
+                type: "lesson",
+              });
+            } else {
+              //If lesson not existed
+              const lessonData = spec._id;
 
-							const createLesson = await Axios({
-								method: 'POST',
-								url: `/api/lesson`,
-								data: {
-									title: lessonData.title,
-									content: lessonData.title,
-									videoURL: lessonData.videoURL || '',
-									duration: 0,
-									sectionId: sectionId,
-								},
-							});
+              const createLesson = await Axios({
+                method: "POST",
+                url: `/api/lesson`,
+                data: {
+                  title: lessonData.title,
+                  content: lessonData.title,
+                  videoURL: lessonData.videoURL || "",
+                  duration: lessonData.duration,
+                  sectionId: sectionId,
+                },
+              });
 
-							newSpecs.push({
-								_id: createLesson.data.data._id,
-								type: 'lesson',
-							});
-						}
-					})
-				);
-				//Update existed section
+              newSpecs.push({
+                _id: createLesson.data.data._id,
+                type: "lesson",
+              });
+            }
+          })
+        );
+        //Update existed section
+        try {
+          const prevSection = await Axios({
+            method: "POST",
+            url: "/api/section",
+            data: {
+              sectionId: sectionId,
+              specType: "lesson",
+            },
+          });
+          const prevLessonIds = [];
+          const prevSpecs = prevSection.data.specs;
+          if (prevSpecs && prevSpecs != []) {
+            prevSpecs.forEach((spec) => {
+              prevLessonIds.push(spec._id._id);
+            });
+          }
+          const deleteId = [];
+          prevLessonIds.forEach((prevId) => {
+            const id = newSpecs.findIndex((spec) => spec._id == id);
+            if (id == -1) deleteId.push(prevId);
+          });
+          await Promise.all(
+            deleteId.forEach(async (id) => {
+              await Axios({
+                method: "DELETE",
+                url: `/api/lesson/${id}`,
+              });
+            })
+          );
+        } catch (error) {
+          console.log({
+            sectionId: sectionId,
+            specType: "lesson",
+          });
+        }
 
-				try {
-					const prevSection = await Axios({
-						method: 'POST',
-						url: '/api/section',
-						data: {
-							sectionId: sectionId,
-							specType: 'lesson',
-						},
-					});
-					const prevLessonIds = [];
-					const prevSpecs = prevSection.data.specs;
-					if (prevSpecs && prevSpecs != []) {
-						prevSpecs.forEach((spec) => {
-							prevLessonIds.push(spec._id._id);
-						});
-					}
-					const deleteId = [];
-					prevLessonIds.forEach((prevId) => {
-						const id = newSpecs.findIndex((spec) => spec._id == id);
-						if (id == -1) deleteId.push(prevId);
-					});
-					await Promise.all(
-						deleteId.forEach(async (id) => {
-							await Axios({
-								method: 'DELETE',
-								url: `/api/lesson/${id}`,
-							});
-						})
-					);
-				} catch (error) {
-					console.log({
-						sectionId: sectionId,
-						specType: 'lesson',
-					});
-				}
+        const updateSection = await Axios({
+          method: "PUT",
+          url: `/api/section/${sectionId}`,
+          data: {
+            ...section,
+            specs: newSpecs,
+          },
+        });
+        newSections.push(updateSection.data.data._id);
+      } else {
+        //If section not existed
+        const newSection = await Axios({
+          method: "POST",
+          url: `/api/section/${courseId}`,
+          data: {
+            title: section.title,
+          },
+        });
 
-				const updateSection = await Axios({
-					method: 'PUT',
-					url: `/api/section/${sectionId}`,
-					data: {
-						...section,
-						specs: newSpecs,
-					},
-				});
-				newSections.push(updateSection.data.data._id);
-			} else {
-				//If section not existed
-				const newSection = await Axios({
-					method: 'POST',
-					url: `/api/section/${courseId}`,
-					data: {
-						title: section.title,
-					},
-				});
+        const sectionId = newSection.data.data._id;
 
-				const sectionId = newSection.data.data._id;
+        newSections.push(sectionId);
+        const newSpecs = [];
+        const specs = section.specs;
 
-				newSections.push(sectionId);
-				const newSpecs = [];
-				const specs = section.specs;
+        await Promise.all(
+          specs.map(async (spec) => {
+            // lesson not existed
+            const lessonData = spec._id;
+            //! Bug duration
+            const createLesson = await Axios({
+              method: "POST",
+              url: `/api/lesson`,
+              data: {
+                title: lessonData.title,
+                content: lessonData.title,
+                videoURL: lessonData.videoURL || "",
+                duration: 0,
+                sectionId: sectionId,
+              },
+            });
 
-				await Promise.all(
-					specs.map(async (spec) => {
-						// lesson not existed
-						const lessonData = spec._id;
-						//! Bug duration
-						const createLesson = await Axios({
-							method: 'POST',
-							url: `/api/lesson`,
-							data: {
-								title: lessonData.title,
-								content: lessonData.title,
-								videoURL: lessonData.videoURL || '',
-								duration: 0,
-								sectionId: sectionId,
-							},
-						});
+            newSpecs.push({
+              _id: createLesson.data.data._id,
+              type: "lesson",
+            });
+          })
+        );
 
-						newSpecs.push({
-							_id: createLesson.data.data._id,
-							type: 'lesson',
-						});
-					})
-				);
+        const updateSection = await Axios({
+          method: "PUT",
+          url: `/api/section/${sectionId}`,
+          data: {
+            specs: newSpecs,
+          },
+        });
+      }
+    })
+  );
 
-				const updateSection = await Axios({
-					method: 'PUT',
-					url: `/api/section/${sectionId}`,
-					data: {
-						specs: newSpecs,
-					},
-				});
-			}
-		})
-	);
+  const prevCourse = await Axios({
+    method: "GET",
+    url: `/api/course/${courseId}`,
+  });
+  if (prevCourse.data.sections.length != 0) {
+    let prevSections = [];
+    prevCourse.data.sections.forEach((section) => {
+      prevSections.push(section._id);
+    });
 
-	const prevCourse = await Axios({
-		method: 'GET',
-		url: `/api/course/${courseId}`,
-	});
-	if (prevCourse.data.sections.length != 0) {
-		let prevSections = [];
-		prevCourse.data.sections.forEach((section) => {
-			prevSections.push(section._id);
-		});
+    prevSections = prevSections.filter(
+      (id) => newSections.findIndex((secId) => secId == id) == -1
+    );
 
-		prevSections = prevSections.filter(
-			(id) => newSections.findIndex((secId) => secId == id) == -1
-		);
-		
-		//! Delete unused section
-		if (prevSections.length != 0) {
-			try {
-				await Promise.all(
-					prevSections.map(async (section) => {
-						await Axios({
-							method: 'DELETE',
-							url: `/api/section/${section}`,
-							params: {
-								courseId,
-							},
-						});
-					})
-				);
-			} catch (error) {
-				console.log('error', error.message);
-			}
-		}
-	}
-	//fetch prev course to delete section
-	// }))
-	const updatedCourse = await Axios({
-		method: 'PUT',
-		url: `/api/course/${courseId}`,
-		data: {
-			...data,
-			sections: newSections,
-		},
-	});
-	console.log('updatedCourse', updatedCourse.data);
+    //! Delete unused section
+    if (prevSections.length != 0) {
+      try {
+        await Promise.all(
+          prevSections.map(async (section) => {
+            await Axios({
+              method: "DELETE",
+              url: `/api/section/${section}`,
+              params: {
+                courseId,
+              },
+            });
+          })
+        );
+      } catch (error) {
+        console.log("error", error.message);
+      }
+    }
+  }
+  //fetch prev course to delete section
+  // }))
+  const updatedCourse = await Axios({
+    method: "PUT",
+    url: `/api/course/${courseId}`,
+    data: {
+      ...data,
+      sections: newSections,
+    },
+  });
+  console.log("updatedCourse", updatedCourse.data);
 };
+
 const formatTime = (time) => {
-	const { hours, minutes, seconds } = {
-		hours: time['$H'],
-		minutes: time['$m'],
-		seconds: time['$s'],
-	};
+  const { hours, minutes, seconds } = {
+    hours: time["$H"],
+    minutes: time["$m"],
+    seconds: time["$s"],
+  };
 
-	const hoursNumber = parseInt(hours);
-	const minutesNumber = parseInt(minutes);
-	const secondsNumber = parseInt(seconds);
+  const hoursNumber = parseInt(hours);
+  const minutesNumber = parseInt(minutes);
+  const secondsNumber = parseInt(seconds);
 
-	const formattedTime = `${hoursNumber
-		.toString()
-		.padStart(2, '0')}:${minutesNumber
-		.toString()
-		.padStart(2, '0')}:${secondsNumber.toString().padStart(2, '0')}`;
+  const formattedTime = `${hoursNumber
+    .toString()
+    .padStart(2, "0")}:${minutesNumber
+    .toString()
+    .padStart(2, "0")}:${secondsNumber.toString().padStart(2, "0")}`;
 
-	return formattedTime;
+  return formattedTime;
 };
 const handleCreateSchedule = async (scheduleForm) => {
-	const dataReq = {};
-	const { deadline, startTime, endTime } = scheduleForm;
-	dataReq.time_start = formatTime(startTime);
-	dataReq.time_end = formatTime(endTime);
+  const dataReq = {};
+  const { deadline, startTime, endTime } = scheduleForm;
+  dataReq.time_start = formatTime(startTime);
+  dataReq.time_end = formatTime(endTime);
 
-	dataReq.day_start = deadline?.[0]?.['$d']?.toString() || '';
-	dataReq.day_end = deadline?.[1]?.['$d']?.toString() || '';
+  dataReq.day_start = deadline?.[0]?.["$d"]?.toString() || "";
+  dataReq.day_end = deadline?.[1]?.["$d"]?.toString() || "";
 
-	dataReq.title = scheduleForm.title;
-	dataReq.description = scheduleForm.description;
-	dataReq.urlMeet = scheduleForm.urlMeet;
+  dataReq.title = scheduleForm.title;
+  dataReq.description = scheduleForm.description;
+  dataReq.urlMeet = scheduleForm.urlMeet;
 
-	switch (scheduleForm.dayOfWeek) {
-		case 'Sunday':
-			dataReq.dayOfWeek = 0;
-			break;
-		case 'Monday':
-			dataReq.dayOfWeek = 1;
-			break;
-		case 'Tuesday':
-			dataReq.dayOfWeek = 2;
-			break;
-		case 'Wednesday':
-			dataReq.dayOfWeek = 3;
-			break;
-		case 'Thursday':
-			dataReq.dayOfWeek = 4;
-			break;
-		case 'Friday':
-			dataReq.dayOfWeek = 5;
-			break;
-		case 'Saturday':
-			dataReq.dayOfWeek = 6;
-			break;
-		default:
-			dataReq.dayOfWeek = null;
-	}
-	dataReq.userId = scheduleForm.userId;
-	dataReq.courseId = scheduleForm.courseId;
-	console.log({ dataReq });
-	try {
-		await Axios({
-			method: 'POST',
-			url: '/api/calendar',
-			data: { ...dataReq },
-		});
-	} catch (error) {
-		return {
-			message: error.message,
-			error: true,
-		};
-	}
-	return {
-		message: 'Create schedule successfully',
-		error: false,
-	};
+  switch (scheduleForm.dayOfWeek) {
+    case "Sunday":
+      dataReq.dayOfWeek = 0;
+      break;
+    case "Monday":
+      dataReq.dayOfWeek = 1;
+      break;
+    case "Tuesday":
+      dataReq.dayOfWeek = 2;
+      break;
+    case "Wednesday":
+      dataReq.dayOfWeek = 3;
+      break;
+    case "Thursday":
+      dataReq.dayOfWeek = 4;
+      break;
+    case "Friday":
+      dataReq.dayOfWeek = 5;
+      break;
+    case "Saturday":
+      dataReq.dayOfWeek = 6;
+      break;
+    default:
+      dataReq.dayOfWeek = null;
+  }
+  dataReq.userId = scheduleForm.userId;
+  dataReq.courseId = scheduleForm.courseId;
+  console.log({ dataReq });
+  try {
+    await Axios({
+      method: "POST",
+      url: "/api/calendar",
+      data: { ...dataReq },
+    });
+  } catch (error) {
+    return {
+      message: error.message,
+      error: true,
+    };
+  }
+  return {
+    message: "Create schedule successfully",
+    error: false,
+  };
 };
 const handleUpdateSchedule = async (data) => {
-	const dataReq = {
-		title: data.title,
-		description: data.description,
-		urlMeet: data.urlMeet,
-	};
-	dataReq.day_start = data.deadline?.[0]?.['$d']?.toString() || '';
-	dataReq.day_end = data.deadline?.[1]?.['$d']?.toString() || '';
+  const dataReq = {
+    title: data.title,
+    description: data.description,
+    urlMeet: data.urlMeet,
+  };
+  dataReq.day_start = data.deadline?.[0]?.["$d"]?.toString() || "";
+  dataReq.day_end = data.deadline?.[1]?.["$d"]?.toString() || "";
 
-	dataReq.time_start = formatTime(data.startTime);
-	dataReq.time_end = formatTime(data.endTime);
-	switch (data.dayOfWeek) {
-		case 'Sunday':
-			dataReq.dayOfWeek = 0;
-			break;
-		case 'Monday':
-			dataReq.dayOfWeek = 1;
-			break;
-		case 'Tuesday':
-			dataReq.dayOfWeek = 2;
-			break;
-		case 'Wednesday':
-			dataReq.dayOfWeek = 3;
-			break;
-		case 'Thursday':
-			dataReq.dayOfWeek = 4;
-			break;
-		case 'Friday':
-			dataReq.dayOfWeek = 5;
-			break;
-		case 'Saturday':
-			dataReq.dayOfWeek = 6;
-			break;
-		default:
-			dataReq.dayOfWeek = null;
-	}
-	dataReq.userId = data.userId;
-	dataReq.courseId = data.courseId;
-	try {
-		await Axios({
-			method: 'PUT',
-			url: `/api/calendar/${data._id}`,
-			data: {
-				...dataReq,
-			},
-		});
-	} catch (error) {
-		return {
-			message: error.message,
-			error: true,
-		};
-	}
-	return {
-		message: 'Create schedule successfully',
-		error: false,
-	};
+  dataReq.time_start = formatTime(data.startTime);
+  dataReq.time_end = formatTime(data.endTime);
+  switch (data.dayOfWeek) {
+    case "Sunday":
+      dataReq.dayOfWeek = 0;
+      break;
+    case "Monday":
+      dataReq.dayOfWeek = 1;
+      break;
+    case "Tuesday":
+      dataReq.dayOfWeek = 2;
+      break;
+    case "Wednesday":
+      dataReq.dayOfWeek = 3;
+      break;
+    case "Thursday":
+      dataReq.dayOfWeek = 4;
+      break;
+    case "Friday":
+      dataReq.dayOfWeek = 5;
+      break;
+    case "Saturday":
+      dataReq.dayOfWeek = 6;
+      break;
+    default:
+      dataReq.dayOfWeek = null;
+  }
+  dataReq.userId = data.userId;
+  dataReq.courseId = data.courseId;
+  try {
+    await Axios({
+      method: "PUT",
+      url: `/api/calendar/${data._id}`,
+      data: {
+        ...dataReq,
+      },
+    });
+  } catch (error) {
+    return {
+      message: error.message,
+      error: true,
+    };
+  }
+  return {
+    message: "Create schedule successfully",
+    error: false,
+  };
 };
 export { handleUpdateCourse, handleCreateSchedule, handleUpdateSchedule };

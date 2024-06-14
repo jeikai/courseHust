@@ -1,23 +1,18 @@
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 
-import { View } from "./context/View";
+import { View, ViewContext } from "./context/View";
 
 import websiteRoutes from "./routes/website";
 import authRoutes from "./routes/auth";
 import appRoutes from "./routes/app";
-import adminRoutes from "./routes/admin";
-import instructorRoutes from "./routes/instructor";
+import adminRoutes from "./routes/instructor";
 import PrivateRoute from "./components/PrivateRoute";
 import { AuthContext, AuthProvider } from "./context/Auth";
 import Axios from "axios";
+import { message } from "antd";
+import "devextreme/dist/css/dx.light.css";
+import routes from "./routes";
 
-const routes = [
-  ...websiteRoutes,
-  ...authRoutes,
-  ...appRoutes,
-  ...adminRoutes,
-  ...instructorRoutes,
-];
 function App() {
   const user = JSON.parse(localStorage.getItem("user"));
   Axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
@@ -26,7 +21,6 @@ function App() {
     Axios.defaults.headers.common["Authorization"] =
       "Bearer " + user.authenticated;
   }
-
   return (
     <AuthProvider>
       <BrowserRouter>

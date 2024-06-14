@@ -37,10 +37,10 @@ exports.getById = async function (req, res) {
 	}
 };
 exports.getRandomQuestions = async function (req, res) {
-	try {
-		const { sectionId } = req.params;
-		const randomQuestions = await sectionModel.getAllQuestionsBySection(
-			sectionId
+	try { 
+		const { courseId } = req.params;
+		const randomQuestions = await sectionModel.getAllQuestionsByCategory(
+			courseId
 		);
 		console.log(randomQuestions);
 		return res.status(200).json({ randomQuestions });

@@ -71,6 +71,16 @@ exports.getByUserIdAndCourseId = async function (userId, courseId) {
     }
 }
 
+exports.getByCourseId = async function (courseId) {
+    try {
+        const process = await Process.find({ courseId: courseId })
+        return process;
+    } catch (error) {
+        console.log(error)
+        return { error: error }
+    }
+}
+
 exports.getByUserId = async function (userId) {
     try {
         const process = await Process.find({ userId: userId }).populate('courseId')

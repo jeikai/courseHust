@@ -28,7 +28,7 @@ exports.getByUserIdAndCourseId = async (req, res) => {
 
 exports.getByCourseId = async (req, res) => {
     try {
-        const {courseId }= req.params;
+        const { courseId }= req.params;
         const result = await processModel.getByCourseId(courseId);
         if (!result) {
             return res.status(200).json({ message: "No course found" })

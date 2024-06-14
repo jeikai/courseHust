@@ -55,29 +55,6 @@ const Home = () => {
     }
   }, [coursesAPI, categoryAPI]);
 
-  const categories = [
-    {
-      icon: Html5Filled,
-      name: "HTML & CSS",
-      qty: 3,
-    },
-    {
-      icon: JavaOutlined,
-      name: "Java",
-      qty: 3,
-    },
-    {
-      icon: JavaScriptOutlined,
-      name: "JavaScript",
-      qty: 3,
-    },
-    // icon for C#
-    {
-      icon: PythonOutlined,
-      name: "Python",
-      qty: 3,
-    },
-  ];
   const text = [
     "A Learning Management System is a software application or platform designed to manage and deliver online educational courses, training programs, and learning content. It provides a centralized system for instructors to create, organize, track, and assess learning materials and activities.",
     "Common features of an LMS include course management, content creation and delivery, student enrollment and tracking, assessment and grading tools, communication and collaboration tools, reporting and analytics, and integration with other systems or tools.",

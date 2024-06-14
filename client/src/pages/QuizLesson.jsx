@@ -16,7 +16,7 @@ import ReactPlayer from "react-player";
 import Video from "../components/Video.jsx";
 import Quiz from "../components/Quiz.jsx";
 import Questions from "../components/Questions.jsx";
-import { getQuizById } from "../api/quiz.jsx";
+import { getQuizByIdWithoutFormatTime } from "../api/quiz.jsx";
 import { ViewContext } from "../context/View.jsx";
 import { useAPI } from "../hooks/api.jsx";
 import Loader from "../components/Loader.jsx";
@@ -53,7 +53,7 @@ const QuizLesson = () => {
 
   useEffect(() => {
     // fetchQuestions()
-    getQuizById(id)
+    getQuizByIdWithoutFormatTime(id)
       .then((res) => {
         console.log(res);
         setLesson(res);

@@ -342,6 +342,46 @@ const getQuizById = async (id) => {
 	return formatData;
 };
 
+const getQuizByIdWithoutFormatTime = async (id) => {
+	const responseAPI = (await Axios({ url: `/api/quiz/${id}`, method: 'GET' }))
+		.data.data;
+	console.log(responseAPI);
+	const formatData = {
+		id: responseAPI._id,
+		passMarks: responseAPI.passMarks,
+		numberOfQuestions: responseAPI.ques.length,
+		title: responseAPI.title,
+		duration: responseAPI.duration,
+		totalMarks: responseAPI.totalMarks,
+		deadline: [
+			responseAPI.startTime,
+			responseAPI.endTime
+		],
+		questions: [],
+	};
+	formatData.questions = shuffleArray(
+		responseAPI.ques.map((question) => {
+			const formatQues = {
+				id: question._id,
+				title: question.question,
+				level: question.level,
+				answer: question.answer[0],
+				type: 'scq',
+				options: [],
+			};
+			for (const option of question.options) {
+				formatQues.options.push({
+					isSelected: option === formatQues.answer,
+					label: option,
+				});
+			}
+			return formatQues;
+		})
+	);
+
+	return formatData;
+};
+
 const createQuestions = async (data) => {
 	const dataQues = [];
 	data.questions.forEach((question) => {
@@ -384,4 +424,5 @@ export {
 	updateQuiz,
 	createQuestions,
 	createQuizWithSuggestedQues,
+	getQuizByIdWithoutFormatTime
 };

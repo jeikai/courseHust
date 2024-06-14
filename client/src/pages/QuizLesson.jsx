@@ -37,7 +37,6 @@ const QuizLesson = () => {
   );
   const handleStartQuiz = () => {
     console.log("Start quiz"); 
-    // let duaration = lesson.duaration
     let duration = lesson?.duration;
     let startTime = new Date().getTime();
     let durationParts = duration.split(":"); 

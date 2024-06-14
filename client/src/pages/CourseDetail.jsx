@@ -408,7 +408,7 @@ const Schedule = ({ sourceData }) => {
   const transformData = (data) => {
     return data.flatMap((item) => {
       const dates = getDatesBetween(
-        item.day_start,
+        item.day_start, 
         item.day_end,
         item.dayOfWeek
       );
@@ -471,7 +471,11 @@ const Schedule = ({ sourceData }) => {
 };
 
 const CourseDetail = () => {
-  const userId = JSON.parse(localStorage.getItem("user")).account._id;
+  const userId = JSON.parse(localStorage.getItem("user"))?.account?._id;
+  const navigate = useNavigate();
+  if(!userId) {
+    navigate('/login');
+  }
   const { courseId } = useParams();
   const course = useAPI(`/api/course/${courseId}`, null);
   const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
@@ -482,7 +486,7 @@ const CourseDetail = () => {
   const recommend = useAPI(`/api/recommend/${userId}`, null);
   let totalSections = 0;
   let totalQuizs = 0;
-  const navigate = useNavigate();
+
   const viewContext = useContext(ViewContext);
   const [calendarData, setCalendar] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -497,7 +501,7 @@ const CourseDetail = () => {
       const fetchCourseDetails = async () => {
         try {
           const courses = await Promise.all(
-            Object.keys(recommend.data).map((courseId) =>
+            Object.keys(recommend?.data).map((courseId) =>
               axios.get(`/api/course/${courseId}`).then((res) => res.data)
             )
           );
@@ -597,6 +601,7 @@ const CourseDetail = () => {
       }
     } catch (error) {
       console.log(error);
+      setLoading(false)
       viewContext.handleError(error);
     }
   };

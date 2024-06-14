@@ -22,7 +22,14 @@ const SectionSchema = new Schema({
 
 const Section = mongoose.model('Section', SectionSchema, 'sections');
 exports.schema = Section;
-
+exports.getById = async (sectionId) => {
+	try {
+		const section = await Section.findById(sectionId);
+		return section
+	} catch (error) {
+		return {error}
+	}
+}
 exports.create = async function (data) {
 	try {
 		const course = await courseModel.get({ courseId: data.courseId });

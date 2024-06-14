@@ -4,7 +4,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const use = require('../helper/utility').use;
 
 api.post('/section/:courseId', use(sectionController.create));
-
+api.get('/section/:sectionId', use(sectionController.get))
 api.post('/section', use(sectionController.getById));
 api.get(
 	'/section/:courseId/random-questions',

@@ -19,7 +19,15 @@ exports.create = async function (req, res) {
 		return res.status(500).json({ message: e.message });
 	}
 };
-
+exports.get =async (req, res) => {
+	try {
+		const {sectionId} = req.params;
+		const section = await sectionModel.getById(sectionId);
+		return res.status(200).json(section)
+	} catch (error) {
+		return res.status(500).json({message: error.message})
+	}
+}
 exports.getById = async function (req, res) {
 	try {
 		const data = await req.body;

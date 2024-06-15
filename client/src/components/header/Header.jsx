@@ -34,7 +34,11 @@ import { useAPI } from "../../hooks/api";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "New Course Available", body: "Check out our new course on React!" },
+    { id: 2, title: "Reminder", body: "Your subscription is expiring soon." },
+    { id: 3, title: "Message from Instructor", body: "You have a new message from your instructor." }
+  ]);
 
   let user;
 
@@ -118,13 +122,12 @@ const Header = () => {
   const notificationItems = notifications.map((notification) => ({
     key: notification.id,
     label: (
-      // <div onClick={() => handleNotificationClick(notification)}>
-      //   <Typography.Text strong>{notification.title}</Typography.Text>
-      //   <Typography.Paragraph ellipsis={{ rows: 2 }}>
-      //     {notification.body}
-      //   </Typography.Paragraph>
-      // </div>
-      <></>
+      <div onClick={() => handleNotificationClick(notification)}>
+        <Typography.Text strong>{notification.title}</Typography.Text>
+        <Typography.Paragraph ellipsis={{ rows: 2 }}>
+          {notification.body}
+        </Typography.Paragraph>
+      </div>
     ),
   }));
   return (

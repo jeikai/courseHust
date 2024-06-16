@@ -8,6 +8,7 @@ import {
   Row,
   Space,
   Typography,
+  message,
 } from "antd";
 // import Layout from "../layout/AppLayout"
 import {
@@ -91,7 +92,7 @@ const Home = () => {
   const handleSearch = (e) => {
     const { search } = e;
     if (!search) {
-      viewContext.handleError("You need to insert something");
+      message.error("You need to insert something");
     } else {
       navigate(`/courses?q=${search}`);
     }

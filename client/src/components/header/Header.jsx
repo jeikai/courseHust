@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -9,6 +9,11 @@ import {
   Flex,
   Space,
   Typography,
+  Drawer,
+  Input,
+  Menu,
+  message,
+  Form,
 } from "antd";
 import {
   BellOutlined,
@@ -25,6 +30,7 @@ import {
   ShoppingCartOutlined,
   UngroupOutlined,
   UserOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,15 +40,26 @@ import { useAPI } from "../../hooks/api";
 const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
+  const [category, setCategory] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const categoryAPI = useAPI("/api/category", null);
   const [notifications, setNotifications] = useState([
-    { id: 1, title: "New Course Available", body: "Check out our new course on React!" },
+    {
+      id: 1,
+      title: "New Course Available",
+      body: "Check out our new course on React!",
+    },
     { id: 2, title: "Reminder", body: "Your subscription is expiring soon." },
-    { id: 3, title: "Message from Instructor", body: "You have a new message from your instructor." }
+    {
+      id: 3,
+      title: "Message from Instructor",
+      body: "You have a new message from your instructor.",
+    },
   ]);
 
   let user;
 
-  //check if localStorage has item user
+  // Check if localStorage has item user
   const temp = localStorage.getItem("user");
   let itemProfile = [];
   if (temp != null) {
@@ -102,6 +119,14 @@ const Header = () => {
     }
   }
 
+  useEffect(() => {
+    if (categoryAPI.data) {
+      setIsLoading(true);
+      setCategory(categoryAPI);
+      setIsLoading(false);
+    }
+  }, [categoryAPI]);
+
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {
       navigate(authContext.signout());
@@ -130,6 +155,30 @@ const Header = () => {
       </div>
     ),
   }));
+
+  const handleSearch = (e) => {
+    const { search } = e;
+    if (!search) {
+      message.error("You need to insert something");
+    } else {
+      window.location.href = `/courses?q=${search}`;
+    }
+  };
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  const exploreMenu = (
+    <Menu>
+      {category?.data.map((cat) => (
+        <Menu.Item key={cat.id}>
+          <a href={`/courses?categoryname=${cat.title}`}>{cat.title}</a>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   return (
     <header className="py-1">
       <div className="container mx-auto max-w-screen-xl flex gap-4 items-center p-1">
@@ -137,50 +186,30 @@ const Header = () => {
           <img src={logo} alt="logo" className="w-full h-full object-contain" />
         </Link>
         <Flex justify="space-between" className="flex-1">
-          <div className="bg-[#754ffe58] px-4 py-2 rounded cursor-pointer">
-            <a href="/">
-              <Flex align="center" gap={8} className="text-base text-[#754FFE]">
-                <Space>
-                  <MenuOutlined />
-                  <span>Home</span>
-                </Space>
-              </Flex>
-            </a>
-          </div>
           <div className="px-4 py-2 rounded cursor-pointer">
-            <a href="#">
-              <Flex align="center" gap={2} className="text-base font-semibold">
-                <span></span>
-              </Flex>
-            </a>
+            <Dropdown overlay={exploreMenu} trigger={["hover"]}>
+              <a href="#">
+                <Flex
+                  align="center"
+                  gap={2}
+                  className="text-base font-semibold"
+                >
+                  <span>Explore</span>
+                  <DownOutlined />
+                </Flex>
+              </a>
+            </Dropdown>
           </div>
-          <div className="px-4 py-2 rounded cursor-pointer">
-            <a href="#">
-              <Flex align="center" gap={2} className="text-base font-semibold">
-                <span></span>
-              </Flex>
-            </a>
-          </div>
-          <div className="px-4 py-2 rounded cursor-pointer">
-            <a href="#">
-              <Flex align="center" gap={2} className="text-base font-semibold">
-                <span></span>
-              </Flex>
-            </a>
-          </div>
-          <div className="px-4 py-2 rounded cursor-pointer">
-            <a href="#">
-              <Flex align="center" gap={2} className="text-base font-semibold">
-                <span></span>
-              </Flex>
-            </a>
-          </div>
-          <div className="px-4 py-2 rounded cursor-pointer">
-            <a href="#">
-              <Flex align="center" gap={2} className="text-base font-semibold">
-                <span></span>
-              </Flex>
-            </a>
+          <div className="px-4 py-2 rounded cursor-pointer search-container">
+            <Form layout="horizontal" onFinish={handleSearch}>
+              <Form.Item name={"search"}>
+                <Input.Search
+                  placeholder="What do you want to learn?"
+                  enterButton
+                  className="custom-search"
+                />
+              </Form.Item>
+            </Form>
           </div>
 
           {authContext.user ? (
@@ -196,7 +225,7 @@ const Header = () => {
                 </Flex>
               </div>
               {user.account.role === "teacher" &&
-              user.account.is_verified == true ? (
+              user.account.is_verified === true ? (
                 <div className="px-4 py-2 rounded cursor-pointer">
                   <Flex align="center" gap={0} className="text-black">
                     <Link

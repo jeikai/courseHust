@@ -295,11 +295,15 @@ const Reviews = ({ userId, courseId, reviews }) => {
   return (
     <>
       <Row className="mb-4">
-        <Col span={24}>
-          <Button type="primary" onClick={showModal}>
-            Add your comment
-          </Button>
-        </Col>
+        {userId ? (
+          <Col span={24}>
+            <Button type="primary" onClick={showModal}>
+              Add your comment
+            </Button>
+          </Col>
+        ) : (
+          <></>
+        )}
       </Row>
       <Modal
         title="Add Your Comment"
@@ -387,7 +391,7 @@ const Instructor = ({ instructorId, navigate }) => {
   );
 };
 
-const Schedule = ({ sourceData }) => {
+const Schedule = ({ sourceData, userId }) => {
   const getDatesBetween = (startDate, endDate, dayOfWeek) => {
     const dates = [];
     let current = moment(startDate).startOf("day");
@@ -408,21 +412,21 @@ const Schedule = ({ sourceData }) => {
   const transformData = (data) => {
     return data.flatMap((item) => {
       const dates = getDatesBetween(
-        item.day_start, 
+        item.day_start,
         item.day_end,
         item.dayOfWeek
       );
       let temp = dates;
       const exceptions = item.exceptions;
       exceptions.forEach((exceptDate) => {
-        const tempDate = moment(exceptDate).format('YYYY-MM-DD');
+        const tempDate = moment(exceptDate).format("YYYY-MM-DD");
         temp = temp.filter((date) => date != tempDate);
       });
       return temp.map((date) => ({
         ...item,
         text: item.title,
-        startDate: moment(date + 'T' + item.time_start).toISOString(),
-        endDate: moment(date + 'T' + item.time_end).toISOString(),
+        startDate: moment(date + "T" + item.time_start).toISOString(),
+        endDate: moment(date + "T" + item.time_end).toISOString(),
       }));
     });
   };
@@ -440,7 +444,9 @@ const Schedule = ({ sourceData }) => {
       <div>
         <div>{e.appointmentData.title}</div>
         <div>{e.appointmentData.description}</div>
-        <Button href={e.appointmentData.urlMeet}> Join Meeting </Button>
+        {userId && (
+          <Button href={e.appointmentData.urlMeet}> Join Meeting </Button>
+        )}
       </div>
     );
   };
@@ -473,17 +479,18 @@ const Schedule = ({ sourceData }) => {
 const CourseDetail = () => {
   const userId = JSON.parse(localStorage.getItem("user"))?.account?._id;
   const navigate = useNavigate();
-  if(!userId) {
-    navigate('/login');
-  }
   const { courseId } = useParams();
   const course = useAPI(`/api/course/${courseId}`, null);
-  const checkProcess = useAPI(`/api/process/check/${userId}/${courseId}`, null);
+  const checkProcess = userId
+    ? useAPI(`/api/process/check/${userId}/${courseId}`, null)
+    : null;
   const schedule = useAPI(`/api/calendar/${courseId}`, null)?.data;
   const bill = useAPI(`/api/bill/course/${courseId}`, null)?.data;
   const reviews = useAPI(`/api/feedback/${courseId}`, null);
-  const favorite = useAPI(`/api/favorite/check/${userId}/${courseId}`, null);
-  const recommend = useAPI(`/api/recommend/${userId}`, null);
+  const favorite = userId
+    ? useAPI(`/api/favorite/check/${userId}/${courseId}`, null)
+    : false;
+  const recommend = userId ? useAPI(`/api/recommend/${userId}`, null) : null;
   let totalSections = 0;
   let totalQuizs = 0;
 
@@ -491,7 +498,7 @@ const CourseDetail = () => {
   const [calendarData, setCalendar] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isLiked, setIsLiked] = useState(favorite?.data?.exists);
+  const [isLiked, setIsLiked] = useState(false);
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   useEffect(() => {
     setIsLiked(favorite?.data?.exists);
@@ -514,15 +521,18 @@ const CourseDetail = () => {
       fetchCourseDetails();
     }
   }, [recommend]);
-  console.log(recommendedCourses);
-  if (
-    course?.loading ||
-    checkProcess?.loading ||
-    reviews.loading ||
-    favorite.loading ||
-    recommend.loading
-  )
-    return <Loader />;
+  if (userId) {
+    if (
+      course?.loading ||
+      checkProcess?.loading ||
+      reviews.loading ||
+      favorite.loading ||
+      recommend.loading
+    )
+      return <Loader />;
+  } else {
+    if (course?.loading || reviews.loading) return <Loader />;
+  }
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -601,7 +611,7 @@ const CourseDetail = () => {
       }
     } catch (error) {
       console.log(error);
-      setLoading(false)
+      setLoading(false);
       viewContext.handleError(error);
     }
   };
@@ -623,7 +633,11 @@ const CourseDetail = () => {
       icon: UserOutlined,
       name: "Instructor",
       child: Instructor,
-      props: { instructorId: course.data.instructorId, navigate },
+      props: {
+        instructorId: course.data.instructorId,
+        userId: userId,
+        navigate,
+      },
     },
     {
       icon: CommentOutlined,
@@ -702,25 +716,30 @@ const CourseDetail = () => {
 
   const toggleLike = async () => {
     try {
-      setLoading(true);
-      setIsLiked(!isLiked);
-      // Gọi API để cập nhật trạng thái
-      const response = await axios.post(`/api/favorite`, {
-        userId: userId,
-        courseId: courseId,
-      });
-      if (response?.data) {
-        if (!isLiked) {
-          message.success("You have liked this course.");
-        } else {
-          message.success("You have disliked this course.");
-        }
-
-        console.log("Updated successfully");
+      if (!JSON.parse(localStorage.getItem("user"))) {
+        viewContext.handleError("You need to login first");
+        navigate("/login");
       } else {
-        throw new Error("Failed to update");
+        setLoading(true);
+        setIsLiked(!isLiked);
+        // Gọi API để cập nhật trạng thái
+        const response = await axios.post(`/api/favorite`, {
+          userId: userId,
+          courseId: courseId,
+        });
+        if (response?.data) {
+          if (!isLiked) {
+            message.success("You have liked this course.");
+          } else {
+            message.success("You have disliked this course.");
+          }
+
+          console.log("Updated successfully");
+        } else {
+          throw new Error("Failed to update");
+        }
+        setLoading(false);
       }
-      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error("Error updating like status", error);
@@ -753,13 +772,16 @@ const CourseDetail = () => {
                 </Typography.Link>
               </span>
             </Space>
-
-            <Space>
-              <CheckCircleOutlined className="text-white" />
-              <span className="text-white text-base">
-                {checkProcess?.data?.data?.process || 0} %
-              </span>
-            </Space>
+            {userId ? (
+              <Space>
+                <CheckCircleOutlined className="text-white" />
+                <span className="text-white text-base">
+                  {checkProcess?.data?.data?.process || 0} %
+                </span>
+              </Space>
+            ) : (
+              <></>
+            )}
 
             <Space>
               <ShoppingCartOutlined className="text-white" />

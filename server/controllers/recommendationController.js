@@ -43,32 +43,6 @@ function buildSeparateMatrices(favorites, feedbacks) {
             favoriteMatrix[userId][courseId] = 1;
         });
 
-        const allUserIds = Object.keys(favoriteMatrix);
-        const allCourseIds = Array.from(new Set([].concat(...Object.values(favoriteMatrix).map(obj => Object.keys(obj)))));
-
-        allUserIds.forEach(userId => {
-            let randomCourseId;
-            do {
-                randomCourseId = allCourseIds[Math.floor(Math.random() * allCourseIds.length)];
-            } while (favoriteMatrix[userId][randomCourseId]); 
-
-            favoriteMatrix[userId][randomCourseId] = 1; 
-
-            if (courseRatings[randomCourseId] && courseRatings[randomCourseId].length > 0) {
-                const randomRating = courseRatings[randomCourseId][Math.floor(Math.random() * courseRatings[randomCourseId].length)];
-                if (!ratingMatrix[userId][randomCourseId]) {
-                    ratingMatrix[userId][randomCourseId] = randomRating; 
-                } else {
-                    let newCourseId;
-                    do {
-                        newCourseId = allCourseIds[Math.floor(Math.random() * allCourseIds.length)];
-                    } while (ratingMatrix[userId][newCourseId]);
-
-                    ratingMatrix[userId][newCourseId] = randomRating; 
-                }
-            }
-        });
-
         return { favoriteMatrix, ratingMatrix, courseRatings };
     } catch (error) {
         console.error('Error building data:', error);
@@ -76,28 +50,24 @@ function buildSeparateMatrices(favorites, feedbacks) {
     }
 }
 
-function cosineSimilarity(ratings1, ratings2) {
+function cosineSimilarity(matrix1, matrix2) {
     let dotProduct = 0;
-    let normRatings1 = 0;
-    let normRatings2 = 0;
+    let normMatrix1 = 0;
+    let normMatrix2 = 0;
 
-    // Iterate over the ratings of the first user
-    for (const courseId in ratings1) {
-        if (ratings2[courseId]) {
-            // Calculate the dot product
-            dotProduct += ratings1[courseId] * ratings2[courseId];
-            // Calculate the norm for each user
-            normRatings1 += ratings1[courseId] ** 2;
-            normRatings2 += ratings2[courseId] ** 2;
+    for (const courseId in matrix1) {
+        if (matrix2[courseId]) {
+            dotProduct += matrix1[courseId] * matrix2[courseId];
+            normMatrix1 += matrix1[courseId] ** 2;
+            normMatrix2 += matrix2[courseId] ** 2;
         }
     }
 
-    normRatings1 = Math.sqrt(normRatings1);
-    normRatings2 = Math.sqrt(normRatings2);
+    normMatrix1 = Math.sqrt(normMatrix1);
+    normMatrix2 = Math.sqrt(normMatrix2);
 
-    // Avoid division by zero
-    if (normRatings1 > 0 && normRatings2 > 0) {
-        return dotProduct / (normRatings1 * normRatings2);
+    if (normMatrix1 > 0 && normMatrix2 > 0) {
+        return dotProduct / (normMatrix1 * normMatrix2);
     } else {
         return 0;
     }
@@ -108,43 +78,43 @@ async function recommendCourses(userId) {
         const { favorites, feedbacks } = await fetchUserData();
         const { favoriteMatrix, ratingMatrix } = buildSeparateMatrices(favorites, feedbacks);
 
-        const userRatings = ratingMatrix[userId];
+        const userRatings = ratingMatrix[userId] || {};
         const userFavorites = favoriteMatrix[userId] || {};
         let similarityScores = {};
 
         // Compute similarity scores between the user and all other users
         Object.keys(ratingMatrix).forEach(otherUserId => {
             if (otherUserId !== userId) {
-                const otherUserRatings = ratingMatrix[otherUserId];
-                const similarity = cosineSimilarity(userRatings, otherUserRatings);
-                console.log(similarity)
-                similarityScores[otherUserId] = similarity;
+                const otherUserRatings = ratingMatrix[otherUserId] || {};
+                const ratingSimilarity = cosineSimilarity(userRatings, otherUserRatings);
+
+                const otherUserFavorites = favoriteMatrix[otherUserId] || {};
+                const favoriteSimilarity = cosineSimilarity(userFavorites, otherUserFavorites);
+
+                const combinedSimilarity = (ratingSimilarity + favoriteSimilarity) / 2;
+                similarityScores[otherUserId] = combinedSimilarity;
             }
         });
 
-        // Sort users by similarity score in descending order
         const sortedSimilarUsers = Object.keys(similarityScores).sort((a, b) => similarityScores[b] - similarityScores[a]);
         let recommendedCourses = {};
 
         sortedSimilarUsers.forEach(similarUserId => {
-            Object.keys(ratingMatrix[similarUserId]).forEach(courseId => {
-                if (!(courseId in userRatings)) { // Only recommend courses not already rated by the user
+            Object.keys(ratingMatrix[similarUserId] || {}).forEach(courseId => {
+                if (!(courseId in userRatings)) {
                     if (!recommendedCourses[courseId]) {
                         recommendedCourses[courseId] = { score: 0, count: 0 };
                     }
-                    // Weight recommendation by similarity score
                     recommendedCourses[courseId].score += similarityScores[similarUserId] * ratingMatrix[similarUserId][courseId];
 
-                    // Check if the course is a favorite of the similar user
                     const isFavorite = favoriteMatrix[similarUserId] && favoriteMatrix[similarUserId][courseId] ? 1 : 0;
                     recommendedCourses[courseId].count += similarityScores[similarUserId] * (isFavorite ? 1.1 : 1);
                 }
             });
         });
 
-        // Normalize the score by the count to get an average weighted score
         Object.keys(recommendedCourses).forEach(courseId => {
-            if (recommendedCourses[courseId].count > 0) { // Ensure there is at least one contribution to the score
+            if (recommendedCourses[courseId].count > 0) {
                 recommendedCourses[courseId] = recommendedCourses[courseId].score / recommendedCourses[courseId].count;
             }
         });

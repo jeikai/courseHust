@@ -17,7 +17,7 @@ const CalendarSchema = new Schema({
   date_created: { type: Date, default: Date.now }, 
   date_updated: { type: Date, default: Date.now }
 });
-
+ 
 const Calendar = mongoose.model('Calendar', CalendarSchema, 'calendars');
 exports.schema = Calendar;
 

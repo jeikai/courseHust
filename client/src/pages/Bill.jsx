@@ -22,7 +22,7 @@ import { useState, useEffect } from "react";
 import Axios from "axios";
 import { useAPI } from "../hooks/api";
 import Loader from "../components/Loader.jsx";
-
+ 
 const Bill = () => {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [isLoading, setIsLoading] = useState(false);

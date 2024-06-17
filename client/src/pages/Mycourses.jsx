@@ -39,20 +39,6 @@ const Course = ({ course }) => {
               <Typography.Title level={5} style={{ color: "#676C7D" }}>
                 {course.courseId.title}
               </Typography.Title>
-              {/* <Flex align="center" gap={30}>
-                <Flex align="center" gap={6} style={{ color: "#676C7D" }}>
-                  <PlayCircleOutlined />
-                  <span>Lectures 22</span>
-                </Flex>
-                <Flex align="center" gap={6} style={{ color: "#676C7D" }}>
-                  <PlayCircleOutlined />
-                  <span>Lectures 22</span>
-                </Flex>
-                <Flex align="center" gap={6} style={{ color: "#676C7D" }}>
-                  <PlayCircleOutlined />
-                  <span>Lectures 22</span>
-                </Flex>
-              </Flex> */}
               <div className="pr-10">
                 <Progress percent={course.process} size="small" />
               </div>

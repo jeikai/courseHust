@@ -5,6 +5,8 @@ const use = require('../helper/utility').use
 
 api.post('/bill', use(billController.create))
 
+api.post('/vnpay', use(billController.vn_pay))
+
 api.get('/bill/:userId', use(billController.getById))
 
 api.get('/bill', use(billController.get))

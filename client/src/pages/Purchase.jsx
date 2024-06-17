@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Banner from "../components/Banner";
 import {
   Avatar,
@@ -14,9 +14,9 @@ import {
   Typography,
   Upload,
   Modal,
+  Radio,
 } from "antd";
 import Sidenav from "../components/sidenav/Sidenav";
-import { Editor } from "@tinymce/tinymce-react";
 import {
   FacebookOutlined,
   KeyOutlined,
@@ -32,20 +32,20 @@ import Spring from "../components/Spring";
 import { useAPI } from "../hooks/api";
 import Loader from "../components/Loader.jsx";
 import image from "../assets/image/image.png";
-import { useState } from "react";
 import { to } from "@react-spring/web";
 import { Toast } from "devextreme-react";
 import Axios from "axios";
 import { ViewContext } from "../context/View.jsx";
-import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Purchase() {
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [enrollmentData, setEnrollment] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState("VNPAYQR"); // Set default value to "VNPAYQR"
   const viewContext = useContext(ViewContext);
-
+  const navigate = useNavigate();
   async function fetchData() {
     try {
       const enrollment = await Axios({
@@ -59,9 +59,11 @@ function Purchase() {
       console.log(error);
     }
   }
+
   useEffect(() => {
     fetchData();
   }, []);
+
   if (isLoading) return <Loader />;
 
   const totalPrice = () => {
@@ -71,6 +73,7 @@ function Purchase() {
     });
     return total;
   };
+
   const total = totalPrice();
 
   const handleDelete = async (courseId) => {
@@ -173,14 +176,6 @@ function Purchase() {
       },
     },
     {
-      title: "Payment method",
-      dataIndex: "payment",
-      key: "payment",
-      render: (_, record) => (
-        <h5 className="font-semibold text-base capitalize">VNpay</h5>
-      ),
-    },
-    {
       title: "Price",
       dataIndex: "price",
       key: "price",
@@ -195,19 +190,28 @@ function Purchase() {
   const showModal = () => {
     setIsModalOpen(true);
   };
+
   const handleOk = async () => {
     try {
       setIsLoading(true);
-      const responseAPI = await Axios({
+      const responseAPI_VNPAY = await Axios({
+        url: "/api/vnpay",
+        method: "POST",
+        data: {
+          userId: userId,
+          bankCode: paymentMethod,
+        },
+      });
+      const responseAPI_CreateBill = await Axios({
         url: "/api/bill",
         method: "POST",
         data: {
           userId: userId,
         },
       });
-      console.log(responseAPI);
-      setIsLoading(false);
+      window.location.href = responseAPI_VNPAY?.data?.data;
       fetchData();
+      setIsLoading(false);
 
       viewContext.handleSuccess("Buy successfully");
       setIsModalOpen(false);
@@ -215,9 +219,15 @@ function Purchase() {
       viewContext.handleError("Buy fail!");
     }
   };
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+
   return (
     <>
       <Banner name="Purchase history" />
@@ -245,6 +255,22 @@ function Purchase() {
               >
                 <Table columns={columnsBill} dataSource={enrollmentData} />
                 <p>Total: {total} VNĐ</p>
+                <div>
+                  <label>Chọn Phương thức thanh toán:</label>
+                  <Radio.Group
+                    onChange={handlePaymentMethodChange}
+                    value={paymentMethod}
+                  >
+                    <Radio value="VNPAYQR">Cổng thanh toán VNPAYQR</Radio>
+                    <Radio value="VNPAYQR_APP">
+                      Thanh toán qua ứng dụng hỗ trợ VNPAYQR
+                    </Radio>
+                    <Radio value="VNBANK">
+                      Thanh toán qua ATM-Tài khoản ngân hàng nội địa
+                    </Radio>
+                    <Radio value="INTCARD">Thanh toán qua thẻ quốc tế</Radio>
+                  </Radio.Group>
+                </div>
               </Modal>
               <div>
                 <Table columns={columns} dataSource={enrollmentData} />

@@ -38,6 +38,7 @@ import { AuthContext } from "../../context/Auth";
 import { useAPI } from "../../hooks/api";
 
 const Header = () => {
+  let user = JSON.parse(localStorage.getItem("user"));
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const [category, setCategory] = useState();
@@ -56,14 +57,9 @@ const Header = () => {
       body: "You have a new message from your instructor.",
     },
   ]);
-
-  let user;
-
-  // Check if localStorage has item user
-  const temp = localStorage.getItem("user");
+  
   let itemProfile = [];
-  if (temp != null) {
-    user = JSON.parse(temp);
+  if (user != null) {
     itemProfile = [
       {
         key: "1",

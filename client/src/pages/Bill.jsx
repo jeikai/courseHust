@@ -34,6 +34,9 @@ const Bill = () => {
         url: `/api/bill/${userId}`,
         method: "GET",
       });
+
+      localStorage.setItem("paymentStatus", "success");
+      console.log(localStorage.getItem("paymentStatus"))
       await setBill(bill.data);
       console.log(bill);
       setIsLoading(true);

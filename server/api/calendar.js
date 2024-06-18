@@ -10,4 +10,4 @@ api.get('/calendar/check/:userId/:courseId', use(calendarController.checkCalenda
 api.put('/calendar/:calendarId', use(calendarController.update))
 api.delete('/calendar/:calendarId', use(calendarController.delete))
 
-module.exports = api 
+module.exports = api

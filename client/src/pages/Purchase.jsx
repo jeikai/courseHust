@@ -194,6 +194,7 @@ function Purchase() {
   const handleOk = async () => {
     try {
       setIsLoading(true);
+      localStorage.removeItem("paymentStatus");
       const responseAPI_VNPAY = await Axios({
         url: "/api/vnpay",
         method: "POST",
@@ -202,21 +203,45 @@ function Purchase() {
           bankCode: paymentMethod,
         },
       });
-      const responseAPI_CreateBill = await Axios({
-        url: "/api/bill",
-        method: "POST",
-        data: {
-          userId: userId,
-        },
-      });
-      window.location.href = responseAPI_VNPAY?.data?.data;
-      fetchData();
-      setIsLoading(false);
 
-      viewContext.handleSuccess("Buy successfully");
-      setIsModalOpen(false);
+      const { data } = responseAPI_VNPAY;
+      const paymentUrl = data?.data;
+
+      // Open the VNPAY payment page in a new tab
+      const newTab = window.open(paymentUrl, "_blank");
+
+      // Listen for the event when the user accesses the specific URL
+      window.addEventListener("storage", (event) => {
+        if (event.key === "paymentStatus" && event.newValue === "success") {
+          localStorage.removeItem("paymentStatus");
+          newTab.close(); // Close the payment tab
+          checkPaymentStatus(); // Call the function to proceed with bill creation
+        }
+      });
+
+      // Function to check payment status and create bill
+      const checkPaymentStatus = async () => {
+        try {
+          const responseAPI_CreateBill = await Axios({
+            url: "/api/bill",
+            method: "POST",
+            data: {
+              userId: userId,
+            },
+          });
+          fetchData();
+          setIsLoading(false);
+
+          viewContext.handleSuccess("Buy successfully");
+          setIsModalOpen(false);
+        } catch (error) {
+          viewContext.handleError("Buy fail!");
+          setIsLoading(false);
+        }
+      };
     } catch (error) {
       viewContext.handleError("Buy fail!");
+      setIsLoading(false);
     }
   };
 

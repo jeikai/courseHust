@@ -48,7 +48,7 @@ exports.vn_pay = async function (req, res) {
         vnp_Params['vnp_IpAddr'] = ipAddr;
         vnp_Params['vnp_CreateDate'] = createDate;
         vnp_Params['vnp_BankCode'] = bankCode;
-
+        console.log(vnp_Params)
         vnp_Params = sortObject(vnp_Params);
         let querystring = require('qs');
         let signData = querystring.stringify(vnp_Params, { encode: false });
@@ -58,6 +58,32 @@ exports.vn_pay = async function (req, res) {
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
         return res.status(200).json({ message: "Create token successfully", data: vnpUrl })
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+exports.getVN_PAY = async function (req, res) {
+    try {
+        let vnp_Params = req.query;
+
+        let secureHash = vnp_Params['vnp_SecureHash'];
+
+        vnp_Params = sortObject(vnp_Params);
+        let tmnCode = process.env.VNPAY_TMNCODE;
+        let secretKey = process.env.VNPAY_SECRETKEY;
+
+        let querystring = require('qs');
+        let signData = querystring.stringify(vnp_Params, { encode: false });
+        let crypto = require("crypto");
+        let hmac = crypto.createHmac("sha512", secretKey);
+        let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+        console.log(secureHash, signed)
+        if (secureHash === signed) {
+            return res.status(200).json({ message: "success" })
+        } else {
+            return res.status(200).json({ message: "not done" })
+        }
     } catch (error) {
         return res.status(500).json({ message: error.message })
     }

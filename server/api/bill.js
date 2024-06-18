@@ -7,6 +7,8 @@ api.post('/bill', use(billController.create))
 
 api.post('/vnpay', use(billController.vn_pay))
 
+api.get('/vnpay', use(billController.getVN_PAY))
+
 api.get('/bill/:userId', use(billController.getById))
 
 api.get('/bill', use(billController.get))

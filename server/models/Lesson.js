@@ -7,7 +7,7 @@ const LessonSchema = new Schema({
 	content: { type: String, default: '' },
 	videoURL: { type: String, default: '' },
 	docURL: { type: String, default: '' },
-	duration: { type: Number, required: true },
+	duration: { type: Number, required: true, default: 0 },
 	date_created: Date,
 	date_updated: Date, 
 });
@@ -22,7 +22,7 @@ exports.create = async function (data) {
 			content: data.content || '',
 			videoURL: data.videoURL,
 			docURL: data.docURL || '',
-			duration: parseFloat(data.duration),
+			duration: parseFloat(data.duration) || 0,
 			date_created: new Date(),
 			date_updated: new Date(),
 		};

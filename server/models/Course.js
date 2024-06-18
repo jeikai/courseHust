@@ -5,7 +5,7 @@ const quizModel = require('./Quiz');
 const courseSchema = new Schema({
 	// Basic info
 	instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-	title: { type: String, required: true, unique: true },
+	title: { type: String, required: true },
 	shortDes: { type: String }, 
 	description: { type: String, required: true },
 	isStream: { type: Boolean, required: true },
@@ -57,6 +57,7 @@ exports.create = async function (data) {
 		await newCourse.save();
 		return newCourse;
 	} catch (error) {
+		console.log(error)
 		return { error: error };
 	}
 };

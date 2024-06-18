@@ -217,7 +217,7 @@ const Curriculum = ({ course, process }) => {
   );
 };
 
-const Reviews = ({ userId, courseId, reviews }) => {
+const Reviews = ({ userId, courseId, reviews, process }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
@@ -292,10 +292,11 @@ const Reviews = ({ userId, courseId, reviews }) => {
     return comment.trim().length > 0 && rating > 0;
   };
   if (loading) return <Loader />;
+
   return (
     <>
       <Row className="mb-4">
-        {userId ? (
+        {userId && process?.data ? (
           <Col span={24}>
             <Button type="primary" onClick={showModal}>
               Add your comment
@@ -643,7 +644,7 @@ const CourseDetail = () => {
       icon: CommentOutlined,
       name: "Reviews",
       child: Reviews,
-      props: { userId: userId, courseId: courseId, reviews: reviews?.data },
+      props: { userId: userId, courseId: courseId, reviews: reviews?.data, process: checkProcess?.data },
     },
   ];
 

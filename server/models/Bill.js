@@ -66,7 +66,7 @@ exports.getTotalAmountByUserId = async function (data) {
             return acc + coursePrice;
         }, 0);
         
-        return totalPrice;
+        return totalPrice + 10000;
     } catch (error) {
         console.log(error)
         return { error: error }

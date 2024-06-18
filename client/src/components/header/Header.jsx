@@ -44,6 +44,8 @@ const Header = () => {
   const [category, setCategory] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const categoryAPI = useAPI("/api/category", null);
+  const schedule = useAPI(`/api/calendar/user/${user?.account?._id}`, null)
+  console.log(schedule?.data, user?.account?._id)
   const [notifications, setNotifications] = useState([
     {
       id: 1,

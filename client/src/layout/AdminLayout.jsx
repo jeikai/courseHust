@@ -93,7 +93,6 @@ const AdminLayout = ({ children }) => {
     getItem("Courses", "courses", <ShopOutlined />, [
       getItem("Manage courses", "/admin/manage_courses"),
       getItem("Add new course", "/admin/add_course"),
-      getItem("Course category", "/admin/category"),
     ]),
     getItem("Quizs", "quiz", <QuestionOutlined />, [
       getItem("Manage Quiz", "/admin/quiz"),

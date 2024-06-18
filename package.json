@@ -37,6 +37,7 @@
     "get-video-duration": "^4.1.0",
     "mathjs": "^13.0.0",
     "moment": "^2.30.1",
+    "react-draft-wysiwyg": "^1.15.0",
     "rollup": "^4.18.0",
     "wait-on": "^7.2.0"
   },

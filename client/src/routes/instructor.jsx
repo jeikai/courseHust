@@ -1,8 +1,6 @@
-import AddCategory from '../pages/instructor/AddCategory';
 import AddCourse from '../pages/instructor/AddCourse';
 import AddQuiz from '../pages/instructor/AddQuiz';
 import AutoQuiz from '../pages/instructor/AutoQuiz';
-import Category from '../pages/instructor/Category';
 import Courses from '../pages/instructor/Courses';
 import Dashboard from '../pages/instructor/Dashboard';
 import EditCourse from '../pages/instructor/EditCourse';
@@ -37,20 +35,6 @@ const Routes = [
 		layout: 'admin',
 		// permission: 'student',
 		title: 'FunCourse - Edit a courses | E-Learning',
-	},
-	{
-		path: '/admin/category',
-		view: Category,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Manage categories | E-Learning',
-	},
-	{
-		path: '/admin/add_category',
-		view: AddCategory,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Manage categories | E-Learning',
 	},
 	{
 		path: '/admin/quiz',

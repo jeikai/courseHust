@@ -14,11 +14,6 @@ api.post('/upload', uploadCloud.single('file'), async (req, res, next) => {
       .then((response) =>{
         duration = response
       })
-    // let duration = 0;
-    // await getVideoDurationInSeconds(req.file.path)
-    //   .then((response) =>{
-    //     duration = response
-    //   })
     return res.json({ file_url: req.file.path, duration: duration})
   }
   return res.json({ file_url: req.file.path });

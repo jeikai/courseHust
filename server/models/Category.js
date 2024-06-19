@@ -31,10 +31,24 @@ exports.get = async function (data) {
         let query = {}
         if (data.categoryId) query._id = data.categoryId
         if (data.title) query.title = data.title
-        return await Category.find(query).lean()
+        return await Category.find(query).populate("subCategory")
     } catch (e) {
+        console.log(e)
         return { error: e }
     }
+}
+
+exports.addSubCategory = async function (categoryId, subCategoryId) {
+    try {
+		const category = await Category.findById(categoryId);
+		if (!category) return { error: 'category not found' };
+
+		category.subCategory.push(subCategoryId);
+		category.markModified('subCategory');
+		await category.save();
+	} catch (err) { 
+		return { error: err };
+	}
 }
 
 exports.update = async function (categoryId, data) {

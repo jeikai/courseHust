@@ -170,7 +170,7 @@ exports.addSection = async function (courseId, sectionId) {
 		course.markModified('sections');
 		course.markModified('date_updated');
 		await course.save();
-	} catch (err) {
+	} catch (err) { 
 		return { error: err };
 	}
 };

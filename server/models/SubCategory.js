@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-
+const categoryModel = require('./Category')
 const subcategorySchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true }
@@ -9,7 +9,7 @@ const subcategorySchema = new Schema({
 const SubCategory = mongoose.model('SubCategory', subcategorySchema, 'subcategories')
 exports.schema = SubCategory
 
-exports.create = async function (data) {
+exports.create = async function (data, categoryId) {
     try {
         const categoryData = {
             title: data.title,
@@ -17,8 +17,10 @@ exports.create = async function (data) {
         }
         const newCategory = SubCategory(categoryData)
         await newCategory.save()
+        await categoryModel.addSubCategory(categoryId, newCategory._id)
         return newCategory
     } catch (e) {
+        console.log(e)
         return { error: e }
     }
 }
@@ -30,7 +32,7 @@ exports.get = async function (data) {
         let query = {}
         if (data.categoryId) query._id = data.categoryId
         if (data.title) query.title = data.title
-        return await Category.find(query).lean()
+        return await SubCategory.find(query).lean()
     } catch (e) {
         return { error: e }
     }

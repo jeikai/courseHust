@@ -15,5 +15,6 @@ module.exports = [
   require('./process'),
   require('./feedback'),
   require('./favorite'),
-  require('./recommend')
+  require('./recommend'),
+  require('./subcategory'),
 ]

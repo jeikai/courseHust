@@ -6,21 +6,27 @@ exports.create = async function (req, res) {
 		const quizId = req.params.quizId;
 
 		const data = req.body;
+
 		data.forEach((question) => {
 			const result = questionModel.create(quizId, question);
 		});
 		return res.status(200).json({ response: true });
 	} catch (error) {
+		console.log(error)
 		return res.status(500).json({ message: error.message });
 	}
 };
 exports.singleCreate = async (req, res) => {
 	try {
 		const { questionData } = await req.body;
+		console.log(questionData)
 		const result = await questionModel.singleCreate(questionData);
 
 		return res.status(200).json({ data: result.data });
-	} catch (error) {}
+	} catch (error) {
+		console.log(error)
+		return res.status(500).json({ message: error.message });
+	}
 };
 exports.update = async function (req, res) {
 	try {

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const quizModel = require('./Quiz');
 const QuestionSchema = new Schema({
+	userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	question: { type: String, required: true },
 	level: {
 		type: String,
@@ -16,7 +17,8 @@ const QuestionSchema = new Schema({
 	},
 	options: [{ type: String, default: '' }],
 	answer: [{ type: String, default: '' }],
-	categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'CategoryQuestion' },
+	categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+	subcategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory' },
 	type: { type: String, enum: ['single', 'multiple', 'text'] }, // single là trắc nghiệm 1 đáp án, multiple là trắc nghiệm nhiều đáp án. Text là tự luận
 	date_created: Date,
 	date_updated: Date,
@@ -25,37 +27,49 @@ const QuestionSchema = new Schema({
 const Question = mongoose.model('Question', QuestionSchema, 'questions');
 exports.schema = Question;
 exports.singleCreate = async (data) => {
-	try {
-		const questionData = {
-			question: data.question,
-			options: data.options,
-			answer: data.answer,
-			categoryId: data.categoryId,
-			type: data.type,
-			date_created: new Date(),
-			date_updated: new Date(),
-		};
-		if (data.categoryId) {
-			questionData.categoryId = data.categoryId;
-		}
-		if (data.level) {
-			questionData.level = data.level;
-		}
-		const newQuestion = Question(questionData);
-		await newQuestion.save();
-		return { data: newQuestion };
-	} catch (error) {
-		return { error: error };
-	}
+    try {
+        // Validate and process subcategoryId
+        let subcategoryId = data.subcategoryId;
+        if (!subcategoryId || subcategoryId.trim() === '') {
+            subcategoryId = null; // or handle as needed
+        }
+
+        const questionData = {
+            userId: data.userId,
+            question: data.question,
+            level: data.level,
+            options: data.options,
+            answer: data.answer,
+            categoryId: data.categoryId,
+            subcategoryId: subcategoryId,
+            type: data.type,
+            date_created: new Date(),
+            date_updated: new Date(),
+        };
+
+        const newQuestion = Question(questionData);
+        await newQuestion.save();
+        return { data: newQuestion };
+    } catch (error) {
+        console.log(error);
+        return { error: error };
+    }
 };
+
 exports.create = async function (quizzId, data) {
 	try {
+		let subcategoryId = data.subcategoryId;
+        if (!subcategoryId || subcategoryId.trim() === '') {
+            subcategoryId = null; // or handle as needed
+        }
 		const questionData = {
+			userId: data.userId,
 			question: data.question,
 			level: data.level,
 			options: data.options,
 			answer: data.answer,
 			categoryId: data.categoryId,
+			subcategoryId: subcategoryId,
 			type: data.type,
 			date_created: new Date(),
 			date_updated: new Date(),

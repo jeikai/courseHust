@@ -26,6 +26,7 @@ import {
   CommentOutlined,
   CreditCardOutlined,
   FacebookOutlined,
+  FileTextOutlined,
   HeartFilled,
   LinkedinOutlined,
   LockOutlined,
@@ -150,6 +151,7 @@ const Curriculum = ({ course, process }) => {
     children: (
       <ul>
         {section.specs.map((spec) => {
+          console.log(spec);
           return (
             <li key={spec?._id?._id} className="hover:bg-slate-100 px-1 py-3">
               <Flex
@@ -159,7 +161,14 @@ const Curriculum = ({ course, process }) => {
                   !process?.data
                     ? () => {}
                     : () => {
-                        spec?.type === "lesson"
+                        spec?.type === "lesson" && spec?._id?.docURL != ""
+                          ? navigate(
+                              "/home/document/" +
+                                spec?._id?._id +
+                                "/" +
+                                course?._id
+                            )
+                          : spec?.type === "lesson"
                           ? navigate(
                               "/home/lesson/" +
                                 spec?._id?._id +
@@ -173,26 +182,43 @@ const Curriculum = ({ course, process }) => {
                 }
               >
                 <Flex align="center" gap={12}>
-                  {spec.type === "lesson" ? (
-                    !process?.data ? (
+                  {
+                    // dành cho document
+                    spec.type === "lesson" && spec?.id?.docURL != "" ? (
+                      !process?.data ? (
+                        <LockOutlined className="text-xl text-[#ccc]" />
+                      ) : process?.data?.lessonId?.some(
+                          (id) => id.toString() === spec?._id?._id.toString()
+                        ) ? (
+                        <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
+                      ) : (
+                        <FileTextOutlined className="text-xl text-[#754FFE]" />
+                      )
+                    ) : !process?.data ? (
                       <LockOutlined className="text-xl text-[#ccc]" />
-                    ) : process?.data?.lessonId?.some(
-                        (id) => id.toString() === spec?._id?._id.toString()
+                    ) : // dành cho lesson video
+                    spec.type === "lesson" ? (
+                      !process?.data ? (
+                        <LockOutlined className="text-xl text-[#ccc]" />
+                      ) : process?.data?.lessonId?.some(
+                          (id) => id.toString() === spec?._id?._id.toString()
+                        ) ? (
+                        <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
+                      ) : (
+                        <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                      )
+                    ) : !process?.data ? (
+                      <LockOutlined className="text-xl text-[#ccc]" />
+                    ) : // dành cho quiz
+                    process?.data?.quizScores?.some(
+                        (id) =>
+                          id?.quizId.toString() === spec?._id?._id.toString()
                       ) ? (
                       <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
                     ) : (
-                      <PlayCircleOutlined className="text-xl text-[#754FFE]" />
+                      <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
                     )
-                  ) : !process?.data ? (
-                    <LockOutlined className="text-xl text-[#ccc]" />
-                  ) : process?.data?.quizScores?.some(
-                      (id) =>
-                        id?.quizId.toString() === spec?._id?._id.toString()
-                    ) ? (
-                    <CheckCircleOutlined className="text-xl text-[#3ebb3a]" />
-                  ) : (
-                    <QuestionCircleOutlined className="text-xl text-[#754FFE]" />
-                  )}
+                  }
                   <span className="text-[#676C7D">
                     {spec?._id?.title ? spec._id.title : ""}
                   </span>
@@ -644,7 +670,12 @@ const CourseDetail = () => {
       icon: CommentOutlined,
       name: "Reviews",
       child: Reviews,
-      props: { userId: userId, courseId: courseId, reviews: reviews?.data, process: checkProcess?.data },
+      props: {
+        userId: userId,
+        courseId: courseId,
+        reviews: reviews?.data,
+        process: checkProcess?.data,
+      },
     },
   ];
 

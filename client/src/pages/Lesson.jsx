@@ -69,7 +69,7 @@ const Lesson = () => {
       }
     }, 100);
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId); 
   }, [isPlaying, time, responseAPI.data?.duration]);
 
   if (responseAPI.loading) return <Loader />;

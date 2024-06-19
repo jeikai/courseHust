@@ -45,6 +45,7 @@ import {
 	Tabs,
 	DatePicker,
 	TimePicker,
+	message,
 } from 'antd';
 import {
 	CreditCardOutlined,
@@ -62,7 +63,7 @@ import {
 	DeleteOutlined,
 	ScheduleOutlined,
 } from '@ant-design/icons';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -93,11 +94,13 @@ import {
 import { ViewContext } from '../../context/View';
 import dayjs from 'dayjs';
 import { string } from 'mathjs';
+import { io } from 'socket.io-client';
 const EditCourse = () => {
+	const socket = useRef();
 	const [courseId, setCourseId] = useState(useParams().id);
 	const userId = JSON.parse(localStorage.getItem('user')).account._id;
 	const [isLoading, setIsLoading] = useState(false);
-
+	const navigate = useNavigate();
 	const [form] = Form.useForm();
 
 	const [current, setCurrent] = useState(0);
@@ -171,6 +174,13 @@ const EditCourse = () => {
 	};
 
 	useEffect(() => {
+		if (userId) {
+			socket.current = io('http://localhost:5050');
+			socket.current.emit('add-user', userId);
+		}
+	}, [userId]);
+
+	useEffect(() => {
 		const field = form.getFieldsValue();
 		field.description = field.description?.level?.content;
 		setData({ ...data, ...field });
@@ -184,31 +194,39 @@ const EditCourse = () => {
 	};
 	// set thumbnail
 	const handleSubmit = async (formData) => {
-		setIsLoading(true);
-		console.log(data, formData);
-		const dataReq = data;
-		dataReq.title = formData.title;
-		dataReq.category = formData.category;
-		dataReq.description = formData.description;
-		dataReq.shortDes = formData.shortDes;
-		dataReq.level = formData.level;
-		console.log({ thumbnail: data.thumbnail.file });
-		if (data.thumbnail && typeof data.thumbnail != 'string') {
-			let thumbnail = await uploadFile(data.thumbnail);
-			dataReq.thumbnail = thumbnail.file_url;
-			console.log('get new link');
+		try {
+			setIsLoading(true);
+			console.log(data, formData);
+			const dataReq = data;
+			dataReq.title = formData.title;
+			dataReq.category = formData.category;
+			dataReq.description = formData.description;
+			dataReq.shortDes = formData.shortDes;
+			dataReq.level = formData.level;
+
+			console.log({ thumbnail: data.thumbnail.file });
+			if (data.thumbnail && typeof data.thumbnail != 'string') {
+				let thumbnail = await uploadFile(data.thumbnail);
+				dataReq.thumbnail = thumbnail.file_url;
+				console.log('get new link');
+			}
+			console.log(dataReq.thumbnail);
+			setData((prev) => dataReq);
+			const result = await handleUpdateCourse(dataReq);
+			setIsLoading(false);
+			message.success('Update successfully');
+		} catch (error) {
+			message.error(error.toString());
+			setIsLoading(false);
+			console.log(error);
 		}
-		console.log(dataReq.thumbnail);
-		setData((prev) => dataReq);
-		const result = await handleUpdateCourse(dataReq);
-		setIsLoading(false);
 	};
 
 	const BasicInformation = (props) => {
 		const handleBasicInfoData = (basicInfo) => {
 			console.log('data', data);
 		};
-		return ( 
+		return (
 			<Spring className={''}>
 				<Typography.Title level={4}>Basic Information</Typography.Title>
 
@@ -542,6 +560,7 @@ const EditCourse = () => {
 			transform: CSS.Translate.toString(transform),
 			transition,
 		};
+
 		return (
 			<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
 				<Flex
@@ -549,7 +568,7 @@ const EditCourse = () => {
 					align="center"
 					justify="space-between">
 					<Flex align="center" gap={6}>
-						{section?.specs?.filter((spec) => spec.type === 'lesson') ? (
+						{item?.videoURL !== '' && item?.videoURL ? (
 							<VideoCameraOutlined />
 						) : (
 							<QuestionCircleOutlined />
@@ -559,7 +578,13 @@ const EditCourse = () => {
 						</Typography.Title>
 					</Flex>
 					<Space>
-						<EditOutlined onClick={() => openModalEditLesson(item._id)} />
+						<EditOutlined
+							onClick={() =>
+								item?.ques
+									? navigate(`/admin/edit_quiz/${item._id}`)
+									: openModalEditLesson(item._id)
+							}
+						/>
 						<DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
 					</Space>
 				</Flex>
@@ -860,7 +885,6 @@ const EditCourse = () => {
 									items={data?.sections}
 									strategy={verticalListSortingStrategy}>
 									{data?.sections.map((section) => {
-										console.log({ dataSections: section });
 										return (
 											<RowSection
 												key={section._id}
@@ -1444,7 +1468,10 @@ const EditCourse = () => {
 					<Drawer
 						title="Edit Schedule"
 						width={'35rem'}
-						onClose={() => setOpenEditSchedule((prev) => false)}
+						onClose={() => {
+							setOpenEditSchedule((prev) => false);
+              formSchedule.resetFields();
+						}}
 						open={openEditSchedule}
 						styles={{
 							body: {
@@ -1455,8 +1482,8 @@ const EditCourse = () => {
 							<Space>
 								<Button
 									onClick={() => {
-										setOpenEditSchedule((prev) => false);
 										formSchedule.resetFields();
+										setOpenEditSchedule((prev) => false);
 									}}>
 									Cancel
 								</Button>
@@ -1589,7 +1616,7 @@ const EditCourse = () => {
 								onClick={() => handleDeleteSchedule()}
 								className=""
 								danger>
-								Delete
+								Delete This Schedule
 							</Button>
 						</div>
 					</Drawer>

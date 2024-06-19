@@ -45,8 +45,9 @@ import {
   UploadOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
-import { Editor } from "@tinymce/tinymce-react";
+import { Link, useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { parse, v4 as uuidv4 } from "uuid";
 import { ViewContext } from "../../context/View";
 import {
@@ -72,7 +73,7 @@ import Loader from "../../components/Loader";
 
 const AddCourse = () => {
   const viewContext = useContext(ViewContext);
-
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [current, setCurrent] = useState(0);
   const [formLesson] = Form.useForm();
@@ -337,20 +338,26 @@ const AddCourse = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    // console.log(data.thumbnail);
+
     let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
     data.thumbnail = thumbnail.file_url;
-    // data.thumbnail = "img.png"
+
     setData({ ...data });
     let { sections } = data;
     for (let section of sections) {
       let { specials } = section;
       for (let spec of specials) {
-        let uploadVid = await uploadFile(spec.file[0].originFileObj);
-        (spec.videoURL = uploadVid.file_url),
-          (spec.duration = uploadVid.duration);
-        // spec.videoURL = "vid.mp4",
-        // spec.duration = 30
+        if (spec.file && spec.file.length > 0) {
+          let uploadFileResponse = await uploadFile(spec.file[0].originFileObj);
+          const fileType = spec.file[0].type;
+
+          if (fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || fileType === "application/pdf") {
+            spec.docURL = uploadFileResponse.file_url;
+          } else {
+            spec.videoURL = uploadFileResponse.file_url;
+            spec.duration = uploadFileResponse.duration;
+          }
+        }
       }
     }
     if (data.free) {
@@ -372,6 +379,7 @@ const AddCourse = () => {
       console.log(resCourse.data);
       setIsLoading(false);
       viewContext.handleSuccess("Create course successfully");
+      navigate("/admin/manage_courses");
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -468,11 +476,18 @@ const AddCourse = () => {
             }
             name="description"
           >
-            <Input.TextArea
+            <ReactQuill
               className="py-2"
-              rows={6}
               placeholder="Detail description for course"
-              maxLength={100}
+              modules={{
+                toolbar: [
+                  [{ header: "1" }, { header: "2" }, { font: [] }],
+                  [{ list: "ordered" }, { list: "bullet" }],
+                  ["bold", "italic", "underline"],
+                  ["link", "image"],
+                  ["clean"],
+                ],
+              }}
             />
           </Form.Item>
         </Col>
@@ -501,7 +516,7 @@ const AddCourse = () => {
         {!form.getFieldValue("free") && (
           <>
             <Col span={6}>
-              <Typography.Title level={5}>Course price ($)</Typography.Title>
+              <Typography.Title level={5}>Course price (VND)</Typography.Title>
             </Col>
             <Col span={18}>
               <Form.Item className="w-full" name="price">
@@ -834,7 +849,7 @@ const AddCourse = () => {
                 </Space>
               }
             >
-              <Form form={formEditLesson}> 
+              <Form form={formEditLesson}>
                 <Row gutter={16}>
                   <Col span={24}>
                     <Typography.Title level={5}>Lesson Name</Typography.Title>

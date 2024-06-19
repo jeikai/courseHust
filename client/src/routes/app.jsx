@@ -12,6 +12,7 @@ import Purchase from "../pages/Purchase";
 import Bill from "../pages/Bill"
 import QuizLesson from "../pages/QuizLesson";
 import QuizResult from "../pages/QuizResult";
+import DocumentLesson from "../pages/DocumentLesson";
 const Routes = [
   {
     path: "/cart",
@@ -78,6 +79,13 @@ const Routes = [
   {
     path: "/home/lesson/:lessonId/:courseId",
     view: Lesson,
+    layout: "lesson",
+    // permission: 'student',
+    title: "FunCourse - Lesson | E-Learning",
+  },
+  {
+    path: "/home/document/:lessonId/:courseId",
+    view: DocumentLesson,
     layout: "lesson",
     // permission: 'student',
     title: "FunCourse - Lesson | E-Learning",

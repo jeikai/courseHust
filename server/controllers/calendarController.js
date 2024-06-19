@@ -43,22 +43,24 @@ exports.checkCalendar = async function (req, res) {
         const responseCourse = await calendarModel.getByCourseId(courseId);
 
         const overlappingSchedules = [];
-
-        for (const userSchedule of responseUser) {
-            for (const courseSchedule of responseCourse) {
-                if (
-                    userSchedule.dayOfWeek === courseSchedule.dayOfWeek &&
-                    ((userSchedule.time_start >= courseSchedule.time_start && userSchedule.time_start < courseSchedule.time_end) ||
-                        (userSchedule.time_end > courseSchedule.time_start && userSchedule.time_end <= courseSchedule.time_end) ||
-                        (userSchedule.time_start <= courseSchedule.time_start && userSchedule.time_end >= courseSchedule.time_end))
-                ) {
-                    overlappingSchedules.push(userSchedule);
+        if (!responseUser && !responseCourse) {
+            for (const userSchedule of responseUser) {
+                for (const courseSchedule of responseCourse) {
+                    if (
+                        userSchedule.dayOfWeek === courseSchedule.dayOfWeek &&
+                        ((userSchedule.time_start >= courseSchedule.time_start && userSchedule.time_start < courseSchedule.time_end) ||
+                            (userSchedule.time_end > courseSchedule.time_start && userSchedule.time_end <= courseSchedule.time_end) ||
+                            (userSchedule.time_start <= courseSchedule.time_start && userSchedule.time_end >= courseSchedule.time_end))
+                    ) {
+                        overlappingSchedules.push(userSchedule);
+                    }
                 }
             }
         }
 
         return res.status(200).json(overlappingSchedules);
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ message: error.message });
     }
 }

@@ -101,7 +101,7 @@ const AutoQuiz = () => {
 			console.log(res.error)
             viewContext.handleError("Create quiz failed");
           } else {
-            viewContext.handleError(res.error);
+            viewContext.handleError(res.error); 
           }
         })
         .catch((err) => {

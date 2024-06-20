@@ -11,7 +11,7 @@ const QuizSchema = new Schema({
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Question',
-		},
+		}, 
 	],
 	startTime: { type: Date, default: '' },
 	endTime: { type: Date, default: '' },

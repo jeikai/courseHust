@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const quizModel = require('./Quiz');
 const QuestionSchema = new Schema({
+	// người tạo ra câu hỏi
 	userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+	// Đề bài
 	question: { type: String, required: true },
 	level: {
 		type: String,

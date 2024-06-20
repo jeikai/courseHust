@@ -54,6 +54,8 @@ const AddQuestion = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [enableAddAnswers, setEnableAddAnswers] = useState(true);
+  const [enableMultipleChoice, setEnableMultipleChoice] = useState(false);
   const categoryResponseApi = useAPI(`/api/category`, null).data;
 
   useEffect(() => {
@@ -72,9 +74,16 @@ const AddQuestion = () => {
   const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
+    console.log(enableMultipleChoice)
     questions[indexQuestion].options = questions[indexQuestion].options.map(
       (option, i) => {
-        option.isSelected = indexOption === i;
+        if (!enableMultipleChoice) {
+          option.isSelected = indexOption === i;
+        } else {
+          if (i === indexOption && option.isSelected) {
+            option.isSelected = option.isSelected;
+          }
+        }
         return option;
       }
     );
@@ -267,6 +276,36 @@ const AddQuestion = () => {
                                       icon={<DeleteOutlined />}
                                     ></Button>
                                   </Flex>
+                                  
+                                  {/* Choose type of choice */}
+                                  <Flex vertical={false} gap={5} align="center">
+                                    <p className="font-bold">Type:</p>
+                                    <Form.Item
+                                      name={[field.name, "kind"]}
+                                      initialValue={"scq"}
+                                      noStyle
+                                    >
+                                      <Select onChange={(value) => {
+                                        value === "essay" ? setEnableAddAnswers(false) : setEnableAddAnswers(true)
+                                        value === "mcq" ? setEnableMultipleChoice(true) : setEnableMultipleChoice(false)
+                                      }} placeholder="Select kind of question">
+                                        <Select.Option value="mcq">
+                                          Multiple choice
+                                        </Select.Option>
+                                        <Select.Option value="scq">
+                                          Single choice
+                                        </Select.Option>
+                                        <Select.Option value="essay">
+                                          Essay
+                                        </Select.Option>
+                                      </Select>
+                                    </Form.Item>
+                                    <Button
+                                      onClick={() => remove(field.name)}
+                                      danger
+                                      icon={<DeleteOutlined />}
+                                    ></Button>
+                                  </Flex>
                                 </Flex>
                               </Flex>
                             </Flex>
@@ -340,7 +379,7 @@ const AddQuestion = () => {
                                               />
                                             </Form.Item>
                                           </Flex>
-                                          {subField.name === 0 && (
+                                          {enableAddAnswers && subField.name === 0 && (
                                             <Button
                                               icon={<PlusOutlined />}
                                               onClick={() => {

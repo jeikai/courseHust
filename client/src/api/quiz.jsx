@@ -388,14 +388,15 @@ const createQuestions = async (data, userId) => {
       level: question.type,
       categoryId: question.category,
       subcategoryId: question.subcategory,
+      // type: question.kind,
       type: "single",
     };
     let optionArray = [];
-    let answer;
+    let answer = [];
     question.options.forEach((option) => {
       optionArray.push(option.label);
       if (option.isSelected == true) {
-        answer = option.label;
+        answer.push(option.label);
       }
     });
     processData.options = optionArray;

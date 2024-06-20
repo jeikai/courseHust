@@ -39,6 +39,7 @@ import { createQuizWithSuggestedQues } from "../../api/quiz";
 import { useAPI } from "../../hooks/api";
 import { ViewContext } from "../../context/View";
 import { useContext } from "react";
+import AddQuestion from "./AddQuestion";
 const AddQuiz = () => {
   const breadcrumb = [
     {
@@ -184,11 +185,21 @@ const AddQuiz = () => {
   const filterOption = (input, option) =>
     (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
-  const handleCreateQuestion = async (values) => {
-    console.log("New Question:", values);
-    // Add logic to save the new question
-    // Close the modal after saving the question
+  const fetchQuestions = async () => {
+    if (selectedCategory) {
+      const questionsData = await Axios({
+        method: "GET",
+        url: `/api/question/category/${selectedCategory?._id}`,
+      });
+      setSuggestedQuestion(questionsData.data.data);
+    }
+  };
+
+  const handleCreateQuestionModalOk = async () => {
+    setIsLoading(true);
+    await fetchQuestions();
     setCreateQuestionModal(false);
+    setIsLoading(false);
   };
   return (
     <>
@@ -597,11 +608,12 @@ const AddQuiz = () => {
             open={createQuestionModal}
             title="Create New Question"
             onCancel={() => setCreateQuestionModal(false)}
-            onOk={() => newQuestionForm.submit()}
+            onOk={handleCreateQuestionModalOk}
             okText="Submit"
             cancelText="Cancel"
+            width={1300}
           >
-           
+            <AddQuestion />
           </Modal>
         </Spring>
       )}

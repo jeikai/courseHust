@@ -36,6 +36,7 @@ import FormItem from "antd/es/form/FormItem";
 import { createQuestions } from "../../api/quiz";
 import { useAPI } from "../../hooks/api";
 import { ViewContext } from "../../context/View";
+import Loader from "../../components/Loader";
 
 const AddQuestion = () => {
   const breadcrumb = [
@@ -52,7 +53,7 @@ const AddQuestion = () => {
   const [formQuiz] = Form.useForm();
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState({});
-
+  const [isLoading, setIsLoading] = useState(false);
   const categoryResponseApi = useAPI(`/api/category`, null).data;
 
   useEffect(() => {
@@ -82,22 +83,24 @@ const AddQuestion = () => {
   };
 
   const handleFinish = (data) => {
-	console.log(data)
+    console.log(data);
+    setIsLoading(true);
     createQuestions(data, userId)
       .then((res) => {
         if (res === true) {
           viewContext.handleSuccess("Create questions successfully!");
-          // Reset form fields after successful submission
           formQuiz.resetFields();
-          formQuiz.setFieldsValue({ questions: [] }); // Clear questions list
+          formQuiz.setFieldsValue({ questions: [] });
         } else if (res === false) {
           viewContext.handleError("Create question failed");
         } else {
           viewContext.handleError(res.error);
         }
+        setIsLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setIsLoading(false);
         viewContext.handleError(err);
       });
   };
@@ -105,16 +108,17 @@ const AddQuestion = () => {
   const handleValuesChange = (_, allValues) => {
     const updatedSelectedCategories = {};
     allValues.questions?.forEach((question, index) => {
-		console.log(question)
+      console.log(question);
       if (question?.category) {
-        updatedSelectedCategories[index] = categories.find(
-          (cat) => cat._id === question.category
-        )?.subCategory || [];
+        updatedSelectedCategories[index] =
+          categories.find((cat) => cat._id === question.category)
+            ?.subCategory || [];
       }
     });
     setSelectedCategories(updatedSelectedCategories);
   };
 
+  if (isLoading) return <Loader />;
   return (
     <Spring>
       <Bread title="Add a new quiz" items={breadcrumb} />

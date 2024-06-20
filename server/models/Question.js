@@ -27,41 +27,41 @@ const QuestionSchema = new Schema({
 const Question = mongoose.model('Question', QuestionSchema, 'questions');
 exports.schema = Question;
 exports.singleCreate = async (data) => {
-    try {
-        // Validate and process subcategoryId
-        let subcategoryId = data.subcategoryId;
-        if (!subcategoryId || subcategoryId.trim() === '') {
-            subcategoryId = null; // or handle as needed
-        }
+	try {
+		// Validate and process subcategoryId
+		let subcategoryId = data.subcategoryId;
+		if (!subcategoryId || subcategoryId.trim() === '') {
+			subcategoryId = null; // or handle as needed
+		}
 
-        const questionData = {
-            userId: data.userId,
-            question: data.question,
-            level: data.level,
-            options: data.options,
-            answer: data.answer,
-            categoryId: data.categoryId,
-            subcategoryId: subcategoryId,
-            type: data.type,
-            date_created: new Date(),
-            date_updated: new Date(),
-        };
+		const questionData = {
+			userId: data.userId,
+			question: data.question,
+			level: data.level,
+			options: data.options,
+			answer: data.answer,
+			categoryId: data.categoryId,
+			subcategoryId: subcategoryId,
+			type: data.type,
+			date_created: new Date(),
+			date_updated: new Date(),
+		};
 
-        const newQuestion = Question(questionData);
-        await newQuestion.save();
-        return { data: newQuestion };
-    } catch (error) {
-        console.log(error);
-        return { error: error };
-    }
+		const newQuestion = Question(questionData);
+		await newQuestion.save();
+		return { data: newQuestion };
+	} catch (error) {
+		console.log(error);
+		return { error: error };
+	}
 };
 
 exports.create = async function (quizzId, data) {
 	try {
 		let subcategoryId = data.subcategoryId;
-        if (!subcategoryId || subcategoryId.trim() === '') {
-            subcategoryId = null; // or handle as needed
-        }
+		if (!subcategoryId || subcategoryId.trim() === '') {
+			subcategoryId = null; // or handle as needed
+		}
 		const questionData = {
 			userId: data.userId,
 			question: data.question,

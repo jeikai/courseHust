@@ -282,21 +282,21 @@ const AddQuestion = () => {
                                     <p className="font-bold">Type:</p>
                                     <Form.Item
                                       name={[field.name, "kind"]}
-                                      initialValue={"scq"}
+                                      initialValue={"single"}
                                       noStyle
                                     >
                                       <Select onChange={(value) => {
-                                        value === "essay" ? setEnableAddAnswers(false) : setEnableAddAnswers(true)
-                                        value === "mcq" ? setEnableMultipleChoice(true) : setEnableMultipleChoice(false)
+                                        value === "text" ? setEnableAddAnswers(false) : setEnableAddAnswers(true)
+                                        value === "multiple" ? setEnableMultipleChoice(true) : setEnableMultipleChoice(false)
                                       }} placeholder="Select kind of question">
-                                        <Select.Option value="mcq">
+                                        <Select.Option value="multiple">
                                           Multiple choice
                                         </Select.Option>
-                                        <Select.Option value="scq">
+                                        <Select.Option value="single">
                                           Single choice
                                         </Select.Option>
-                                        <Select.Option value="essay">
-                                          Essay
+                                        <Select.Option value="text">
+                                            
                                         </Select.Option>
                                       </Select>
                                     </Form.Item>

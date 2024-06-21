@@ -388,8 +388,8 @@ const createQuestions = async (data, userId) => {
       level: question.type,
       categoryId: question.category,
       subcategoryId: question.subcategory,
-      // type: question.kind,
-      type: "single",
+      type: question.kind,
+      // type: "single",
     };
     let optionArray = [];
     let answer = [];

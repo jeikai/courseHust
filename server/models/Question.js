@@ -114,7 +114,7 @@ exports.update = async (questionId, questionData) => {
 		});
 		return { data: result };
 	} catch (error) {
-		return { error };
+		return { error }; 
 	}
 };
 exports.findById = async (questionId) => {
@@ -141,3 +141,43 @@ exports.getQuestionBySubCategory = async (subcategoryId) => {
 		return { error }
 	}
 }
+
+exports.getAutoQuiz = async (data) => {
+	try {
+		let result = [];
+		for (const item of data) {
+			let categoryId = item.categoryId;
+			let levels = {
+				perception: item.perception,
+				comprehension: item.comprehensive,
+				application: item.application,
+				'advanced application': item.advancedApplication,
+			};
+
+			for (const [level, count] of Object.entries(levels)) {
+				if (count > 0) {
+					let questions = await Question.find({
+						categoryId: categoryId,
+						level: level,
+					})
+					.limit(count);
+
+					if (questions.length < count) {
+						let additionalQuestions = await Question.find({
+							subcategoryId: categoryId,
+							level: level,
+						})
+						.limit(count - questions.length);
+
+						questions = questions.concat(additionalQuestions);
+					}
+
+					result = result.concat(questions);
+				}
+			}
+		}
+		return { data: result };
+	} catch (error) {
+		return { error: error };
+	}
+};

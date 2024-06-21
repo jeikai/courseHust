@@ -26,7 +26,7 @@ exports.getByInstructorId = async function (req, res) {
 };
 
 exports.create = async function (req, res) {
-	try {
+	try { 
 		const data = req.body;
 		const sectionId = req.params.sectionId;
 		const result = await quizModel.create(sectionId, data);

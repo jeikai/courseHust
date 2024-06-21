@@ -124,39 +124,8 @@ const createQuiz = async (data) => {
         data: dataReq,
       });
       console.log(createQuizAPI);
-      if (createQuizAPI.data.data) {
-        let dataQues = [];
-        if (data.preProcessQues) {
-          dataQues = data.ques;
-        } else {
-          data.questions.forEach((question) => {
-            let processData = {
-              question: question.title,
-              level: question.type,
-            };
-            let optionArray = [];
-            let answer;
-            question.options.forEach((option) => {
-              optionArray.push(option.label);
-              if (option.isSelected == true) {
-                answer = option.label;
-              }
-            });
-            processData.options = optionArray;
-            processData.answer = answer;
-            dataQues.push(processData);
-          });
-        }
-        const createQuestion = await Axios({
-          url: `/api/question/${createQuizAPI.data.data._id}`,
-          method: "POST",
-          data: dataQues,
-        });
-        console.log(createQuestion);
-        return true;
-      } else {
-        return false;
-      }
+
+      return true;
     }
   } catch (error) {
     console.log(error);
@@ -388,7 +357,7 @@ const createQuestions = async (data, userId) => {
       level: question.type,
       categoryId: question.category,
       subcategoryId: question.subcategory,
-      type: "single",
+      type: question.type,
     };
     let optionArray = [];
     let answer;

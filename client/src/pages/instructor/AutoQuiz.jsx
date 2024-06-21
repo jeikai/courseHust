@@ -22,12 +22,14 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
+import Axios from "axios";
 import { createQuiz } from "../../api/quiz";
 import { useAPI } from "../../hooks/api";
 import { ViewContext } from "../../context/View";
 import Loader from "../../components/Loader";
 import Bread from "../../components/Bread";
 import Spring from "../../components/Spring";
+import { useNavigate } from "react-router-dom";
 
 const { TabPane } = Tabs;
 const { SubMenu } = Menu;
@@ -66,7 +68,7 @@ const AutoQuiz = () => {
       title: "Quiz",
     },
   ];
-
+  const navigate = useNavigate()
   const viewContext = useContext(ViewContext);
   const [formQuiz] = Form.useForm();
   const [course, setCourse] = useState([]);
@@ -79,16 +81,8 @@ const AutoQuiz = () => {
   const [tableData, setTableData] = useState([]);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [remainingQuestions, setRemainingQuestions] = useState(0);
+  const [questions, setQuestions] = useState([]);
   const userId = JSON.parse(localStorage.getItem("user")).account;
-
-  const handleAutoGenQuiz = async () => {
-    setLoadingGenQuiz(true);
-    const fetchQuiz = await axios.get(
-      `/api/section/${selectedCourseId}/random-questions`
-    );
-    setGeneratedQuestions(fetchQuiz.data.randomQuestions);
-    setLoadingGenQuiz(false);
-  };
 
   const courseResponseApi = useAPI(
     `/api/course/instructor/${userId._id}`,
@@ -126,28 +120,39 @@ const AutoQuiz = () => {
     formQuiz.setFieldsValue({ section: null });
   }, [selectedCourseId, courseResponseApi]);
 
-  const handleFinish = async (data) => {
+  const handleFinish = async () => {
     try {
-      data = {
-        ...data,
-        preProcessQues: true,
-        ques: generatedQuestions,
+      console.log(formQuiz.getFieldsValue());
+      const formData = formQuiz.getFieldsValue();
+      const data = {
+        title: formData.title,
+        deadline: formData.deadline,
+        section: formData.section,
+        duration: formData.duration,
+        totalMarks: formData.totalMarks,
+        questions: questions,
+        passMarks: formData.passMarks,
+        ques: questions,
       };
+      console.log("submit data", data);
       await createQuiz(data)
         .then((res) => {
-          if (res === true) {
+          if (res == true) {
             viewContext.handleSuccess("Create quiz successfully!");
-          } else if (res === false) {
+            navigate("/admin/quiz")
+          } else if (res == false) {
+            console.log(res.error);
             viewContext.handleError("Create quiz failed");
           } else {
             viewContext.handleError(res.error);
           }
         })
         .catch((err) => {
+          console.log(err);
           viewContext.handleError(err);
         });
     } catch (error) {
-      viewContext.handleError(error);
+      console.log(error);
     }
   };
 
@@ -239,7 +244,7 @@ const AutoQuiz = () => {
   };
 
   const handleNextStep2 = async () => {
-    setLoadingGenQuiz(true)
+    setLoadingGenQuiz(true);
     const totalItemsInTable = tableData.reduce(
       (sum, item) =>
         sum + item.nhanBiet + item.thongHieu + item.vanDung + item.vanDungCao,
@@ -258,25 +263,31 @@ const AutoQuiz = () => {
         application: item.vanDung,
         advancedApplication: item.vanDungCao,
       }));
-      console.log(dataToSend)
+      console.log(dataToSend);
       try {
         // Call API to send data
-        // const response = await axios.post('/api/quiz/save-questions', dataToSend);
-  
-        // if (response.status === 200) {
-        //   message.success('Questions saved successfully.');
-        //   setCurrentTab(currentTab + 1);
-        // } else {
-        //   message.error('Failed to save questions. Please try again.');
-        // }
-        setLoadingGenQuiz(false)
+        const response = await Axios({
+          url: "/api/question/autoquiz/getQues",
+          method: "POST",
+          data: dataToSend,
+        });
+        console.log(response);
+
+        if (response.status === 200) {
+          message.success("Get questions successfully.");
+          setQuestions(response?.data?.data);
+          setCurrentTab(currentTab + 1);
+        } else {
+          message.error("Failed to get questions. Please try again.");
+        }
+        setLoadingGenQuiz(false);
         setCurrentTab(currentTab + 1);
       } catch (error) {
-        setLoadingGenQuiz(false)
-        message.error('Error saving questions: ' + error.message);
+        setLoadingGenQuiz(false);
+        message.error("Error saving questions: " + error.message);
       }
     } else {
-      setLoadingGenQuiz(false)
+      setLoadingGenQuiz(false);
       message.error(
         "Please ensure there is at least one question in the table and the total number of questions does not exceed the specified limit."
       );
@@ -341,15 +352,15 @@ const AutoQuiz = () => {
 
   const renderQuestion = (question, index) => (
     <div key={index} style={{ marginBottom: "20px" }}>
-      <Typography.Title level={5} style={{ color: "red" }}>{`Ques ${
-        index + 1
-      }`}</Typography.Title>
-      <Radio.Group value={question.correctAnswer}>
+      <Typography.Title level={5} style={{ color: "red" }}>
+        {question?.question}
+      </Typography.Title>
+      <Radio.Group value={question?.answer[0]}>
         {question.options.map((option, optIndex) => (
           <div
             key={optIndex}
             style={{
-              color: question.correctAnswer === option ? "green" : "black",
+              color: question.answer[0] === option ? "green" : "black",
             }}
           >
             <Radio value={option}>{option}</Radio>
@@ -359,26 +370,11 @@ const AutoQuiz = () => {
     </div>
   );
 
-  const questions = [
-    {
-      options: ["A", "B", "C", "D"],
-      correctAnswer: "C",
-    },
-    {
-      options: ["A", "B", "C", "D"],
-      correctAnswer: "B",
-    },
-    {
-      options: ["A", "B", "C", "D"],
-      correctAnswer: "C",
-    },
-  ];
-
   return (
     <Spring>
       <Bread title="Add a new quiz" items={breadcrumb} />
       <div>
-        <Form form={formQuiz} layout="vertical" onFinish={handleFinish}>
+        <Form form={formQuiz} layout="vertical">
           <Tabs
             activeKey={String(currentTab)}
             // onChange={(key) => setCurrentTab(Number(key))}
@@ -595,7 +591,11 @@ const AutoQuiz = () => {
                       renderQuestion(question, index)
                     )}
                   </div>
-                  <Button type="primary" htmlType="submit">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={handleFinish}
+                  >
                     Submit Test
                   </Button>
                 </Col>

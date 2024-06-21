@@ -65,3 +65,16 @@ exports.getQuestionByCategory = async (req, res) => {
 		return res.status(200).json({ error: error.message });
 	}
 };
+
+exports.getAutoQuiz = async (req, res) => {
+	try {
+		const data = req.body
+		const result = await questionModel.getAutoQuiz(data);
+		return res.status(200).json({
+			data: result?.data,
+		});
+	} catch (error) {
+		console.log(error)
+		return res.status(200).json({ error: error.message });
+	}
+}

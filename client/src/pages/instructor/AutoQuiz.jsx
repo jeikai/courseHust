@@ -1,24 +1,69 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Button, Col, Form, Input, Row, Select, DatePicker, TimePicker, InputNumber, Typography, Tabs, Table, Menu } from 'antd';
-import { FolderOpenOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import { createQuiz } from '../../api/quiz';
-import { useAPI } from '../../hooks/api';
-import { ViewContext } from '../../context/View';
-import Loader from '../../components/Loader';
-import Bread from '../../components/Bread';
-import Spring from '../../components/Spring';
+import React, { useEffect, useState, useContext } from "react";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  DatePicker,
+  TimePicker,
+  InputNumber,
+  Typography,
+  Tabs,
+  Table,
+  Menu,
+  Radio,
+  message,
+} from "antd";
+import {
+  FolderOpenOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import axios from "axios";
+import { createQuiz } from "../../api/quiz";
+import { useAPI } from "../../hooks/api";
+import { ViewContext } from "../../context/View";
+import Loader from "../../components/Loader";
+import Bread from "../../components/Bread";
+import Spring from "../../components/Spring";
+
 const { TabPane } = Tabs;
 const { SubMenu } = Menu;
+
+const EditableCell = ({
+  editable,
+  children,
+  dataIndex,
+  record,
+  handleSave,
+  ...restProps
+}) => {
+  let childNode = children;
+
+  const handleChange = (value) => {
+    const updatedRecord = { ...record, [dataIndex]: value };
+    handleSave(updatedRecord);
+  };
+
+  if (editable) {
+    childNode = (
+      <InputNumber value={record[dataIndex]} onChange={handleChange} />
+    );
+  }
+
+  return <td {...restProps}>{childNode}</td>;
+};
 
 const AutoQuiz = () => {
   const breadcrumb = [
     {
-      title: 'Home',
-      href: '/admin/quiz',
+      title: "Home",
+      href: "/admin/quiz",
     },
     {
-      title: 'Quiz',
+      title: "Quiz",
     },
   ];
 
@@ -27,34 +72,51 @@ const AutoQuiz = () => {
   const [course, setCourse] = useState([]);
   const [sections, setSections] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
-  const [selectedSection, setSelectedSection] = useState('');
+  const [selectedSection, setSelectedSection] = useState("");
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
   const [loadingGenQuiz, setLoadingGenQuiz] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
-  const userId = JSON.parse(localStorage.getItem('user')).account;
+  const [tableData, setTableData] = useState([]);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [remainingQuestions, setRemainingQuestions] = useState(0);
+  const userId = JSON.parse(localStorage.getItem("user")).account;
 
   const handleAutoGenQuiz = async () => {
     setLoadingGenQuiz(true);
-    const fetchQuiz = await axios.get(`/api/section/${selectedCourseId}/random-questions`);
+    const fetchQuiz = await axios.get(
+      `/api/section/${selectedCourseId}/random-questions`
+    );
     setGeneratedQuestions(fetchQuiz.data.randomQuestions);
     setLoadingGenQuiz(false);
   };
 
-  const courseResponseApi = useAPI(`/api/course/instructor/${userId._id}`, null).data;
+  const courseResponseApi = useAPI(
+    `/api/course/instructor/${userId._id}`,
+    null
+  ).data;
 
+  const categoryResponseApi = useAPI(
+    `/api/category/number_question`,
+    null
+  )?.data;
+  console.log(categoryResponseApi);
   useEffect(() => {
     if (courseResponseApi) {
-      setCourse(courseResponseApi.map((course) => ({
-        label: course.title,
-        value: course._id,
-      })));
+      setCourse(
+        courseResponseApi.map((course) => ({
+          label: course.title,
+          value: course._id,
+        }))
+      );
     }
   }, [courseResponseApi]);
 
   useEffect(() => {
     if (selectedCourseId) {
       setSections([]);
-      const selectedCourse = courseResponseApi.find((c) => c._id === selectedCourseId);
+      const selectedCourse = courseResponseApi.find(
+        (c) => c._id === selectedCourseId
+      );
       if (selectedCourse) {
         setSections(selectedCourse.sections);
       } else {
@@ -74,9 +136,9 @@ const AutoQuiz = () => {
       await createQuiz(data)
         .then((res) => {
           if (res === true) {
-            viewContext.handleSuccess('Create quiz successfully!');
+            viewContext.handleSuccess("Create quiz successfully!");
           } else if (res === false) {
-            viewContext.handleError('Create quiz failed');
+            viewContext.handleError("Create quiz failed");
           } else {
             viewContext.handleError(res.error);
           }
@@ -94,61 +156,221 @@ const AutoQuiz = () => {
   };
 
   const filterOption = (input, option) =>
-    (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+    (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   const handleNext = async () => {
     try {
       const values = await formQuiz.validateFields();
       if (values) {
+        setTotalQuestions(values.totalQuestions);
+        setRemainingQuestions(values.totalQuestions);
         setCurrentTab(currentTab + 1);
       }
+      console.log(values, formQuiz);
     } catch (error) {
-      message.error('Please fill out all required fields.');
+      message.error("Please fill out all required fields.");
+    }
+  };
+
+  const handleMenuClick = (item) => {
+    const totalItems =
+      item.perception +
+      item.comprehensive +
+      item.application +
+      item["advanced application"];
+    if (remainingQuestions - totalItems < 0) {
+      message.error(
+        "Cannot add more questions. Total number of questions exceeded."
+      );
+      return;
+    }
+    const newItem = {
+      key: item._id,
+      stt: tableData.length + 1,
+      noiDung: item.title,
+      donVi: item.title,
+      nhanBiet: item.perception,
+      thongHieu: item.comprehensive,
+      vanDung: item.application,
+      vanDungCao: item["advanced application"],
+    };
+    if (!tableData.some((data) => data.noiDung === newItem.noiDung)) {
+      setTableData([...tableData, newItem]);
+      setRemainingQuestions(remainingQuestions - totalItems);
+    }
+  };
+
+  const handleDelete = (key) => {
+    const deletedItem = tableData.find((item) => item.key === key);
+    const totalItems =
+      deletedItem.nhanBiet +
+      deletedItem.thongHieu +
+      deletedItem.vanDung +
+      deletedItem.vanDungCao;
+    setRemainingQuestions(remainingQuestions + totalItems);
+    setTableData(tableData.filter((item) => item.key !== key));
+  };
+
+  const handleSave = (row) => {
+    const newData = [...tableData];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    const totalItemsChanged =
+      row.nhanBiet +
+      row.thongHieu +
+      row.vanDung +
+      row.vanDungCao -
+      (item.nhanBiet + item.thongHieu + item.vanDung + item.vanDungCao);
+
+    if (remainingQuestions - totalItemsChanged < 0) {
+      message.error(
+        "Cannot update. Total remaining questions would be negative."
+      );
+      return;
+    }
+
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+
+    setTableData(newData);
+    setRemainingQuestions(remainingQuestions - totalItemsChanged);
+  };
+
+  const handleNextStep2 = async () => {
+    setLoadingGenQuiz(true)
+    const totalItemsInTable = tableData.reduce(
+      (sum, item) =>
+        sum + item.nhanBiet + item.thongHieu + item.vanDung + item.vanDungCao,
+      0
+    );
+    if (
+      tableData.length > 0 &&
+      totalItemsInTable <= totalQuestions &&
+      remainingQuestions <= totalQuestions
+    ) {
+      // call api in here
+      const dataToSend = tableData.map((item) => ({
+        categoryId: item.key,
+        perception: item.nhanBiet,
+        comprehensive: item.thongHieu,
+        application: item.vanDung,
+        advancedApplication: item.vanDungCao,
+      }));
+      console.log(dataToSend)
+      try {
+        // Call API to send data
+        // const response = await axios.post('/api/quiz/save-questions', dataToSend);
+  
+        // if (response.status === 200) {
+        //   message.success('Questions saved successfully.');
+        //   setCurrentTab(currentTab + 1);
+        // } else {
+        //   message.error('Failed to save questions. Please try again.');
+        // }
+        setLoadingGenQuiz(false)
+        setCurrentTab(currentTab + 1);
+      } catch (error) {
+        setLoadingGenQuiz(false)
+        message.error('Error saving questions: ' + error.message);
+      }
+    } else {
+      setLoadingGenQuiz(false)
+      message.error(
+        "Please ensure there is at least one question in the table and the total number of questions does not exceed the specified limit."
+      );
     }
   };
 
   const columns = [
-    { title: 'STT', dataIndex: 'stt', key: 'stt' },
-    { title: 'Nội dung kiến thức', dataIndex: 'noiDung', key: 'noiDung' },
-    { title: 'Đơn vị kiến thức', dataIndex: 'donVi', key: 'donVi' },
-    { title: 'Vị trí trong đề', dataIndex: 'viTri', key: 'viTri' },
-    { title: 'Nhận biết', dataIndex: 'nhanBiet', key: 'nhanBiet' },
-    { title: 'Thông hiểu', dataIndex: 'thongHieu', key: 'thongHieu' },
-    { title: 'Vận dụng', dataIndex: 'vanDung', key: 'vanDung' },
-    { title: 'Vận dụng cao', dataIndex: 'vanDungCao', key: 'vanDungCao' },
-    { title: 'Tổng số câu hỏi', dataIndex: 'tongSoCH', key: 'tongSoCH' },
-    { title: 'Thời gian', dataIndex: 'thoiGian', key: 'thoiGian' },
-    { title: '% Tổng điểm', dataIndex: 'phanTram', key: 'phanTram' },
-  ];
-
-  const data = [
+    { title: "Index", dataIndex: "stt", key: "stt" },
+    { title: "Knowledge content", dataIndex: "noiDung", key: "noiDung" },
     {
-      key: '1',
-      stt: '1',
-      noiDung: 'Bài 1. Lũy thừa',
-      donVi: 'Dạng 1. Tính giá trị của biểu thức chứa lũy thừa',
-      viTri: '2',
-      nhanBiet: '2',
-      thongHieu: '',
-      vanDung: '',
-      vanDungCao: '',
-      tongSoCH: '2',
-      thoiGian: '',
-      phanTram: '',
+      title: "Perception",
+      dataIndex: "nhanBiet",
+      key: "nhanBiet",
+      editable: true,
     },
     {
-      key: '2',
-      stt: '2',
-      noiDung: 'Bài 2. Hàm số lũy thừa',
-      donVi: 'Dạng 2. Đạo hàm hàm số lũy thừa',
-      viTri: '1',
-      nhanBiet: '1',
-      thongHieu: '',
-      vanDung: '',
-      vanDungCao: '',
-      tongSoCH: '1',
-      thoiGian: '',
-      phanTram: '',
+      title: "Comprehension",
+      dataIndex: "thongHieu",
+      key: "thongHieu",
+      editable: true,
+    },
+    {
+      title: "Application",
+      dataIndex: "vanDung",
+      key: "vanDung",
+      editable: true,
+    },
+    {
+      title: "Advanced application",
+      dataIndex: "vanDungCao",
+      key: "vanDungCao",
+      editable: true,
+    },
+    {
+      title: "Delete",
+      key: "delete",
+      render: (_, record) => (
+        <Button
+          type="link"
+          icon={<DeleteOutlined />}
+          onClick={() => handleDelete(record.key)}
+        />
+      ),
+    },
+  ];
+
+  const mergedColumns = columns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave,
+      }),
+    };
+  });
+
+  const renderQuestion = (question, index) => (
+    <div key={index} style={{ marginBottom: "20px" }}>
+      <Typography.Title level={5} style={{ color: "red" }}>{`Ques ${
+        index + 1
+      }`}</Typography.Title>
+      <Radio.Group value={question.correctAnswer}>
+        {question.options.map((option, optIndex) => (
+          <div
+            key={optIndex}
+            style={{
+              color: question.correctAnswer === option ? "green" : "black",
+            }}
+          >
+            <Radio value={option}>{option}</Radio>
+          </div>
+        ))}
+      </Radio.Group>
+    </div>
+  );
+
+  const questions = [
+    {
+      options: ["A", "B", "C", "D"],
+      correctAnswer: "C",
+    },
+    {
+      options: ["A", "B", "C", "D"],
+      correctAnswer: "B",
+    },
+    {
+      options: ["A", "B", "C", "D"],
+      correctAnswer: "C",
     },
   ];
 
@@ -157,41 +379,125 @@ const AutoQuiz = () => {
       <Bread title="Add a new quiz" items={breadcrumb} />
       <div>
         <Form form={formQuiz} layout="vertical" onFinish={handleFinish}>
-          <Tabs activeKey={String(currentTab)} onChange={(key) => setCurrentTab(Number(key))}>
+          <Tabs
+            activeKey={String(currentTab)}
+            // onChange={(key) => setCurrentTab(Number(key))}
+          >
             <TabPane tab="Step 1: Basic Information" key="0">
               <Row className="shadow-md border bg-white p-8">
                 <Col span={24}>
-                  <Form.Item name="title" label={<Typography.Title level={5}>Title</Typography.Title>} rules={[{ required: true }]}>
+                  <Form.Item
+                    name="title"
+                    label={<Typography.Title level={5}>Title</Typography.Title>}
+                    rules={[{ required: true }]}
+                  >
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="duration" label={<Typography.Title level={5}>Quiz duration</Typography.Title>} rules={[{ required: true }]}>
+                  <Form.Item
+                    name="duration"
+                    label={
+                      <Typography.Title level={5}>
+                        Quiz duration
+                      </Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
                     <TimePicker className="w-full" />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="deadline" label={<Typography.Title level={5}>Quiz deadline</Typography.Title>} rules={[{ required: true }]}>
-                    <DatePicker.RangePicker className="w-full" showTime={{ format: 'HH:mm' }} format="YYYY-MM-DD HH:mm" />
+                  <Form.Item
+                    name="deadline"
+                    label={
+                      <Typography.Title level={5}>
+                        Quiz deadline
+                      </Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
+                    <DatePicker.RangePicker
+                      className="w-full"
+                      showTime={{ format: "HH:mm" }}
+                      format="YYYY-MM-DD HH:mm"
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="course" label={<Typography.Title level={5}>Course</Typography.Title>} rules={[{ required: true }]}>
-                    <Select showSearch placeholder="Select a course" optionFilterProp="children" filterOption={filterOption} options={course} onChange={handleCourseChange} size="large" />
+                  <Form.Item
+                    name="course"
+                    label={
+                      <Typography.Title level={5}>Course</Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      showSearch
+                      placeholder="Select a course"
+                      optionFilterProp="children"
+                      filterOption={filterOption}
+                      options={course}
+                      onChange={handleCourseChange}
+                      size="large"
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="section" label={<Typography.Title level={5}>Section</Typography.Title>} rules={[{ required: true }]}>
-                    <Select showSearch onSelect={(e) => setSelectedSection(e)} placeholder="Select a section" optionFilterProp="children" filterOption={filterOption} options={sections.map((section) => ({ label: section.title, value: section._id }))} size="large" disabled={!selectedCourseId} />
+                  <Form.Item
+                    name="section"
+                    label={
+                      <Typography.Title level={5}>Section</Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      showSearch
+                      onSelect={(e) => setSelectedSection(e)}
+                      placeholder="Select a section"
+                      optionFilterProp="children"
+                      filterOption={filterOption}
+                      options={sections.map((section) => ({
+                        label: section.title,
+                        value: section._id,
+                      }))}
+                      size="large"
+                      disabled={!selectedCourseId}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="totalMarks" label={<Typography.Title level={5}>Total Marks</Typography.Title>} rules={[{ required: true }]}>
+                  <Form.Item
+                    name="totalMarks"
+                    label={
+                      <Typography.Title level={5}>Total Marks</Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
                     <InputNumber className="w-full" min={1} changeOnWheel />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="passMarks" label={<Typography.Title level={5}>Pass Marks</Typography.Title>} rules={[{ required: true }]}>
+                  <Form.Item
+                    name="passMarks"
+                    label={
+                      <Typography.Title level={5}>Pass Marks</Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
+                    <InputNumber className="w-full" min={1} changeOnWheel />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item
+                    name="totalQuestions"
+                    label={
+                      <Typography.Title level={5}>
+                        Total Number of Questions
+                      </Typography.Title>
+                    }
+                    rules={[{ required: true }]}
+                  >
                     <InputNumber className="w-full" min={1} changeOnWheel />
                   </Form.Item>
                 </Col>
@@ -203,44 +509,94 @@ const AutoQuiz = () => {
               </Row>
             </TabPane>
             <TabPane tab="Step 2: Quiz Questions" key="1">
-              <Row>
+              <Row className="shadow-md border bg-white p-8">
+                <Col
+                  span={24}
+                  style={{ textAlign: "right", marginBottom: "20px" }}
+                >
+                  <Typography.Text>
+                    Total number of questions: {totalQuestions || 0}
+                  </Typography.Text>
+                  <Typography.Text style={{ marginLeft: "20px" }}>
+                    Remaining questions: {remainingQuestions}
+                  </Typography.Text>
+                </Col>
                 <Col span={6}>
                   <Menu
                     mode="inline"
-                    style={{ height: '100%', borderRight: 0 }}
-                    defaultOpenKeys={['sub1', 'sub2', 'sub3', 'sub4', 'sub5']}
+                    style={{ height: "100%", borderRight: 0 }}
+                    defaultOpenKeys={["sub1", "sub2", "sub3", "sub4", "sub5"]}
                   >
-                    <SubMenu key="sub1" icon={<FolderOpenOutlined />} title="Dạng 1. Tập xác định của hàm số chứa hàm lũy thừa (106)">
-                      <Menu.Item key="1">Bài 1. Lũy thừa</Menu.Item>
-                      <Menu.Item key="2">Bài 2. Hàm số lũy thừa</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub2" icon={<FolderOpenOutlined />} title="Dạng 2. Đạo hàm hàm số lũy thừa (17)">
-                      <Menu.Item key="3">Bài 1. Lôgarit</Menu.Item>
-                      <Menu.Item key="4">Bài 2. Hàm số mũ, hàm số lôgarit</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub3" icon={<FolderOpenOutlined />} title="Bài 3. Lôgarit (391)">
-                      <Menu.Item key="5">Bài 3. Phương trình mũ và phương trình lôgarit</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub4" icon={<FolderOpenOutlined />} title="Bài 4. Hàm số mũ, hàm số lôgarit (545)">
-                      <Menu.Item key="6">Dạng 1. Phương trình cơ bản</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub5" icon={<FolderOpenOutlined />} title="Bài 5. Phương trình mũ và phương trình lôgarit (586)">
-                      <Menu.Item key="7">Dạng 2. Phương pháp đưa về cùng cơ số</Menu.Item>
-                    </SubMenu>
+                    {categoryResponseApi?.map((category) => {
+                      return (
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <Button
+                            type="link"
+                            icon={<PlusOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMenuClick(category);
+                            }}
+                          />
+                          <SubMenu
+                            key={category?._id}
+                            icon={<FolderOpenOutlined />}
+                            title={<span>{category?.title}</span>}
+                          >
+                            {category?.subCategory.map((subcategory) => {
+                              return (
+                                <Menu.Item
+                                  key={subcategory?._id}
+                                  onClick={() => handleMenuClick(subcategory)}
+                                >
+                                  {subcategory?.title}
+                                </Menu.Item>
+                              );
+                            })}
+                          </SubMenu>
+                        </div>
+                      );
+                    })}
                   </Menu>
                 </Col>
                 <Col span={18}>
-                  <Table columns={columns} dataSource={data} pagination={false} />
+                  <Table
+                    components={{
+                      body: {
+                        cell: EditableCell,
+                      },
+                    }}
+                    bordered
+                    dataSource={tableData}
+                    columns={mergedColumns}
+                    rowClassName="editable-row"
+                    pagination={false}
+                  />
                 </Col>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="button"
+                    onClick={handleNextStep2}
+                  >
+                    Next
+                  </Button>
+                </Form.Item>
               </Row>
             </TabPane>
             <TabPane tab="Step 3: Review & Submit" key="2">
-              <Row>
+              <Row className="shadow-md border bg-white p-8">
                 <Col span={24}>
-                  <Typography.Title level={4}>Review Your Quiz</Typography.Title>
-                  {/* You can add more review details here */}
+                  <Typography.Title level={4}>
+                    Review Your Test
+                  </Typography.Title>
+                  <div>
+                    {questions.map((question, index) =>
+                      renderQuestion(question, index)
+                    )}
+                  </div>
                   <Button type="primary" htmlType="submit">
-                    Submit Quiz
+                    Submit Test
                   </Button>
                 </Col>
               </Row>

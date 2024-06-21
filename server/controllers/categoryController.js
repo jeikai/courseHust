@@ -40,6 +40,18 @@ exports.get = async function (req, res) {
 	}
 };
 
+exports.getWithNumberOfQuestion = async function (req, res) {
+	try {
+		const result = await categoryModel.getWithNumberOfQuestion();
+		if (result.hasOwnProperty('error'))
+			return res.status(500).json({ message: result.error });
+
+		return res.status(200).json(result);
+	} catch (e) {
+		return res.status(500).json({ message: e.message });
+	}
+};
+
 exports.update = async function (req, res) {
 	try {
 		const categoryId = req.params.categoryId;

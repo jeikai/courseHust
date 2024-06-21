@@ -161,7 +161,7 @@ const Curriculum = ({ course, process }) => {
                   !process?.data
                     ? () => {}
                     : () => {
-                        spec?.type === "lesson" && spec?._id?.docURL != ""
+                        spec?.type === "lesson" && spec?._id?.docURL
                           ? navigate(
                               "/home/document/" +
                                 spec?._id?._id +
@@ -184,7 +184,7 @@ const Curriculum = ({ course, process }) => {
                 <Flex align="center" gap={12}>
                   {
                     // dành cho document
-                    spec.type === "lesson" && spec?.id?.docURL != "" ? (
+                    spec.type === "lesson" && spec?.id?.docURL  ? (
                       !process?.data ? (
                         <LockOutlined className="text-xl text-[#ccc]" />
                       ) : process?.data?.lessonId?.some(

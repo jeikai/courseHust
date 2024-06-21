@@ -133,3 +133,11 @@ exports.getQuestionByCategory = async (categoryId) => {
 		return { error };
 	}
 };
+exports.getQuestionBySubCategory = async (subcategoryId) => {
+	try {
+		const result = await Question.find({ subcategoryId: subcategoryId });
+		return { data: result };
+	} catch (error) {
+		return { error }
+	}
+}

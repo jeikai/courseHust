@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-
+const Question = require('./Question')
 const categorySchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
@@ -37,6 +37,49 @@ exports.get = async function (data) {
         return { error: e }
     }
 }
+
+exports.getWithNumberOfQuestion = async function (data) {
+    try {
+        const categories = await Category.find({}).populate("subCategory");
+
+        // Helper function to count questions by level from a list of questions
+        const countQuestionsByLevel = (questions) => {
+            const levels = ['perception', 'comprehensive', 'application', 'advanced application'];
+            const levelCounts = levels.reduce((acc, level) => {
+                acc[level] = 0;
+                return acc;
+            }, {});
+
+            questions.forEach(question => {
+                if (levelCounts.hasOwnProperty(question.level)) {
+                    levelCounts[question.level]++;
+                }
+            });
+
+            return levelCounts;
+        };
+
+        // Process each category
+        for (let category of categories) {
+            const categoryQuestions = await Question.getQuestionByCategory(category._id);
+            const categoryLevelCounts = countQuestionsByLevel(categoryQuestions.data);
+            Object.assign(category._doc, categoryLevelCounts); // Add level counts to the category
+
+            // Process each subcategory
+            for (let subcategory of category.subCategory) {
+                const subcategoryQuestions = await Question.getQuestionBySubCategory(subcategory._id);
+                const subcategoryLevelCounts = countQuestionsByLevel(subcategoryQuestions.data);
+                Object.assign(subcategory._doc, subcategoryLevelCounts); // Add level counts to the subcategory
+            }
+        }
+
+        return categories;
+    } catch (e) {
+        console.log(e);
+        return { error: e };
+    }
+};
+
 
 exports.addSubCategory = async function (categoryId, subCategoryId) {
     try {

@@ -5,7 +5,7 @@ const ProcessSchema = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     lessonId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
-    quizScores: [{ quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }, score: Number }],
+    quizScores: [{ quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' }, score: {type: Number} }],
     process: { type: Number, default: 0 },
     date_created: Date,
     date_updated: Date

@@ -17,4 +17,5 @@ module.exports = [
   require('./favorite'),
   require('./recommend'),
   require('./subcategory'),
+  require('./historyquiz'),
 ]

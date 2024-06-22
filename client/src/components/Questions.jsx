@@ -71,7 +71,7 @@ const Questions = ({ lesson, quizId, courseId }) => {
         const userAnswer = userAnswers.find(
           (answer) => answer.id === question.id
         );
-        if (userAnswer && userAnswer.choices[0] == question.answer[0]) {
+        if (userAnswer && (userAnswer.choices[0] == question.answer[0] || userAnswer.choices[0] == question.answer)) {
           correctCount++;
         }
       });
@@ -88,27 +88,48 @@ const Questions = ({ lesson, quizId, courseId }) => {
   const handleOk = async () => {
     try {
       setConfirmLoading(true);
-      const result = handleCalculateScore(
-        lesson.questions,
-        answers
-      ).correctCount;
+      const result = handleCalculateScore(lesson.questions, answers);
+      const correctCount = result.correctCount;
+      const wrongCount = result.wrongCount;
+  
       const data = {
         userId: userId,
         courseId: courseId,
         quizId: quizId,
-        score: result,
+        score: correctCount,
       };
+  
       const responseUpdate = await Axios({
         url: "/api/process/quiz",
         method: "PUT",
         data: data,
       });
       console.log(responseUpdate);
+  
+      const historyData = {
+        userId: userId,
+        quizId: quizId,
+        listOfAnswer: answers.map(answer => ({
+          questionId: answer.id,
+          answer: answer.choices,
+        })),
+        correctCount: correctCount,
+        wrongCount: wrongCount,
+        duration: duration,
+      };
+      console.log(historyData)
+      const responseHistory = await Axios({
+        url: "/api/historyquiz",
+        method: "POST",
+        data: historyData,
+      });
+      console.log(responseHistory);
+  
       let endTime = localStorage.getItem(`${userId}_${quizId}_time`);
       if (endTime) {
         localStorage.removeItem(`${userId}_${quizId}_time`);
       }
-
+  
       navigate("/home/quiz_result", { state: { lesson, answers, duration } });
       setOpen(false);
       setConfirmLoading(false);
@@ -117,6 +138,7 @@ const Questions = ({ lesson, quizId, courseId }) => {
       viewContext.handleError(error.toString());
     }
   };
+  
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);

@@ -56,6 +56,7 @@ const AddQuestion = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [enableAddAnswers, setEnableAddAnswers] = useState(true);
   const [enableMultipleChoice, setEnableMultipleChoice] = useState(false);
+  const [isSelectedType, setIsSelectedType] = useState([]);
   const categoryResponseApi = useAPI(`/api/category`, null).data;
 
   useEffect(() => {
@@ -286,9 +287,13 @@ const AddQuestion = () => {
                                       noStyle
                                     >
                                       <Select onChange={(value) => {
+                                        const newIsSelectedType = [...isSelectedType];
+                                        newIsSelectedType[index] = true;
+                                        setIsSelectedType(newIsSelectedType)
                                         value === "text" ? setEnableAddAnswers(false) : setEnableAddAnswers(true)
                                         value === "multiple" ? setEnableMultipleChoice(true) : setEnableMultipleChoice(false)
-                                      }} placeholder="Select kind of question">
+                                      }} placeholder="Select kind of question"
+                                      disabled = {isSelectedType[index] === undefined ? false : isSelectedType[index]}>
                                         <Select.Option value="multiple">
                                           Multiple choice
                                         </Select.Option>
@@ -301,7 +306,13 @@ const AddQuestion = () => {
                                       </Select>
                                     </Form.Item>
                                     <Button
-                                      onClick={() => remove(field.name)}
+                                      onClick={() => {
+                                        const deletedIsSelectedType = [...isSelectedType];
+                                        deletedIsSelectedType[index] = false;
+                                        setIsSelectedType(deletedIsSelectedType)
+                                        console.log("aaaaa", isSelectedType[index])
+                                        remove(field.name)}
+                                      }
                                       danger
                                       icon={<DeleteOutlined />}
                                     ></Button>

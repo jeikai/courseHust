@@ -78,7 +78,7 @@ const AddQuestion = () => {
     if (enableMultipleChoice[index] === undefined) {
       enableMultipleChoice[index] = false;
     }
-    console.log(enableMultipleChoice[index])
+    console.log(enableMultipleChoice[index]);
     questions[indexQuestion].options = questions[indexQuestion].options.map(
       (option, i) => {
         if (!enableMultipleChoice[index]) {
@@ -144,7 +144,7 @@ const AddQuestion = () => {
         >
           <Row gutter={12} justify={"center"}>
             <Col span={16}>
-              <Row className="shadow-md border bg-white p-8">
+              <Row className="shadow-md border bg-white p-8" style={{ width: "950px" }}>
                 <Form.List name={"questions"}>
                   {(fields, { add, remove }) => (
                     <Row gutter={[12, 12]} className="w-full">
@@ -274,13 +274,13 @@ const AddQuestion = () => {
                                         </Select.Option>
                                       </Select>
                                     </Form.Item>
-                                    <Button
+                                    {/* <Button
                                       onClick={() => remove(field.name)}
                                       danger
                                       icon={<DeleteOutlined />}
-                                    ></Button>
+                                    ></Button> */}
                                   </Flex>
-                                  
+
                                   {/* Choose type of choice */}
                                   <Flex vertical={false} gap={5} align="center">
                                     <p className="font-bold">Type:</p>
@@ -289,37 +289,69 @@ const AddQuestion = () => {
                                       initialValue={"single"}
                                       noStyle
                                     >
-                                      <Select onChange={(value) => {
-                                        const newIsSelectedType = [...isSelectedType];
-                                        const newEnableAddAnswers = [...enableAddAnswers];
-                                        const newEnableMultiple = [...enableMultipleChoice]
-                                        newIsSelectedType[index] = true;
-                                        setIsSelectedType(newIsSelectedType)
-                                        value === "text" ? newEnableAddAnswers[index] = false : newEnableAddAnswers[index] = true
-                                        value === "multiple" ? newEnableMultiple[index] = true : newEnableMultiple[index] = false
-                                        setEnableAddAnswers(newEnableAddAnswers)
-                                        setEnableMultipleChoice(newEnableMultiple)
-                                      }} placeholder="Select kind of question"
-                                      disabled = {isSelectedType[index] === undefined ? false : isSelectedType[index]}>
+                                      <Select
+                                        onChange={(value) => {
+                                          const newIsSelectedType = [
+                                            ...isSelectedType,
+                                          ];
+                                          const newEnableAddAnswers = [
+                                            ...enableAddAnswers,
+                                          ];
+                                          const newEnableMultiple = [
+                                            ...enableMultipleChoice,
+                                          ];
+                                          newIsSelectedType[index] = true;
+                                          setIsSelectedType(newIsSelectedType);
+                                          value === "text"
+                                            ? (newEnableAddAnswers[
+                                                index
+                                              ] = false)
+                                            : (newEnableAddAnswers[
+                                                index
+                                              ] = true);
+                                          value === "multiple"
+                                            ? (newEnableMultiple[index] = true)
+                                            : (newEnableMultiple[
+                                                index
+                                              ] = false);
+                                          setEnableAddAnswers(
+                                            newEnableAddAnswers
+                                          );
+                                          setEnableMultipleChoice(
+                                            newEnableMultiple
+                                          );
+                                        }}
+                                        placeholder="Select kind of question"
+                                        disabled={
+                                          isSelectedType[index] === undefined
+                                            ? false
+                                            : isSelectedType[index]
+                                        }
+                                      >
                                         <Select.Option value="multiple">
                                           Multiple choice
                                         </Select.Option>
                                         <Select.Option value="single">
                                           Single choice
                                         </Select.Option>
-                                        <Select.Option value="text">
-                                            
-                                        </Select.Option>
+                                        <Select.Option value="text"></Select.Option>
                                       </Select>
                                     </Form.Item>
                                     <Button
                                       onClick={() => {
-                                        const deletedIsSelectedType = [...isSelectedType];
+                                        const deletedIsSelectedType = [
+                                          ...isSelectedType,
+                                        ];
                                         deletedIsSelectedType[index] = false;
-                                        setIsSelectedType(deletedIsSelectedType)
-                                        console.log("aaaaa", isSelectedType[index])
-                                        remove(field.name)}
-                                      }
+                                        setIsSelectedType(
+                                          deletedIsSelectedType
+                                        );
+                                        console.log(
+                                          "aaaaa",
+                                          isSelectedType[index]
+                                        );
+                                        remove(field.name);
+                                      }}
                                       danger
                                       icon={<DeleteOutlined />}
                                     ></Button>
@@ -398,14 +430,17 @@ const AddQuestion = () => {
                                               />
                                             </Form.Item>
                                           </Flex>
-                                          {(enableAddAnswers[index] === true || enableAddAnswers[index] === undefined) && subField.name === 0 && (
-                                            <Button
-                                              icon={<PlusOutlined />}
-                                              onClick={() => {
-                                                subOpt.add();
-                                              }}
-                                            ></Button>
-                                          )}
+                                          {(enableAddAnswers[index] === true ||
+                                            enableAddAnswers[index] ===
+                                              undefined) &&
+                                            subField.name === 0 && (
+                                              <Button
+                                                icon={<PlusOutlined />}
+                                                onClick={() => {
+                                                  subOpt.add();
+                                                }}
+                                              ></Button>
+                                            )}
                                           {subField.name !== 0 && (
                                             <Button
                                               danger

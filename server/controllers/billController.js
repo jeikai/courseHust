@@ -149,3 +149,19 @@ exports.getByCourseId = async function (req, res) {
         return res.status(500).json({ message: error.message });
     }
 };
+
+exports.getStatistic = async function (req, res) {
+    try {
+
+        const bills = await billModel.getCourseStatistics();
+
+        if (bills.error) {
+            return res.status(500).json({ message: bills.error });
+        }
+
+        return res.status(200).json(bills);
+    } catch (error) {
+        console.error("Error in getByCourseId controller:", error);
+        return res.status(500).json({ message: error.message });
+    }
+}

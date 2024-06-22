@@ -17,4 +17,6 @@ api.get('/bill/check/:userId/:courseId', use(billController.getByUserIdAndCourse
 
 api.get('/bill/course/:courseId', use(billController.getByCourseId))
 
+api.get('/bill/get/statistic', use(billController.getStatistic))
+
 module.exports = api   

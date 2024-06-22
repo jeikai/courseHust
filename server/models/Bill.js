@@ -119,3 +119,59 @@ exports.getByCourseId = async function (courseId) {
         return { error: error.message };
     }
 };
+
+exports.getCourseStatistics = async function () {
+    try {
+        const result = await Bill.aggregate([
+            {
+                $unwind: '$listOfCourse'
+            },
+            {
+                $group: {
+                    _id: {
+                        courseId: '$listOfCourse',
+                        year: { $year: '$date_created' },
+                        month: { $month: '$date_created' },
+                        quarter: { $ceil: { $divide: [{ $month: '$date_created' }, 3] } }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'courses',
+                    localField: '_id.courseId',
+                    foreignField: '_id',
+                    as: 'courseDetails'
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: '$_id.year',
+                        month: '$_id.month',
+                        quarter: '$_id.quarter'
+                    },
+                    courses: {
+                        $push: {
+                            courseId: '$_id.courseId',
+                            count: '$count',
+                            details: { $arrayElemAt: ['$courseDetails', 0] }
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    '_id.year': 1,
+                    '_id.month': 1
+                }
+            }
+        ]);
+
+        return result;
+    } catch (error) {
+        console.error("Error fetching course statistics:", error);
+        return { error: error.message };
+    }
+};

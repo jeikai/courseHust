@@ -1,8 +1,11 @@
 import {
   ClockCircleOutlined,
+  FileTextFilled,
+  FileTextOutlined,
   HeartFilled,
   RetweetOutlined,
   StarFilled,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Flex, Rate, Space } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -12,9 +15,9 @@ const Course = ({ list = "Grid", course = {} }) => {
   const reviews = useAPI(`/api/feedback/${course?._id}`, null);
   const layout = list === "Grid" ? "vertical" : "horizontal";
   const navigate = useNavigate();
-  return (
-    //On click, redirect to course detail page
 
+  return (
+    // On click, redirect to course detail page
     <Space
       direction={layout}
       className={`group rounded-md overflow-hidden courses-card-body ${
@@ -25,9 +28,8 @@ const Course = ({ list = "Grid", course = {} }) => {
       <div className="w-full h-[164px] relative overflow-hidden">
         <img
           src={
-            course.thumbnail
-            //   ? "https://demo.creativeitem.com/academy/uploads/thumbnails/course_thumbnails/optimized/course_thumbnail_default-new_211689234810.jpg"
-            //   : course.thumbnail
+            course.thumbnail ||
+            "https://demo.creativeitem.com/academy/uploads/thumbnails/course_thumbnails/optimized/course_thumbnail_default-new_211689234810.jpg"
           }
           alt=""
           className="w-full h-full hover:scale-105 duration-200"
@@ -58,9 +60,19 @@ const Course = ({ list = "Grid", course = {} }) => {
             <h4 className="font-bold text-[#1E293B] group-hover:text-[#754FFE]">
               {!course.price ? "Free" : course.price.toLocaleString() + " VND"}
             </h4>
-            {/*<p className="text-sm text-[#6e798a]">*/}
-            {/*    <del>$11.99</del>*/}
-            {/*</p>*/}
+          </Flex>
+          <Flex align="center" gap={8} className="text-base">
+            {course?.isStream ? (
+              <>
+                <VideoCameraOutlined />
+                <span>Stream</span>
+              </>
+            ) : (
+              <>
+                <FileTextOutlined />
+                <span>Online</span>
+              </>
+            )}
           </Flex>
         </Flex>
       </div>

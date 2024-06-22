@@ -59,7 +59,7 @@ const EditQuiz = () => {
   const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
-    if (questions[indexQuestion].type === "scq") {
+    if (questions[indexQuestion].type === "single") {
       questions[indexQuestion].options = questions[indexQuestion].options.map(
         (option, i) => {
           if (indexOption === i) {

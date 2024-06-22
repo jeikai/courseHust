@@ -29,12 +29,19 @@ const QuizResult = () => {
 		try {
 			let correctCount = 0;
 			const totalQuestions = lessonQuestions.length;
-
 			lessonQuestions.forEach((question) => {
 				const userAnswer = userAnswers.find(
 					(answer) => answer.id === question.id
 				);
-				if (userAnswer && userAnswer.choices[0] == question.answer[0]) {
+				let actualAnswer;
+				if (question.type === "text") {
+					actualAnswer = userAnswer.choices
+				} else {
+					// TODO: add condition multiple
+					actualAnswer = userAnswer.choices[0]
+				}
+				console.log(question.type, actualAnswer, question.answer)
+				if (userAnswer && actualAnswer === question.answer) {
 					correctCount++;
 				}
 			});
@@ -128,8 +135,15 @@ const QuizResult = () => {
 							const userAnswer = answers.find(
 								(answer) => answer.id === question.id
 							);
+							let actualAnswer;
+							if (question.type === "text") {
+								actualAnswer = userAnswer.choices
+							} else {
+								// TODO: add condition multiple
+								actualAnswer = userAnswer.choices[0]
+							}
 							const isCorrect =
-								userAnswer && userAnswer.choices[0] === question.answer[0];
+								userAnswer && actualAnswer === question.answer;
 							const isAnswered = !!userAnswer;
 							return (
 								<Card key={questionIndex}>

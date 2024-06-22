@@ -17,7 +17,8 @@ const QuizData = [
       {
         id: faker.string.uuid(),
         title: faker.commerce.productName(),
-        type: faker.helpers.enumValue({ mcq: "mcq", scq: "scq" }),
+        // type: faker.helpers.enumValue({ mcq: "mcq", scq: "scq" }),
+        type: faker.helpers.enumValue({ multiple: "multiple", single: "single", text: "text" }),
         options: [
           {
             isSelected: faker.datatype.boolean(),
@@ -36,7 +37,7 @@ const QuizData = [
       {
         id: faker.string.uuid(),
         title: faker.commerce.productName(),
-        type: faker.helpers.enumValue({ mcq: "mcq", scq: "scq" }),
+        type: faker.helpers.enumValue({ multiple: "multiple", single: "single", text: "text" }),
         options: [
           {
             isSelected: faker.datatype.boolean(),
@@ -55,7 +56,7 @@ const QuizData = [
       {
         id: faker.string.uuid(),
         title: faker.commerce.productName(),
-        type: faker.helpers.enumValue({ mcq: "mcq", scq: "scq" }),
+        type: faker.helpers.enumValue({ multiple: "multiple", single: "single", text: "text" }),
         options: [
           {
             isSelected: faker.datatype.boolean(),
@@ -74,7 +75,7 @@ const QuizData = [
       {
         id: faker.string.uuid(),
         title: faker.commerce.productName(),
-        type: faker.helpers.enumValue({ mcq: "mcq", scq: "scq" }),
+        type: faker.helpers.enumValue({ multiple: "multiple", single: "single", text: "text" }),
         options: [
           {
             isSelected: faker.datatype.boolean(),
@@ -93,7 +94,7 @@ const QuizData = [
       {
         id: faker.string.uuid(),
         title: faker.commerce.productName(),
-        type: faker.helpers.enumValue({ mcq: "mcq", scq: "scq" }),
+        type: faker.helpers.enumValue({ multiple: "multiple", single: "single", text: "text" }),
         options: [
           {
             isSelected: faker.datatype.boolean(),

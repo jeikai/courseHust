@@ -10,6 +10,12 @@ import {
 import React from "react";
 
 const Question = ({ question, answers, current, setAnswers }) => {
+  const handleTextChange = (value) => {
+    const newAnswers = [...answers];
+    newAnswers[current - 1].choices = value;
+    setAnswers(newAnswers);
+  };
+
   const handleSingleChoice = (e) => {
     console.log(answers);
     let newAnswers = answers;
@@ -46,7 +52,8 @@ const Question = ({ question, answers, current, setAnswers }) => {
           },
         }}
       >
-        {question.type === "scq" && (
+        {/* question.type === "scq" */}
+        {question.type === "single" && (
           <Radio.Group
             onChange={handleSingleChoice}
             className="w-full"
@@ -69,7 +76,7 @@ const Question = ({ question, answers, current, setAnswers }) => {
             </Space>
           </Radio.Group>
         )}
-        {question.type === "mcq" && (
+        {question.type === "multiple" && (
           <Radio.Group className="w-full" size="large">
             <Space direction="vertical" size={12} className="w-full">
               {question?.options.map((option, index) => {
@@ -108,6 +115,18 @@ const Question = ({ question, answers, current, setAnswers }) => {
               })}
             </Space>
           </Radio.Group>
+        )}
+        
+        {/* fill text */}
+        {question.type === "text" && (
+        <Input.TextArea
+          onChange={(e) => handleTextChange(e.target.value)}
+          className="w-full p-4 rounded-md"
+          size="large"
+          value={answers[current - 1].choices || ""}
+          placeholder="Fill your answer here..."
+          autoSize={{ minRows: 4, maxRows: 10 }}
+        />
         )}
       </ConfigProvider>
     </Space>

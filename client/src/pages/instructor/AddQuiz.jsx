@@ -109,7 +109,7 @@ const AddQuiz = () => {
       title: question.question,
       level: question.level,
       answer: question.answer,
-      type: "scq",
+      type: question.type,
       options: question.options.map((option) => ({
         isSelected:
           option ===

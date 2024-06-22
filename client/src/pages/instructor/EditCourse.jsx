@@ -1092,11 +1092,11 @@ const EditCourse = () => {
 										<Typography.Title level={5}>Select quiz</Typography.Title>
 									}>
 									<Select placeholder="Select question type">
-										<Select.Option value="mcq">Multiple choice</Select.Option>
-										<Select.Option value="scq">
+										<Select.Option value="multiple">Multiple choice</Select.Option>
+										<Select.Option value="single">
 											Single choice and True/False
 										</Select.Option>
-										<Select.Option value="fill">
+										<Select.Option value="text">
 											Fill in the blank
 										</Select.Option>
 									</Select>

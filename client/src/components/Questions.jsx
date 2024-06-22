@@ -71,7 +71,7 @@ const Questions = ({ lesson, quizId, courseId }) => {
         const userAnswer = userAnswers.find(
           (answer) => answer.id === question.id
         );
-        if (userAnswer && userAnswer.choices[0] == question.answer[0]) {
+        if (userAnswer && userAnswer.choices[0] === question.answer) {
           correctCount++;
         }
       });

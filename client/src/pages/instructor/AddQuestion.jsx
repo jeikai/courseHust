@@ -54,8 +54,8 @@ const AddQuestion = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [enableAddAnswers, setEnableAddAnswers] = useState(true);
-  const [enableMultipleChoice, setEnableMultipleChoice] = useState(false);
+  const [enableAddAnswers, setEnableAddAnswers] = useState([]);
+  const [enableMultipleChoice, setEnableMultipleChoice] = useState([]);
   const [isSelectedType, setIsSelectedType] = useState([]);
   const categoryResponseApi = useAPI(`/api/category`, null).data;
 
@@ -72,13 +72,16 @@ const AddQuestion = () => {
     }
   }, [categoryResponseApi]);
 
-  const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
+  const handleSetAsDefaultChange = (indexQuestion, indexOption, index) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
-    console.log(enableMultipleChoice)
+    if (enableMultipleChoice[index] === undefined) {
+      enableMultipleChoice[index] = false;
+    }
+    console.log(enableMultipleChoice[index])
     questions[indexQuestion].options = questions[indexQuestion].options.map(
       (option, i) => {
-        if (!enableMultipleChoice) {
+        if (!enableMultipleChoice[index]) {
           option.isSelected = indexOption === i;
         } else {
           if (i === indexOption && option.isSelected) {
@@ -288,10 +291,14 @@ const AddQuestion = () => {
                                     >
                                       <Select onChange={(value) => {
                                         const newIsSelectedType = [...isSelectedType];
+                                        const newEnableAddAnswers = [...enableAddAnswers];
+                                        const newEnableMultiple = [...enableMultipleChoice]
                                         newIsSelectedType[index] = true;
                                         setIsSelectedType(newIsSelectedType)
-                                        value === "text" ? setEnableAddAnswers(false) : setEnableAddAnswers(true)
-                                        value === "multiple" ? setEnableMultipleChoice(true) : setEnableMultipleChoice(false)
+                                        value === "text" ? newEnableAddAnswers[index] = false : newEnableAddAnswers[index] = true
+                                        value === "multiple" ? newEnableMultiple[index] = true : newEnableMultiple[index] = false
+                                        setEnableAddAnswers(newEnableAddAnswers)
+                                        setEnableMultipleChoice(newEnableMultiple)
                                       }} placeholder="Select kind of question"
                                       disabled = {isSelectedType[index] === undefined ? false : isSelectedType[index]}>
                                         <Select.Option value="multiple">
@@ -373,7 +380,8 @@ const AddQuestion = () => {
                                                   onChange={() =>
                                                     handleSetAsDefaultChange(
                                                       field.key,
-                                                      subField.key
+                                                      subField.key,
+                                                      index
                                                     )
                                                   }
                                                   checked
@@ -390,7 +398,7 @@ const AddQuestion = () => {
                                               />
                                             </Form.Item>
                                           </Flex>
-                                          {enableAddAnswers && subField.name === 0 && (
+                                          {(enableAddAnswers[index] === true || enableAddAnswers[index] === undefined) && subField.name === 0 && (
                                             <Button
                                               icon={<PlusOutlined />}
                                               onClick={() => {

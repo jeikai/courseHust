@@ -54,6 +54,9 @@ const AddQuestion = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [enableAddAnswers, setEnableAddAnswers] = useState([]);
+  const [enableMultipleChoice, setEnableMultipleChoice] = useState([]);
+  const [isSelectedType, setIsSelectedType] = useState([]);
   const categoryResponseApi = useAPI(`/api/category`, null).data;
 
   useEffect(() => {
@@ -69,12 +72,22 @@ const AddQuestion = () => {
     }
   }, [categoryResponseApi]);
 
-  const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
+  const handleSetAsDefaultChange = (indexQuestion, indexOption, index) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
+    if (enableMultipleChoice[index] === undefined) {
+      enableMultipleChoice[index] = false;
+    }
+    console.log(enableMultipleChoice[index])
     questions[indexQuestion].options = questions[indexQuestion].options.map(
       (option, i) => {
-        option.isSelected = indexOption === i;
+        if (!enableMultipleChoice[index]) {
+          option.isSelected = indexOption === i;
+        } else {
+          if (i === indexOption && option.isSelected) {
+            option.isSelected = option.isSelected;
+          }
+        }
         return option;
       }
     );
@@ -267,6 +280,50 @@ const AddQuestion = () => {
                                       icon={<DeleteOutlined />}
                                     ></Button>
                                   </Flex>
+                                  
+                                  {/* Choose type of choice */}
+                                  <Flex vertical={false} gap={5} align="center">
+                                    <p className="font-bold">Type:</p>
+                                    <Form.Item
+                                      name={[field.name, "kind"]}
+                                      initialValue={"single"}
+                                      noStyle
+                                    >
+                                      <Select onChange={(value) => {
+                                        const newIsSelectedType = [...isSelectedType];
+                                        const newEnableAddAnswers = [...enableAddAnswers];
+                                        const newEnableMultiple = [...enableMultipleChoice]
+                                        newIsSelectedType[index] = true;
+                                        setIsSelectedType(newIsSelectedType)
+                                        value === "text" ? newEnableAddAnswers[index] = false : newEnableAddAnswers[index] = true
+                                        value === "multiple" ? newEnableMultiple[index] = true : newEnableMultiple[index] = false
+                                        setEnableAddAnswers(newEnableAddAnswers)
+                                        setEnableMultipleChoice(newEnableMultiple)
+                                      }} placeholder="Select kind of question"
+                                      disabled = {isSelectedType[index] === undefined ? false : isSelectedType[index]}>
+                                        <Select.Option value="multiple">
+                                          Multiple choice
+                                        </Select.Option>
+                                        <Select.Option value="single">
+                                          Single choice
+                                        </Select.Option>
+                                        <Select.Option value="text">
+                                            
+                                        </Select.Option>
+                                      </Select>
+                                    </Form.Item>
+                                    <Button
+                                      onClick={() => {
+                                        const deletedIsSelectedType = [...isSelectedType];
+                                        deletedIsSelectedType[index] = false;
+                                        setIsSelectedType(deletedIsSelectedType)
+                                        console.log("aaaaa", isSelectedType[index])
+                                        remove(field.name)}
+                                      }
+                                      danger
+                                      icon={<DeleteOutlined />}
+                                    ></Button>
+                                  </Flex>
                                 </Flex>
                               </Flex>
                             </Flex>
@@ -323,7 +380,8 @@ const AddQuestion = () => {
                                                   onChange={() =>
                                                     handleSetAsDefaultChange(
                                                       field.key,
-                                                      subField.key
+                                                      subField.key,
+                                                      index
                                                     )
                                                   }
                                                   checked
@@ -340,7 +398,7 @@ const AddQuestion = () => {
                                               />
                                             </Form.Item>
                                           </Flex>
-                                          {subField.name === 0 && (
+                                          {(enableAddAnswers[index] === true || enableAddAnswers[index] === undefined) && subField.name === 0 && (
                                             <Button
                                               icon={<PlusOutlined />}
                                               onClick={() => {

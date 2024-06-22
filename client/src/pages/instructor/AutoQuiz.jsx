@@ -68,7 +68,7 @@ const AutoQuiz = () => {
       title: "Quiz",
     },
   ];
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
   const [formQuiz] = Form.useForm();
   const [course, setCourse] = useState([]);
@@ -139,7 +139,7 @@ const AutoQuiz = () => {
         .then((res) => {
           if (res == true) {
             viewContext.handleSuccess("Create quiz successfully!");
-            navigate("/admin/quiz")
+            navigate("/admin/quiz");
           } else if (res == false) {
             console.log(res.error);
             viewContext.handleError("Create quiz failed");
@@ -350,23 +350,39 @@ const AutoQuiz = () => {
     };
   });
 
-  const renderQuestion = (question, index) => (
-    <div key={index} style={{ marginBottom: "20px" }}>
-      <Typography.Title level={5} style={{ color: "red" }}>
-        {question?.question}
-      </Typography.Title>
-      <Radio.Group value={question?.answer[0]}>
-        {question.options.map((option, optIndex) => (
-          <div
-            key={optIndex}
-            style={{
-              color: question.answer[0] === option ? "green" : "black",
-            }}
-          >
-            <Radio value={option}>{option}</Radio>
-          </div>
-        ))}
-      </Radio.Group>
+  const renderSingleChoice = (question, index) => (
+    <div>
+      {question.options.map((option, optIndex) => (
+        <div
+          key={optIndex}
+          style={{
+            color: question.answer[0] === option ? "green" : "black",
+          }}
+        >
+          {option}
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderMultipleChoice = (question, index) => (
+    <div>
+      {question.options.map((option, optIndex) => (
+        <div
+          key={optIndex}
+          style={{
+            color: question.answer.includes(option) ? "green" : "black",
+          }}
+        >
+          {option}
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderTextAnswer = (question, index) => (
+    <div>
+      <Typography.Text>{question.answer[0]}</Typography.Text>
     </div>
   );
 
@@ -587,9 +603,19 @@ const AutoQuiz = () => {
                     Review Your Test
                   </Typography.Title>
                   <div>
-                    {questions.map((question, index) =>
-                      renderQuestion(question, index)
-                    )}
+                    {questions.map((question, index) => (
+                      <>
+                        <Typography.Title level={5} style={{ color: "black" }}>
+                          {question?.question}
+                        </Typography.Title>
+                        {question.type === "single" &&
+                          renderSingleChoice(question, index)}
+                        {question.type === "multiple" &&
+                          renderMultipleChoice(question, index)}
+                        {question.type === "text" &&
+                          renderTextAnswer(question, index)}
+                      </>
+                    ))}
                   </div>
                   <Button
                     type="primary"

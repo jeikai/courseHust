@@ -42,6 +42,7 @@ const timeFormat = "HH:mm:ss";
 
 const EditQuiz = () => {
   const id = useParams().id;
+  const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const viewContext = useContext(ViewContext);
   const breadcrumb = [
     {
@@ -95,6 +96,7 @@ const EditQuiz = () => {
     getQuizById(id)
       .then((data) => {
         confirm;
+        console.log(data);
         setInitialForm({ ...data });
         setIsLoading(false);
       })
@@ -147,7 +149,7 @@ const EditQuiz = () => {
                       </Col>
                       <Col span={24}>
                         <Form.Item
-                          name={"deadline"}
+                          name="deadline"
                           label={
                             <Typography.Title level={5}>
                               Quiz deadline
@@ -156,14 +158,20 @@ const EditQuiz = () => {
                         >
                           <DatePicker.RangePicker
                             className="w-full"
-                            showTime={{
-                              format: "HH:mm",
-                            }}
+                            showTime={{ format: "HH:mm" }}
                             format={dateFormat}
                             onChange={(value, dateString) =>
                               console.log(value, dateString)
                             }
                             onOk={(value) => console.log(value)}
+                            value={
+                              initialForm.deadline
+                                ? [
+                                    dayjs(initialForm.deadline[0]),
+                                    dayjs(initialForm.deadline[1]),
+                                  ]
+                                : []
+                            }
                           />
                         </Form.Item>
                       </Col>

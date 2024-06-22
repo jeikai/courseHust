@@ -283,8 +283,8 @@ const getQuizById = async (id) => {
     duration: dayjs(responseAPI.duration, "HH:mm:ss"),
     totalMarks: responseAPI.totalMarks,
     deadline: [
-      dayjs(responseAPI.startTime, "YYYY-MM-DD HH:mm"),
-      dayjs(responseAPI.endTime, "YYYY-MM-DD HH:mm"),
+      dayjs(responseAPI?.startTime, "YYYY-MM-DD HH:mm"),
+      dayjs(responseAPI?.endTime, "YYYY-MM-DD HH:mm"),
     ],
     questions: [],
   };
@@ -292,6 +292,7 @@ const getQuizById = async (id) => {
     responseAPI.ques.map((question) => {
       const formatQues = {
         id: question._id,
+        userId: question.userId,
         title: question.question,
         level: question.level,
         answer: question.answer[0],

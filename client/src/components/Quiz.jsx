@@ -1,11 +1,12 @@
 import { Button, Flex, Image, Space, Typography } from "antd";
 import React from "react";
 import svgquiz from "../assets/quiz.svg";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAPI } from "../hooks/api";
 
 const Quiz = ({ handleStartQuiz }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const responseAPI = useAPI(`/api/historyquiz/${userId}/${id}`, null);
 
@@ -26,6 +27,10 @@ const Quiz = ({ handleStartQuiz }) => {
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const handleHistoryClick = (historyId) => {
+    navigate(`/home/reviewquiz/${historyId}`);
   };
 
   return (
@@ -53,7 +58,11 @@ const Quiz = ({ handleStartQuiz }) => {
         Start your quiz
       </Button>
       {responseAPI?.data?.data?.map((history, index) => (
-        <div key={index} className="mt-8 p-4 w-full max-w-2xl border rounded">
+        <div
+          key={index}
+          className="mt-8 p-4 w-full max-w-2xl border rounded cursor-pointer"
+          onClick={() => handleHistoryClick(history._id)}
+        >
           <Typography.Title level={4}>
             Quiz: {history.quizId.title}
           </Typography.Title>

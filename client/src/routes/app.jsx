@@ -13,6 +13,7 @@ import Bill from "../pages/Bill"
 import QuizLesson from "../pages/QuizLesson";
 import QuizResult from "../pages/QuizResult";
 import DocumentLesson from "../pages/DocumentLesson";
+import ReviewQuiz from "../pages/ReviewQuiz";
 const Routes = [
   {
     path: "/cart",
@@ -100,6 +101,13 @@ const Routes = [
   {
     path: "/home/quiz_result",
     view: QuizResult,
+    layout: "lesson",
+    // permission: 'student',
+    title: "FunCourse - Lesson | E-Learning",
+  },
+  {
+    path: "/home/reviewquiz/:id",
+    view: ReviewQuiz,
     layout: "lesson",
     // permission: 'student',
     title: "FunCourse - Lesson | E-Learning",

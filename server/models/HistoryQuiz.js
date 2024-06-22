@@ -54,4 +54,23 @@ exports.getByUserIdAndQuizId = async function (userId, quizId) {
     }
 };
 
+exports.getById = async function (id) {
+    try {
+        const history = await HistoryQuiz.findById(id)
+            .populate({
+                path: 'listOfAnswer.questionId',
+                model: 'Question'
+            }).populate("quizId");
+
+        if (!history) {
+            return null;
+        }
+
+        return history;
+    } catch (err) {
+        console.error(err);
+        return { error: err }
+    }
+};
+
 

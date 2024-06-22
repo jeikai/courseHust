@@ -6,4 +6,6 @@ api.get('/historyquiz/:userId/:quizId', use(HistoryQuizController.getByUserIdAnd
 
 api.post('/historyquiz', use(HistoryQuizController.create))
 
+api.get('/historyquiz/:id', use(HistoryQuizController.getById))
+
 module.exports = api   

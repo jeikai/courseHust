@@ -34,14 +34,20 @@ const QuizResult = () => {
 					(answer) => answer.id === question.id
 				);
 				let actualAnswer;
-				if (question.type === "text") {
+				let isCorrect = false;
+				if (question.type === "text" || question.type === "multiple") {
 					actualAnswer = userAnswer.choices
 				} else {
 					// TODO: add condition multiple
 					actualAnswer = userAnswer.choices[0]
 				}
-				console.log(question.type, actualAnswer, question.answer)
-				if (userAnswer && actualAnswer === question.answer) {
+				if (question.type === "text" || question.type === "single") {
+					isCorrect =
+					userAnswer && actualAnswer === question.answer;
+				} else {
+					isCorrect = userAnswer && hasCommonElements(actualAnswer, question.answer)
+				}
+				if (isCorrect) {
 					correctCount++;
 				}
 			});
@@ -136,14 +142,19 @@ const QuizResult = () => {
 								(answer) => answer.id === question.id
 							);
 							let actualAnswer;
-							if (question.type === "text") {
+							let isCorrect = false;
+							if (question.type === "text" || question.type === "multiple") {
 								actualAnswer = userAnswer.choices
-							} else {
-								// TODO: add condition multiple
+							} else if (question.type === "single") {
 								actualAnswer = userAnswer.choices[0]
 							}
-							const isCorrect =
+							if (question.type === "text" || question.type === "single") {
+								isCorrect =
 								userAnswer && actualAnswer === question.answer;
+							} else {
+								isCorrect = userAnswer && hasCommonElements(actualAnswer, question.answer)
+							}
+
 							const isAnswered = !!userAnswer;
 							return (
 								<Card key={questionIndex}>
@@ -187,5 +198,15 @@ const QuizResult = () => {
 		</div>
 	);
 };
+
+
+function hasCommonElements(arr1, arr2) {
+	for (let i = 0; i < arr1.length; i++) {
+	  if (arr2.includes(arr1[i])) {
+		return true; 
+	  }
+	}
+	return false; 
+  }
 
 export default QuizResult;

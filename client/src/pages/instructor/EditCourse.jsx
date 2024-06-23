@@ -94,10 +94,8 @@ import {
 } from "../../api/course";
 import { ViewContext } from "../../context/View";
 import dayjs from "dayjs";
-import { string } from "mathjs";
-import { io } from "socket.io-client";
+
 const EditCourse = () => {
-  const socket = useRef();
   const [courseId, setCourseId] = useState(useParams().id);
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [isLoading, setIsLoading] = useState(false);
@@ -173,13 +171,6 @@ const EditCourse = () => {
     }
     return e && e.fileList;
   };
-
-  useEffect(() => {
-    if (userId) {
-      socket.current = io("http://localhost:5050");
-      socket.current.emit("add-user", userId);
-    }
-  }, [userId]);
 
   useEffect(() => {
     const field = form.getFieldsValue();

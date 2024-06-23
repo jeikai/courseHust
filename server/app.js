@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
 const dotenv = require("dotenv");
-const socket = require("socket.io");
 const connectDB = require('./config/database')
 const api = require('./api')
 
@@ -47,29 +46,5 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-const server = app.listen(5050, () =>
-  console.log(`Socket started on 5050`)
-);
-
-const io = socket(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
-});
-
-global.onlineUsers = new Map();
-io.on("connection", (socket) => {
-  global.chatSocket = socket;
-  socket.on("add-user", (userId) => { 
-    onlineUsers.set(userId, socket.id);
-  });
-  socket.on("senNotification", (data) => {
-    const sendUserSocket = onlineUsers.get(data.to)
-    if(sendUserSocket) {
-      socket.to(sendUserSocket).emit("receiveNotification", data)
-    }
-  })
-})
 
 module.exports = app;

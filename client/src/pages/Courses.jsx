@@ -57,6 +57,12 @@ const Courses = () => {
           (course) => course.categoryId.title === param.categoryname
         );
         setSearch(filteredCourses);
+      } else if (param.rating) {
+        let filteredCourses = coursesAPI?.data;
+        filteredCourses = filteredCourses.filter(
+          (course) => course.rating === param.rating
+        );
+        setSearch(filteredCourses);
       }
       setIsLoading(false);
     }
@@ -95,6 +101,13 @@ const Courses = () => {
             (course) => course.level === param.level.toLowerCase()
           );
         }
+
+        if (param.rating && param.rating != "all") {
+          console.log("rating");
+          filteredCourses = filteredCourses.filter(
+            (course) => course.rating === param.rating
+          );
+        }
       }
       console.log(filteredCourses);
       await setSearch(filteredCourses);
@@ -124,7 +137,7 @@ const Courses = () => {
     }
 
     if (urlParams.get("rating")) {
-      newParam.rating = parseInt(urlParams.get("rating"));
+      newParam.rating = urlParams.get("rating").toString();
     }
 
     setParam(newParam);
@@ -170,7 +183,7 @@ const Courses = () => {
     }
 
     if (urlParams.get("rating")) {
-      newParam.rating = parseInt(urlParams.get("rating"));
+      newParam.rating = urlParams.get("rating").toString();
     }
 
     setParam(newParam);
@@ -293,8 +306,8 @@ const Courses = () => {
                     <Radio className="text-base" value={"all"}>
                       All
                     </Radio>
-                    <Radio className="text-base" value={"begginer"}>
-                      Beginner
+                    <Radio className="text-base" value={"basic"}>
+                      Basic
                     </Radio>
                     <Radio className="text-base" value={"intermediate"}>
                       Intermediate
@@ -305,7 +318,7 @@ const Courses = () => {
                   </Space>
                 </Radio.Group>
               </Space>
-              <Space direction="vertical" className="p-4">
+              {/* <Space direction="vertical" className="p-4">
                 <Typography.Title
                   level={4}
                   className="border-b-2 border-purple-400"
@@ -337,7 +350,7 @@ const Courses = () => {
                     </Radio>
                   </Space>
                 </Radio.Group>
-              </Space>
+              </Space> */}
             </Space>
           </Col>
           <Col span={19}>

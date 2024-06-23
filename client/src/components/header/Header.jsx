@@ -42,10 +42,9 @@ const Header = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const [category, setCategory] = useState();
+  const [schedule, setSchedule] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const categoryAPI = useAPI("/api/category", null);
-  // const schedule = useAPI(`/api/calendar/user/${user?.account?._id}`, null)
-  // console.log(schedule?.data, user?.account?._id)
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -59,7 +58,7 @@ const Header = () => {
       body: "You have a new message from your instructor.",
     },
   ]);
-  
+
   let itemProfile = [];
   if (user != null) {
     itemProfile = [
@@ -123,7 +122,13 @@ const Header = () => {
       setCategory(categoryAPI);
       setIsLoading(false);
     }
-  }, [categoryAPI]);
+    if (user) {
+
+      // const scheduleAPI = useAPI(`/api/calendar/user/${user?.account?._id}`, null)
+      // setSchedule(scheduleAPI?.data)
+
+    }
+  }, [categoryAPI, user]);
 
   const handleClickProfile = ({ key }) => {
     if (key === "signout") {

@@ -11,12 +11,13 @@ const QuizSchema = new Schema({
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Question',
-		}, 
+		},
 	],
 	startTime: { type: Date, default: '' },
 	endTime: { type: Date, default: '' },
 	totalMarks: { type: Number, default: 10 },
 	passMarks: { type: Number, default: 10 },
+	isReview: { type: Boolean, default: true },
 	date_created: Date,
 	date_updated: Date,
 });
@@ -34,6 +35,7 @@ exports.create = async function (sectionId, data) {
 			endTime: data.endTime || '',
 			totalMarks: data.totalMarks,
 			passMarks: data.passMarks,
+			isReview: data.isReview,
 			date_created: new Date(),
 			date_updated: new Date(),
 		};

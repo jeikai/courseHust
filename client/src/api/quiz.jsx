@@ -31,6 +31,7 @@ const createQuizWithSuggestedQues = async (data) => {
     } else {
       const dataReq = {};
       dataReq.title = data.title;
+      dataReq.isReview = data.isReview;
       const duration = data.duration;
       console.log(duration["$H"]);
       const { hours, minutes, seconds } = {
@@ -89,6 +90,7 @@ const createQuiz = async (data) => {
     } else {
       const dataReq = {};
       dataReq.title = data.title;
+      dataReq.isReview = data.isReview;
       const duration = data.duration;
       const { hours, minutes, seconds } = {
         hours: duration["$H"],

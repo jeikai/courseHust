@@ -15,6 +15,7 @@ import {
   Menu,
   Radio,
   message,
+  Checkbox
 } from "antd";
 import {
   FolderOpenOutlined,
@@ -500,6 +501,19 @@ const AutoQuiz = () => {
                     <InputNumber className="w-full" min={1} changeOnWheel />
                   </Form.Item>
                 </Col>
+                <Col span={24}>
+                      <Form.Item
+                        name={"isReview"}
+                        valuePropName="checked"
+                        label={
+                          <Typography.Title level={5}>
+                            Check if students can review test
+                          </Typography.Title>
+                        }
+                      >
+                        <Checkbox />
+                      </Form.Item>
+                    </Col>
                 <Col span={24}>
                   <Form.Item
                     name="totalQuestions"

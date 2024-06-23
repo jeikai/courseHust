@@ -1,4 +1,4 @@
-import { Button, Flex, Image, Space, Typography } from "antd";
+import { Button, Flex, Image, Space, Typography, message } from "antd";
 import React from "react";
 import svgquiz from "../assets/quiz.svg";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ const Quiz = ({ handleStartQuiz }) => {
   const navigate = useNavigate();
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const responseAPI = useAPI(`/api/historyquiz/${userId}/${id}`, null);
+  console.log(responseAPI?.data?.data);
 
   const formatDuration = (duration) => {
     const [hours, minutes, seconds] = duration.split(":").map(Number);
@@ -30,7 +31,15 @@ const Quiz = ({ handleStartQuiz }) => {
   };
 
   const handleHistoryClick = (historyId) => {
-    navigate(`/home/reviewquiz/${historyId}`);
+    const historyItem = responseAPI?.data?.data.find(
+      (history) => history._id === historyId
+    );
+
+    if (historyItem?.quizId?.isReview) {
+      navigate(`/home/reviewquiz/${historyId}`);
+    } else {
+      message.error("You do not have permission to review this quiz.");
+    }
   };
 
   return (

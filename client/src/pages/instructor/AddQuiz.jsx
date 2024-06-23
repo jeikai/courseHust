@@ -19,6 +19,7 @@ import {
   Switch,
   TimePicker,
   Typography,
+  Checkbox
 } from "antd";
 import Axios from "axios";
 import {
@@ -104,7 +105,7 @@ const AddQuiz = () => {
     }
   }, [courseResponseApi]);
   const handleRemoveQuestion = (index) => {
-    const currentQuestions = formQuiz.getFieldValue('questions');
+    const currentQuestions = formQuiz.getFieldValue("questions");
     const newQuestions = currentQuestions.filter((_, i) => i !== index);
     setFormattedQuestion(newQuestions);
     setSelectedSuggestQues(newQuestions);
@@ -399,11 +400,24 @@ const AddQuiz = () => {
                         name={"passMarks"}
                         label={
                           <Typography.Title level={5}>
-                            Pass Marks
+                            Pass Mark
                           </Typography.Title>
                         }
                       >
                         <InputNumber className="w-full" min={1} changeOnWheel />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name={"isReview"}
+                        valuePropName="checked"
+                        label={
+                          <Typography.Title level={5}>
+                            Check if students can review test
+                          </Typography.Title>
+                        }
+                      >
+                        <Checkbox />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -494,7 +508,9 @@ const AddQuiz = () => {
                                         </Select>
                                       </Form.Item>
                                       <Button
-                                         onClick={() => handleRemoveQuestion(index)}
+                                        onClick={() =>
+                                          handleRemoveQuestion(index)
+                                        }
                                         danger
                                         icon={<DeleteOutlined />}
                                       ></Button>

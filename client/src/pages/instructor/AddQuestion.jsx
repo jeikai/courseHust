@@ -42,7 +42,7 @@ const AddQuestion = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "",
+      href: "/",
     },
     {
       title: "Quiz",

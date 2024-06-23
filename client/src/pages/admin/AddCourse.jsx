@@ -379,7 +379,7 @@ const AddCourse = () => {
       console.log(resCourse.data);
       setIsLoading(false);
       viewContext.handleSuccess("Create course successfully");
-      navigate("/admin/manage_courses");
+      navigate("/admin_main/manage_courses");
     } catch (error) {
       console.log(error);
       setIsLoading(false);

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import Bread from "../../components/Bread";
 import Loader from "../../components/Loader";
 import {
@@ -6,36 +6,26 @@ import {
   Button,
   Col,
   ConfigProvider,
-  Collapse,
   DatePicker,
   Flex,
   Form,
   Input,
   InputNumber,
-  Modal,
-  Radio,
   Row,
   Select,
-  Space,
   Switch,
   TimePicker,
   Typography,
 } from "antd";
-
-import {
-  CloseOutlined,
-  DeleteOutlined,
-  MoreOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import Question from "../../components/Question";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import Spring from "../../components/Spring";
-import { createQuiz, getQuizById, updateQuiz } from "../../api/quiz";
+import { getQuizById, updateQuiz } from "../../api/quiz";
 import { useParams } from "react-router-dom";
 import { ViewContext } from "../../context/View";
 import { useContext } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+
 dayjs.extend(customParseFormat);
 const dateFormat = "YYYY-MM-DD HH:mm";
 const timeFormat = "HH:mm:ss";
@@ -77,10 +67,8 @@ const EditQuiz = () => {
   };
 
   const handleFinish = async (data) => {
-    setIsLoading((prev) => true);
+    setIsLoading(true);
     data.id = id;
-    // data.duration = data.durations;
-    // data.deadline = data.deadlines;
     console.log(data);
     await updateQuiz(data)
       .then((res) => {
@@ -89,13 +77,12 @@ const EditQuiz = () => {
       .catch((err) => {
         console.log(err);
       });
-    setIsLoading((prev) => false);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     getQuizById(id)
       .then((data) => {
-        confirm;
         console.log(data);
         setInitialForm({ ...data });
         setIsLoading(false);
@@ -119,7 +106,6 @@ const EditQuiz = () => {
                 form={formQuiz}
                 layout="vertical"
                 initialValues={initialForm}
-                // onValuesChange={handleFormQuizChange}
                 onFinish={handleFinish}
               >
                 <Row gutter={12}>
@@ -232,164 +218,179 @@ const EditQuiz = () => {
                                 </Button>
                               </Flex>
                             </Col>
-                            {fields.map((field, index) => (
-                              <Fragment key={index}>
-                                <Col span={24}>
-                                  <Flex
-                                    align="center"
-                                    justify="space-between"
-                                    style={{ marginBottom: 12 }}
-                                  >
-                                    <Flex align="center" gap={8} flex={1}>
-                                      <Typography.Title
-                                        style={{ marginBottom: 0 }}
-                                        level={5}
-                                      >
-                                        Question {index + 1}:
-                                      </Typography.Title>
-                                      <Form.Item
-                                        style={{ marginBottom: 0 }}
-                                        name={[field.name, "title"]}
-                                      >
-                                        <Input
-                                          placeholder="Title here"
-                                          style={{ width: "400px" }}
-                                        />
-                                      </Form.Item>
-                                    </Flex>
+                            {fields.map((field, index) => {
+                              const question = initialForm.questions[field.name];
+                              console.log(question, userId)
+                              const isEditable = question.userId === userId;
+
+                              return (
+                                <Fragment key={index}>
+                                  <Col span={24}>
                                     <Flex
-                                      vertical={false}
-                                      gap={5}
                                       align="center"
+                                      justify="space-between"
+                                      style={{ marginBottom: 12 }}
                                     >
-                                      <p className="font-bold">Level:</p>
-                                      <Form.Item
-                                        name={[field.name, "level"]}
-                                        initialValue={"perception"}
-                                        noStyle
-                                      >
-                                        <Select placeholder="Select question type">
-                                          <Select.Option value="perception">
-                                            Perception
-                                          </Select.Option>
-                                          <Select.Option value="comprehension">
-                                            Comprehension
-                                          </Select.Option>
-                                          <Select.Option value="application">
-                                            Application
-                                          </Select.Option>
-                                          <Select.Option value="advanced application">
-                                            Advanced application
-                                          </Select.Option>
-                                        </Select>
-                                      </Form.Item>
-                                      <Button
-                                        onClick={() => remove(field.name)}
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                      ></Button>
-                                    </Flex>
-                                  </Flex>
-                                  <Form.Item>
-                                    <Form.List
-                                      name={[field.name, "options"]}
-                                      initialValue={[
-                                        {
-                                          isSelected: true,
-                                          label: "",
-                                        },
-                                      ]}
-                                    >
-                                      {(subFields, subOpt) => (
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            rowGap: 16,
-                                          }}
+                                      <Flex align="center" gap={8} flex={1}>
+                                        <Typography.Title
+                                          style={{ marginBottom: 0 }}
+                                          level={5}
                                         >
-                                          {subFields.map((subField) => (
-                                            <Flex key={subField.key}>
-                                              <Flex
-                                                align="center"
-                                                justify="space-between"
-                                                className="w-full"
-                                              >
-                                                <Flex align="center" gap={12}>
-                                                  <ConfigProvider
-                                                    theme={{
-                                                      components: {
-                                                        Switch: {
-                                                          // handleBg: '#ccc'
+                                          Question {index + 1}:
+                                        </Typography.Title>
+                                        <Form.Item
+                                          style={{ marginBottom: 0 }}
+                                          name={[field.name, "title"]}
+                                        >
+                                          <Input
+                                            placeholder="Title here"
+                                            style={{ width: "400px" }}
+                                            disabled={!isEditable}
+                                          />
+                                        </Form.Item>
+                                      </Flex>
+                                      <Flex
+                                        vertical={false}
+                                        gap={5}
+                                        align="center"
+                                      >
+                                        <p className="font-bold">Level:</p>
+                                        <Form.Item
+                                          name={[field.name, "level"]}
+                                          initialValue={"perception"}
+                                          noStyle
+                                        >
+                                          <Select
+                                            placeholder="Select question type"
+                                            disabled={!isEditable}
+                                          >
+                                            <Select.Option value="perception">
+                                              Perception
+                                            </Select.Option>
+                                            <Select.Option value="comprehension">
+                                              Comprehension
+                                            </Select.Option>
+                                            <Select.Option value="application">
+                                              Application
+                                            </Select.Option>
+                                            <Select.Option value="advanced application">
+                                              Advanced application
+                                            </Select.Option>
+                                          </Select>
+                                        </Form.Item>
+                                        {isEditable && (
+                                          <Button
+                                            onClick={() => remove(field.name)}
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                          ></Button>
+                                        )}
+                                      </Flex>
+                                    </Flex>
+                                    <Form.Item>
+                                      <Form.List
+                                        name={[field.name, "options"]}
+                                        initialValue={[
+                                          {
+                                            isSelected: true,
+                                            label: "",
+                                          },
+                                        ]}
+                                      >
+                                        {(subFields, subOpt) => (
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              flexDirection: "column",
+                                              rowGap: 16,
+                                            }}
+                                          >
+                                            {subFields.map((subField) => (
+                                              <Flex key={subField.key}>
+                                                <Flex
+                                                  align="center"
+                                                  justify="space-between"
+                                                  className="w-full"
+                                                >
+                                                  <Flex align="center" gap={12}>
+                                                    <ConfigProvider
+                                                      theme={{
+                                                        components: {
+                                                          Switch: {
+                                                            // handleBg: '#ccc'
+                                                          },
                                                         },
-                                                      },
-                                                      token: {
-                                                        colorPrimary: "#754FFE",
-                                                        /* here is your global tokens */
-                                                      },
-                                                    }}
-                                                  >
+                                                        token: {
+                                                          colorPrimary:
+                                                            "#754FFE",
+                                                          /* here is your global tokens */
+                                                        },
+                                                      }}
+                                                    >
+                                                      <Form.Item
+                                                        noStyle
+                                                        name={[
+                                                          subField.name,
+                                                          "isSelected",
+                                                        ]}
+                                                        valuePropName="checked"
+                                                      >
+                                                        <Switch
+                                                          onChange={() =>
+                                                            handleSetAsDefaultChange(
+                                                              field.key,
+                                                              subField.key
+                                                            )
+                                                          }
+                                                          checked
+                                                          disabled={!isEditable}
+                                                        ></Switch>
+                                                      </Form.Item>
+                                                    </ConfigProvider>
                                                     <Form.Item
                                                       noStyle
                                                       name={[
                                                         subField.name,
-                                                        "isSelected",
+                                                        "label",
                                                       ]}
-                                                      valuePropName="checked"
                                                     >
-                                                      <Switch
-                                                        onChange={() =>
-                                                          handleSetAsDefaultChange(
-                                                            field.key,
-                                                            subField.key
-                                                          )
-                                                        }
-                                                        checked
-                                                      ></Switch>
+                                                      <Input
+                                                        placeholder="Question title"
+                                                        style={{ width: 400 }}
+                                                        disabled={!isEditable}
+                                                      />
                                                     </Form.Item>
-                                                  </ConfigProvider>
-                                                  <Form.Item
-                                                    noStyle
-                                                    name={[
-                                                      subField.name,
-                                                      "label",
-                                                    ]}
-                                                  >
-                                                    <Input
-                                                      placeholder="Question title"
-                                                      style={{ width: 400 }}
-                                                    />
-                                                  </Form.Item>
+                                                  </Flex>
+                                                  {isEditable && subField.name === 0 && (
+                                                    <Button
+                                                      icon={<PlusOutlined />}
+                                                      onClick={() => {
+                                                        subOpt.add();
+                                                      }}
+                                                    ></Button>
+                                                  )}
+                                                  {isEditable && subField.name !== 0 && (
+                                                    <Button
+                                                      danger
+                                                      icon={<DeleteOutlined />}
+                                                      onClick={() => {
+                                                        subOpt.remove(
+                                                          subField.name
+                                                        );
+                                                      }}
+                                                    ></Button>
+                                                  )}
                                                 </Flex>
-                                                {subField.name === 0 && (
-                                                  <Button
-                                                    icon={<PlusOutlined />}
-                                                    onClick={() => {
-                                                      subOpt.add();
-                                                    }}
-                                                  ></Button>
-                                                )}
-                                                {subField.name !== 0 && (
-                                                  <Button
-                                                    danger
-                                                    icon={<DeleteOutlined />}
-                                                    onClick={() => {
-                                                      subOpt.remove(
-                                                        subField.name
-                                                      );
-                                                    }}
-                                                  ></Button>
-                                                )}
                                               </Flex>
-                                            </Flex>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </Form.List>
-                                  </Form.Item>
-                                </Col>
-                              </Fragment>
-                            ))}
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Form.List>
+                                    </Form.Item>
+                                  </Col>
+                                </Fragment>
+                              );
+                            })}
                           </Row>
                         )}
                       </Form.List>

@@ -21,4 +21,3 @@ api.put('/user/:userId/verify', use(userController.updateVerify))
 api.delete('/user/delete/:userId', authMiddleware.protectAdmin, use(userController.delete))
 
 module.exports = api
-   

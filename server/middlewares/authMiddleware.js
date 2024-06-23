@@ -5,7 +5,7 @@ const userModel = require('../models/User')
 exports.checkToken = async function(req, res, next){
     const {JWT_SECRET_ACCESS_TOKEN} = process.env;
     const token  = req.headers.authorization.split(' ')[1]
-    if ( 
+    if (
         req.headers.authorization &&
         req.headers.authorization.startsWith('Bearer')
     ) {

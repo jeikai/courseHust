@@ -428,7 +428,6 @@ const AutoQuiz = () => {
                         Quiz deadline
                       </Typography.Title>
                     }
-                    rules={[{ required: true }]}
                   >
                     <DatePicker.RangePicker
                       className="w-full"

@@ -140,7 +140,7 @@ const AutoQuiz = () => {
         .then((res) => {
           if (res == true) {
             viewContext.handleSuccess("Create quiz successfully!");
-            navigate("/admin_main/quiz");
+            navigate("/admin/quiz");
           } else if (res == false) {
             console.log(res.error);
             viewContext.handleError("Create quiz failed");
@@ -428,7 +428,6 @@ const AutoQuiz = () => {
                         Quiz deadline
                       </Typography.Title>
                     }
-                    rules={[{ required: true }]}
                   >
                     <DatePicker.RangePicker
                       className="w-full"

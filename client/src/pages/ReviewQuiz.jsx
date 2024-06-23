@@ -70,7 +70,7 @@ const ReviewQuiz = () => {
   const handleBackClick = () => {
     if (window.history.length > 1) {
       window.history.back();
-    } else {
+    } else { 
       navigate("/");
     }
   };

@@ -44,7 +44,7 @@ const AddQuiz = () => {
   const breadcrumb = [
     {
       title: "Home",
-      href: "",
+      href: "/admin/quiz",
     },
     {
       title: "Quiz",
@@ -103,6 +103,13 @@ const AddQuiz = () => {
       );
     }
   }, [courseResponseApi]);
+  const handleRemoveQuestion = (index) => {
+    const currentQuestions = formQuiz.getFieldValue('questions');
+    const newQuestions = currentQuestions.filter((_, i) => i !== index);
+    setFormattedQuestion(newQuestions);
+    setSelectedSuggestQues(newQuestions);
+    formQuiz.setFieldsValue({ questions: newQuestions });
+  };
   const addNewSuggestQues = (question) => {
     const formatQues = {
       id: question._id,
@@ -111,15 +118,14 @@ const AddQuiz = () => {
       answer: question.answer,
       type: question.type,
       options: question.options.map((option) => ({
-        isSelected:
-          option ===
-          (typeof question.answer == "string"
-            ? question.answer
-            : question.answer[0]),
+        isSelected: Array.isArray(question.answer)
+          ? question.answer.includes(option)
+          : option === question.answer,
         label: option,
       })),
     };
 
+    console.log(formatQues);
     formQuiz.setFieldsValue({
       questions: [...formattedQuestion, formatQues],
     });
@@ -263,9 +269,10 @@ const AddQuiz = () => {
                             {question.options.map((opt, index) => (
                               <div
                                 className={`py-2 rounded-xl pl-5 border-slate-200 border-[1px] ${
-                                  (question.answer == opt ||
-                                    question.answer[0] == opt) &&
-                                  "bg-green-300"
+                                  Array.isArray(question.answer) &&
+                                  question.answer.includes(opt)
+                                    ? "bg-green-300"
+                                    : ""
                                 }`}
                                 key={opt}
                               >
@@ -487,7 +494,7 @@ const AddQuiz = () => {
                                         </Select>
                                       </Form.Item>
                                       <Button
-                                        onClick={() => remove(field.name)}
+                                         onClick={() => handleRemoveQuestion(index)}
                                         danger
                                         icon={<DeleteOutlined />}
                                       ></Button>

@@ -296,7 +296,7 @@ const getQuizById = async (id) => {
         title: question.question,
         level: question.level,
         answer: question.answer[0],
-        type: "scq",
+        type: question.type,
         options: [],
       };
       for (const option of question.options) {
@@ -333,7 +333,7 @@ const getQuizByIdWithoutFormatTime = async (id) => {
         title: question.question,
         level: question.level,
         answer: question.answer[0],
-        type: "scq",
+        type: question.type,
         options: [],
       };
       for (const option of question.options) {

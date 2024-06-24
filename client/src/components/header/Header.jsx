@@ -38,7 +38,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/Auth";
 import { useAPI } from "../../hooks/api";
 import Loader from "../Loader";
-import axios from "axios"; // Make sure axios is installed
+import axios from "axios";
 
 const Header = () => {
   let user = JSON.parse(localStorage.getItem("user"));
@@ -112,7 +112,9 @@ const Header = () => {
     const fetchNotifications = async () => {
       if (user) {
         try {
-          const response = await axios.get(`/api/notification/${user.account._id}`);
+          const response = await axios.get(
+            `/api/notification/${user.account._id}`
+          );
           setNotifications(response.data);
         } catch (error) {
           console.error("Error fetching notifications:", error);
@@ -142,7 +144,7 @@ const Header = () => {
       const dayOfWeek = now.getDay();
 
       schedule.forEach((item) => {
-        console.log(item, now);
+        console.log(item, dayOfWeek);
         const startDate = new Date(item.day_start);
         const endDate = new Date(item.day_end);
 
@@ -184,6 +186,21 @@ const Header = () => {
     };
 
     const sendNotification = async (item) => {
+      // Check if browser supports notifications
+      if ("Notification" in window) {
+        // Request permission if not already granted
+        if (Notification.permission !== "granted") {
+          await Notification.requestPermission();
+        }
+
+        // Show the notification
+        if (Notification.permission === "granted") {
+          new Notification(`${item?.title}`, {
+            body: `It's time for your class: ${item?.courseId?.title}`,
+            icon: logo, // optional icon
+          });
+        }
+      }
       const now = new Date();
       const responseAPI = await axios.post("/api/notification", {
         userId: user.account._id,

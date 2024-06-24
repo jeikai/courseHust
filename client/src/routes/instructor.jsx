@@ -2,19 +2,11 @@ import AddCourse from '../pages/instructor/AddCourse';
 import AddQuiz from '../pages/instructor/AddQuiz';
 import AutoQuiz from '../pages/instructor/AutoQuiz';
 import Courses from '../pages/instructor/Courses';
-import Dashboard from '../pages/instructor/Dashboard';
 import EditCourse from '../pages/instructor/EditCourse';
 import EditQuiz from '../pages/instructor/EditQuiz';
 import Quiz from '../pages/instructor/Quiz';
 import AddQuestion from '../pages/instructor/AddQuestion';
 const Routes = [
-	{
-		path: '/admin',
-		view: Dashboard,
-		layout: 'admin',
-		// permission: 'student',
-		title: 'FunCourse - Dash board | E-Learning',
-	},
 	{
 		path: '/admin/manage_courses',
 		view: Courses,

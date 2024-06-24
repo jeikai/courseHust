@@ -14,6 +14,7 @@ import {
   Menu,
   message,
   Form,
+  notification,
 } from "antd";
 import {
   BellOutlined,
@@ -36,28 +37,19 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/Auth";
 import { useAPI } from "../../hooks/api";
+import Loader from "../Loader";
+import axios from "axios"; // Make sure axios is installed
 
 const Header = () => {
   let user = JSON.parse(localStorage.getItem("user"));
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const [category, setCategory] = useState();
-  const [schedule, setSchedule] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const categoryAPI = useAPI("/api/category", null);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "New Course Available",
-      body: "Check out our new course on React!",
-    },
-    { id: 2, title: "Reminder", body: "Your subscription is expiring soon." },
-    {
-      id: 3,
-      title: "Message from Instructor",
-      body: "You have a new message from your instructor.",
-    },
-  ]);
+  const [schedule, setSchedule] = useState(null);
+  const [notifiedCourses, setNotifiedCourses] = useState(new Set());
+  const [notifications, setNotifications] = useState([]);
 
   let itemProfile = [];
   if (user != null) {
@@ -117,16 +109,110 @@ const Header = () => {
   }
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      if (user) {
+        try {
+          const response = await axios.get(`/api/notification/${user.account._id}`);
+          setNotifications(response.data);
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      }
+    };
+    fetchNotifications();
+  }, [user]);
+
+  if (user != null) {
+    useEffect(() => {
+      const fetchSchedule = async () => {
+        const response = await axios.get(
+          `/api/calendar/user/${user.account._id}`
+        );
+        setSchedule(response.data);
+      };
+      fetchSchedule();
+    }, [user.account._id]);
+  }
+
+  useEffect(() => {
+    const checkSchedule = () => {
+      if (!schedule) return;
+
+      const now = new Date();
+      const dayOfWeek = now.getDay();
+
+      schedule.forEach((item) => {
+        console.log(item, now);
+        const startDate = new Date(item.day_start);
+        const endDate = new Date(item.day_end);
+
+        if (now >= startDate && now <= endDate) {
+          console.log("Vẫn trong ngày thông báo");
+          if (dayOfWeek === item.dayOfWeek) {
+            console.log("Đến ngày rồi");
+
+            const exceptions = item.exceptions.map((date) => new Date(date));
+            const isException = exceptions.some(
+              (exceptionDate) =>
+                exceptionDate.toDateString() === now.toDateString()
+            );
+
+            if (isException) {
+              console.log("Hôm nay là ngày ngoại lệ");
+              return;
+            }
+
+            const [startHour, startMinute] = item.time_start.split(":");
+            const [endHour, endMinute] = item.time_end.split(":");
+            const startTime = new Date(now);
+            startTime.setHours(startHour, startMinute, 0);
+            const endTime = new Date(now);
+            endTime.setHours(endHour, endMinute, 0);
+
+            if (now >= startTime && now <= endTime) {
+              console.log("Đến giờ rồi");
+              if (!notifiedCourses.has(item.courseId?._id)) {
+                sendNotification(item);
+                setNotifiedCourses((prev) =>
+                  new Set(prev).add(item.courseId?._id)
+                );
+              }
+            }
+          }
+        }
+      });
+    };
+
+    const sendNotification = async (item) => {
+      const now = new Date();
+      const responseAPI = await axios.post("/api/notification", {
+        userId: user.account._id,
+        courseId: item?.courseId?._id,
+        title: `${item?.title}`,
+        body: `It's time for your class: ${item?.courseId?.title}`,
+        dayOfWeek: item?.dayOfWeek,
+        time_start: item?.time_start,
+        time_end: item?.time_end,
+        now: now,
+      });
+      console.log(responseAPI);
+      notification.info({
+        message: `${item?.title}`,
+        description: `It's time for your class: ${item?.courseId?.title}`,
+        placement: "bottomRight",
+      });
+    };
+
+    const intervalId = setInterval(checkSchedule, 20000);
+
+    return () => clearInterval(intervalId);
+  }, [schedule, notifiedCourses]);
+
+  useEffect(() => {
     if (categoryAPI.data) {
       setIsLoading(true);
       setCategory(categoryAPI);
       setIsLoading(false);
-    }
-    if (user) {
-
-      // const scheduleAPI = useAPI(`/api/calendar/user/${user?.account?._id}`, null)
-      // setSchedule(scheduleAPI?.data)
-
     }
   }, [categoryAPI, user]);
 
@@ -143,12 +229,13 @@ const Header = () => {
   };
 
   const handleNotificationClick = (notification) => {
-    // Handle notification click (e.g., navigate to a specific page)
-    console.log("Notification clicked:", notification);
+    if (notification.courseId) {
+      navigate(`/courses/${notification.courseId}`);
+    }
   };
 
   const notificationItems = notifications.map((notification) => ({
-    key: notification.id,
+    key: notification._id,
     label: (
       <div onClick={() => handleNotificationClick(notification)}>
         <Typography.Text strong>{notification.title}</Typography.Text>
@@ -168,7 +255,7 @@ const Header = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || schedule?.loading) {
     return <Loader />;
   }
 

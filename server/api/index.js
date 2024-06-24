@@ -18,4 +18,5 @@ module.exports = [
   require('./recommend'),
   require('./subcategory'),
   require('./historyquiz'),
+  require('./notification'),
 ]

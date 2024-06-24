@@ -140,7 +140,7 @@ const AutoQuiz = () => {
         .then((res) => {
           if (res == true) {
             viewContext.handleSuccess("Create quiz successfully!");
-            navigate("/admin/quiz");
+            navigate("/admin_main/quiz");
           } else if (res == false) {
             console.log(res.error);
             viewContext.handleError("Create quiz failed");

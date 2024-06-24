@@ -100,11 +100,11 @@ const Header = () => {
         (item) => item.key !== "become_instructor"
       );
     } else {
-      itemProfile.push({
-        key: "become_instructor",
-        label: "Become an Instructor",
-        icon: <BookOutlined />,
-      });
+      // itemProfile.push({
+      //   key: "become_instructor",
+      //   label: "Become an Instructor",
+      //   icon: <BookOutlined />,
+      // });
     }
   }
 

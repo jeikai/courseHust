@@ -37,6 +37,7 @@ import { createQuestions } from "../../api/quiz";
 import { useAPI } from "../../hooks/api";
 import { ViewContext } from "../../context/View";
 import Loader from "../../components/Loader";
+import { en } from "@faker-js/faker";
 
 const AddQuestion = () => {
   const breadcrumb = [
@@ -78,10 +79,10 @@ const AddQuestion = () => {
     if (enableMultipleChoice[index] === undefined) {
       enableMultipleChoice[index] = false;
     }
-    console.log(enableMultipleChoice[index])
-    questions[indexQuestion].options = questions[indexQuestion].options.map(
+    console.log(enableMultipleChoice[index]);
+    questions[index].options = questions[index].options.map(
       (option, i) => {
-        if (!enableMultipleChoice[index]) {
+        if (enableMultipleChoice[index] === false) {
           option.isSelected = indexOption === i;
         } else {
           if (i === indexOption && option.isSelected) {
@@ -315,9 +316,43 @@ const AddQuestion = () => {
                                     <Button
                                       onClick={() => {
                                         const deletedIsSelectedType = [...isSelectedType];
-                                        deletedIsSelectedType[index] = false;
+                                        const deletedEnableMultiple = [...enableAddAnswers];
+                                        const deletedEnableAddAnswers = [...enableAddAnswers];
+                                        console.log("deletedIsSelectedType", deletedIsSelectedType, deletedEnableAddAnswers, deletedEnableMultiple)
+                                        if (enableAddAnswers.length === 0 && index === enableAddAnswers.length -1) {
+                                          deletedIsSelectedType[index] = false;
+                                          deletedEnableMultiple[index] = false;
+                                          deletedEnableAddAnswers[index] = true
+                                        } else {
+                                          console.log("aaaaaaa", index)
+                                          for (let i = index; i < enableAddAnswers.length-1; i++) {
+                                            if (deletedIsSelectedType[i+1] !== undefined) {
+                                              deletedIsSelectedType[i] = deletedIsSelectedType[i+1]
+                                            } else {
+                                              deletedIsSelectedType[i] = false;
+                                            }
+
+                                            if (deletedEnableMultiple[i+1] !== undefined) {
+                                              deletedEnableMultiple[i] = deletedEnableMultiple[i+1];
+                                            } else {
+                                              deletedEnableMultiple[i] = false;
+                                            }
+
+                                            if (deletedEnableAddAnswers[i+1] !== undefined) {
+                                              deletedEnableAddAnswers[i] = deletedEnableAddAnswers[i+1]
+                                            } else {
+                                              deletedEnableAddAnswers[i] = true;
+                                            }
+                                          }
+                                          deletedIsSelectedType[enableAddAnswers.length-1] = false;
+                                          deletedEnableMultiple[enableAddAnswers.length-1] = false;
+                                          deletedEnableAddAnswers[enableAddAnswers.length-1] = true
+                                        }
+                                        // deletedIsSelectedType[index] = false;
+                                        setEnableAddAnswers(deletedEnableAddAnswers);
+                                        setEnableMultipleChoice(deletedEnableAddAnswers);
                                         setIsSelectedType(deletedIsSelectedType)
-                                        console.log("aaaaa", isSelectedType[index])
+                                        console.log("after", isSelectedType, enableAddAnswers, enableMultipleChoice)
                                         remove(field.name)}
                                       }
                                       danger

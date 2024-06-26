@@ -151,10 +151,10 @@ exports.updateQuiz = async function (userId, courseId, quizId, score) {
         course.sections.forEach((section) => {
             totalLesson += section.specs.length;
         });
-
+        console.log(totalLesson)
         const newQuizScore = { quizId: quizId, score: score };
         process.quizScores.push(newQuizScore);
-
+        console.log(process)
         const processPercentage = (((process.lessonId.length + process.quizScores.length + 1) / totalLesson) * 100).toFixed(2);
         process.process = processPercentage;
         process.date_updated = new Date();

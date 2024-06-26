@@ -48,6 +48,7 @@ export function AuthProvider(props) {
   function signin(res) {
     if (res.data) {
       localStorage.setItem("user", JSON.stringify(res.data));
+      
       localStorage.setItem("refreshToken", res.data.refreshToken);
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + res.data.authenticated;

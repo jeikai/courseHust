@@ -12,5 +12,6 @@ api.get(
 	'/question/category/:categoryId',
 	use(questionController.getQuestionByCategory)
 );
+api.get('/question/:userId/all', use(questionController.getAllQuestions));
 
 module.exports = api;

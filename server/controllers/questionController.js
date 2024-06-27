@@ -75,6 +75,19 @@ exports.getAutoQuiz = async (req, res) => {
 		});
 	} catch (error) {
 		console.log(error)
-		return res.status(200).json({ error: error.message });
+		return res.status(500).json({ error: error.message });
+	}
+}
+
+exports.getAllQuestions = async (req, res) => {
+	try {
+		const userId = req.params.userId
+		const responseGetQuestions = await questionModel.getAllQuestions(userId);
+		return res.status(200).json({
+			data: responseGetQuestions
+		})
+	} catch (error) {
+		console.log(error)
+		return res.status(500).json({ error: error.message})
 	}
 }

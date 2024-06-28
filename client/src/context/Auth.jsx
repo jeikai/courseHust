@@ -10,10 +10,8 @@ export function AuthProvider(props) {
   const cache = JSON.parse(localStorage.getItem("user"));
   const [user, setUser] = useState(cache);
   const auth = useAPI(user ? "/api/auth" : null, null, async (err) => {
-    if (
-      err.response.status === 401 &&
-      err.response.data.message === "Not authorized, no token"
-    ) {
+    console.log(err.response.status);
+    if (err.response.status === 403) {
       const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {
         try {
@@ -26,8 +24,12 @@ export function AuthProvider(props) {
             JSON.stringify({ ...user, authenticated: newToken })
           );
           axios.defaults.headers.common["Authorization"] = "Bearer " + newToken;
-          auth.retry();
+          return {
+            account: user,
+            authenticated: newToken,
+          };
         } catch (refreshError) {
+          console.log({ refreshError });
           signout();
         }
       } else {
@@ -48,7 +50,7 @@ export function AuthProvider(props) {
   function signin(res) {
     if (res.data) {
       localStorage.setItem("user", JSON.stringify(res.data));
-      
+
       localStorage.setItem("refreshToken", res.data.refreshToken);
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + res.data.authenticated;
@@ -60,7 +62,6 @@ export function AuthProvider(props) {
   }
 
   async function signout() {
-    axios({ method: "delete", url: "/api/auth" });
     localStorage.clear();
     return (window.location = "/login");
   }

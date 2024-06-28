@@ -20,34 +20,16 @@ exports.auth = async function (req, res) {
 				authenticated: token,
 			});
 		} catch (error) {
-			if (error.name === 'TokenExpiredError') {
-				try {
-					const decodedRefreshToken = jwt.verify(
-						refreshToken,
-						JWT_SECRET_REFRESH_TOKEN
-					);
-					const user = await userModel.get({ id: decodedRefreshToken._id });
-					const newAccessToken = jwt.sign(
-						{ _id: user.id },
-						JWT_SECRET_ACCESS_TOKEN,
-						{ expiresIn: '15m' }
-					);
+			if (error.name == 'TokenExpiredError') {
 
-					return res.status(200).json({
-						account: user,
-						authenticated: newAccessToken,
-					});
-				} catch (refreshError) {
-					return res.status(403).json(refreshError);
-				}
+				return res.status(403).json({ message: "refreshError" });
 			}
-			return res.status(403).json(error);
 		}
 	}
 
-	if (!token) {
-		return res.status(401).json({ message: 'Not authorized, no token' });
-	}
+
+	return res.status(401).json({ message: 'Not authorized, no token' });
+
 };
 
 exports.logout = async function (req, res) {
@@ -66,8 +48,8 @@ exports.logout = async function (req, res) {
 };
 
 exports.refresh = async function (req, res) {
-	const { JWT_SECRET_REFRESH_TOKEN, JWT_SECRET_ACCESS_TOKEN } = process.env;
-	const refreshToken = req.body.refreshToken;
+	const { JWT_SECRET_REFRESH_TOKEN, JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env;
+	const refreshToken = await req.body.refreshToken;
 
 	if (!refreshToken) {
 		return res.status(401).json({ message: 'No refresh token provided' });
@@ -80,7 +62,7 @@ exports.refresh = async function (req, res) {
 		);
 		const user = await userModel.get({ id: decodedRefreshToken._id });
 		const newAccessToken = jwt.sign({ _id: user.id }, JWT_SECRET_ACCESS_TOKEN, {
-			expiresIn: '15m',
+			expiresIn: JWT_EXPRIRE_ACCESS_TOKEN,
 		});
 
 		return res.status(200).json({

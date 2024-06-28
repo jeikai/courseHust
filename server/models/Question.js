@@ -179,7 +179,14 @@ exports.getAutoQuiz = async (data) => {
     return { error: error };
   }
 };
-
+exports.getById = async (questionId) => {
+  try {
+    const responseGetQuestion = await Question.findById(questionId);
+    return responseGetQuestion
+  } catch (error) {
+    return {error}
+  }
+}
 exports.getAllQuestions = async (userId) => {
   try {
     const responseGetQuestions = await Question.find({

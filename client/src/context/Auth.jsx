@@ -12,7 +12,7 @@ export function AuthProvider(props) {
   const auth = useAPI(user ? "/api/auth" : null, null, async (err) => {
     if (
       err.response.status === 401 &&
-      err.response.data.message === "Token expired"
+      err.response.data.message === "Not authorized, no token"
     ) {
       const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {

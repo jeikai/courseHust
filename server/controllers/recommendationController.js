@@ -83,7 +83,10 @@ async function recommendCourses(userId) {
                 userCourseVectors.forEach(ucv => {
                     totalSimilarity += cosineSimilarity(cv.vector, ucv.vector);
                 });
-                recommendedCourses[cv.course._id.toString()] = totalSimilarity / userCourseVectors.length;
+                const averageSimilarity = totalSimilarity / userCourseVectors.length;
+                if (averageSimilarity > 0) {  // Chỉ thêm các khóa học có điểm số lớn hơn 0
+                    recommendedCourses[cv.course._id.toString()] = averageSimilarity;
+                }
             }
         });
 

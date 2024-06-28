@@ -64,18 +64,7 @@ const Question = () => {
     fetchData(userId);
   }, []);
   if (isLoading) return <Loader />;
-  const handleDeleteQuiz = async (id) => {
-    console.log(id);
-    const status = await deleteQuiZ(id);
 
-    if (status) {
-      let newData = data;
-      let index = newData.findIndex((item) => item.id === id);
-      newData.splice(index, 1);
-      setData((prev) => [...newData]);
-    }
-    console.log(status);
-  };
   return (
     <section>
       {/* <Bread
@@ -135,12 +124,6 @@ const Question = () => {
                       >
                         Update
                       </Button>
-                    </Flex>
-                    <Flex
-                      justify="flex-end"
-                      onClick={() => handleDeleteQuiz(question.id)}
-                    >
-                      <DeleteOutlined className="text-base text-red-600" />
                     </Flex>
                   </Flex>
                 </Col>

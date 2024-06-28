@@ -55,3 +55,12 @@ exports.get = async function () {
         return { error: err };
     }
 }
+
+exports.getByUserId = async function (userId) {
+    try {
+        const result = await Feedback.find({ userId }).populate('userId');
+        return result;
+    } catch (err) {
+        return { error: err };
+    }
+}

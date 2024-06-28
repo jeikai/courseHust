@@ -9,6 +9,7 @@ export const AuthContext = createContext();
 export function AuthProvider(props) {
   const cache = JSON.parse(localStorage.getItem("user"));
   const [user, setUser] = useState(cache);
+  const [refresh, setRefresh] = useState(false);
   const auth = useAPI(user ? "/api/auth" : null, null, async (err) => {
     console.log(err.response.status);
     if (err.response.status === 403) {
@@ -28,9 +29,8 @@ export function AuthProvider(props) {
             account: user,
             authenticated: newToken,
           };
-          return {
-            data,
-          };
+          window.location.reload();
+          return;
         } catch (refreshError) {
           console.log({ refreshError });
           signout();

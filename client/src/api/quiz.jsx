@@ -186,12 +186,12 @@ const updateQuiz = async (data) => {
     await Promise.all(
       data.questions.map(async (question) => {
         if (question.id != null) {
-          let answer;
+          let answer = [];
           const options = [];
           question.options.forEach((option) => {
             options.push(option.label);
             if (option.isSelected == true) {
-              answer = option.label;
+              answer.push(option.label);
             }
           });
 

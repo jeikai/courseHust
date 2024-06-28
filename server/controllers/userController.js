@@ -73,7 +73,7 @@ exports.login = async function (req, res) {
       refreshTokenPayload,
       JWT_SECRET_REFRESH_TOKEN,
       {
-        expiresIn: "30d",
+        expiresIn: JWT_EXPRIRE_ACCESS_TOKEN,
       }
     );
     // Create access token
@@ -86,7 +86,7 @@ exports.login = async function (req, res) {
         role: checkUser.role,
       },
       JWT_SECRET_ACCESS_TOKEN,
-      { expiresIn: 86400 }
+      { expiresIn: 30 }
     );
     const checkToken = await tokenModel.get(checkUser._id);
     if (!checkToken) {

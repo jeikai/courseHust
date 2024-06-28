@@ -94,6 +94,7 @@ exports.delete = async (questionId) => {
 };
 exports.update = async (questionId, questionData) => {
   try {
+    console.log({ questionData })
     const updateData = {
       question: questionData.question,
       options: questionData.options,
@@ -108,6 +109,12 @@ exports.update = async (questionId, questionData) => {
     }
     if (questionData.level) {
       updateData.level = questionData.level;
+    }
+    if (questionData.subcategoryId) {
+      if (questionData.subcategoryId == "") {
+        updateData.subcategoryId = null
+      } else
+        updateData.subcategoryId = questionData.subcategoryId
     }
     const result = await Question.findByIdAndUpdate(questionId, updateData, {
       new: true,
@@ -181,10 +188,12 @@ exports.getAutoQuiz = async (data) => {
 };
 exports.getById = async (questionId) => {
   try {
-    const responseGetQuestion = await Question.findById(questionId);
+    const responseGetQuestion = await Question.findById(questionId).populate("categoryId")
+      .populate("subcategoryId")
+      .exec();
     return responseGetQuestion
   } catch (error) {
-    return {error}
+    return { error }
   }
 }
 exports.getAllQuestions = async (userId) => {

@@ -24,9 +24,12 @@ export function AuthProvider(props) {
             JSON.stringify({ ...user, authenticated: newToken })
           );
           axios.defaults.headers.common["Authorization"] = "Bearer " + newToken;
-          return {
+          const data = {
             account: user,
             authenticated: newToken,
+          };
+          return {
+            data,
           };
         } catch (refreshError) {
           console.log({ refreshError });

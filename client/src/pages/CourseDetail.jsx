@@ -41,7 +41,7 @@ import {
   TwitterOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import breadcramb from "../assets/course-breadcramb.png";
+import list_banner from "../assets/banner/list_banner.png";
 import Course from "../components/Course";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAPI } from "../hooks/api.jsx";
@@ -783,7 +783,7 @@ const CourseDetail = () => {
   return (
     <>
       <section
-        style={{ backgroundImage: `url(${breadcramb})` }}
+        style={{ backgroundImage: `url(${list_banner})` }}
         className="my-6 py-12"
       >
         <Row className="max-w-screen-xl m-auto">

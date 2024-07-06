@@ -1,6 +1,5 @@
 // import Layout from "../layout/AppLayout";
-import breadcramb from "../assets/course-breadcramb.png";
-import book from "../assets/brd-book.png";
+import list_banner from "../assets/banner/list_banner.png";
 import {
   Breadcrumb,
   Col,
@@ -196,8 +195,8 @@ const Courses = () => {
   return (
     <>
       <section
-        style={{ backgroundImage: `url(${breadcramb})` }}
-        className="my-6"
+        style={{ backgroundImage: `url(${list_banner})` }}
+        className="my-6 p-10"
       >
         <Row className="max-w-screen-xl m-auto">
           <Col span={18} className="flex items-center">
@@ -223,25 +222,22 @@ const Courses = () => {
               />
               <Typography.Title
                 level={1}
-                style={{ color: "white", marginTop: "12px" }}
+                style={{fontWeight: "bold", color: "white", marginTop: "12px" }}
               >
                 Courses
               </Typography.Title>
             </Space>
           </Col>
-          <Col span={6}>
-            <img src={book} alt="book" className="w-[212px] h-[212px]" />
-          </Col>
         </Row>
       </section>
       <section className="max-w-screen-xl m-auto">
         <Row gutter={64}>
-          <Col span={5} className="shadow-lg">
+          <Col span={5} className="">
             <Space direction="vertical">
               <Space direction="vertical" className="p-4">
                 <Typography.Title
                   level={4}
-                  className="border-b-2 border-purple-400"
+                  className="pb-2 border-b-2 border-primary-green"
                 >
                   Categories
                 </Typography.Title>
@@ -267,10 +263,10 @@ const Courses = () => {
                   {/* </Typography.Paragraph> */}
                 </Radio.Group>
               </Space>
-              <Space direction="vertical" className="p-4">
+              <Space direction="vertical" className="p-4 w-full ">
                 <Typography.Title
                   level={4}
-                  className="border-b-2 border-purple-400"
+                  className="pb-2 border-b-2 border-primary-green"
                 >
                   Price
                 </Typography.Title>
@@ -291,10 +287,10 @@ const Courses = () => {
                   </Space>
                 </Radio.Group>
               </Space>
-              <Space direction="vertical" className="p-4">
+              <Space direction="vertical" className="p-4 w-full">
                 <Typography.Title
                   level={4}
-                  className="border-b-2 border-purple-400"
+                  className="pb-2 border-b-2 border-primary-green"
                 >
                   Level
                 </Typography.Title>
@@ -306,8 +302,10 @@ const Courses = () => {
                     <Radio className="text-base" value={"all"}>
                       All
                     </Radio>
-                    <Radio className="text-base" value={"basic"}>
+                    <Radio className="text-base" value={"basic"}></Radio>
                       Basic
+                    <Radio className="text-base" value={"basic"}>
+                      Beginner
                     </Radio>
                     <Radio className="text-base" value={"intermediate"}>
                       Intermediate
@@ -318,10 +316,10 @@ const Courses = () => {
                   </Space>
                 </Radio.Group>
               </Space>
-              {/* <Space direction="vertical" className="p-4">
+              <Space direction="vertical" className="p-4 w-full">
                 <Typography.Title
                   level={4}
-                  className="border-b-2 border-purple-400"
+                  className="pb-2 border-b-2 border-primary-green"
                 >
                   Rating
                 </Typography.Title>
@@ -350,7 +348,7 @@ const Courses = () => {
                     </Radio>
                   </Space>
                 </Radio.Group>
-              </Space> */}
+              </Space>
             </Space>
           </Col>
           <Col span={19}>

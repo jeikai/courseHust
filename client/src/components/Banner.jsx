@@ -1,11 +1,11 @@
 import React from 'react'
-import breadcramb from '../assets/course-breadcramb.png'
+import list_banner from '../assets/banner/list_banner.png'
 import book from '../assets/brd-book.png'
 import { Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { HomeOutlined } from '@ant-design/icons'
 const Banner = (props) => {
   return (
-    <section style={{ backgroundImage: `url(${breadcramb})` }} className="my-6">
+    <section style={{ backgroundImage: `url(${list_banner})` }} className="my-6">
     <Row className="max-w-screen-xl m-auto">
         <Col span={18} className="flex items-center">
             <Space direction="vertical">

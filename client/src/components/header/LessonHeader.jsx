@@ -26,7 +26,7 @@ const LessonHeader = () => {
         <Link className="flex-1 text-center">
           <Flex className="text-white" vertical>
             <p className="font-semibold text-base">
-              Fun Course
+              Academy
             </p>
             <p className="text-sm">Study with me</p>
           </Flex>

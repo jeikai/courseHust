@@ -8,25 +8,25 @@ const Routes = [
         path: '/',
         view: Home,
         layout: 'app',
-        title: 'FunCourse - Home | E-Learning'
+        title: 'Academy - Home | E-Learning'
     },
     {
         path: '/courses',
         view: Courses,
         layout: 'app',
-        title: 'FunCourse - Courses | E-Learning'
+        title: 'Academy - Courses | E-Learning'
     },
     {
         path: '/courses/:courseId',
         view: CourseDetail,
         layout: 'app',
-        title: 'FunCourse - Courses | E-Learning'
+        title: 'Academy - Courses | E-Learning'
     },
     {
         path: '/instructor/:instructorId',
         view: Instructor,
         layout: 'app',
-        title: 'FunCourse - Educator profile | E-Learning'
+        title: 'Academy - Educator profile | E-Learning'
     },
 ]
 

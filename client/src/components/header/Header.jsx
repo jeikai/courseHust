@@ -20,11 +20,11 @@ import {
   BellOutlined,
   BookOutlined,
   CalendarOutlined,
-  DownOutlined,
+  CaretDownOutlined,
+  MenuOutlined,
   EditOutlined,
   HeartOutlined,
   LaptopOutlined,
-  MenuOutlined,
   MessageOutlined,
   RollbackOutlined,
   ShopOutlined,
@@ -224,7 +224,7 @@ const Header = () => {
         time_end: item?.time_end,
         now: now,
       });
-      console.log(responseAPI);
+
       notification.info({
         message: `${item?.title}`,
         description: `It's time for your class: ${item?.courseId?.title}`,
@@ -297,6 +297,7 @@ const Header = () => {
       ))}
     </Menu>
   );
+  
 
   return (
     <header className={`py-1 pt-3 ${type_header === 'home' ? 'bg-primary-green' : 'border-solid'}`}>
@@ -306,15 +307,17 @@ const Header = () => {
         </Link>
         <Flex justify="space-between" className="flex-1">
           <div className="flex gap-5">
-            <div className="bg-[#754ffe58] px-4 py-2 rounded cursor-pointer">
-              <a href="/">
-                <Flex align="center" gap={8} className="text-base text-[#754FFE]">
-                  <Space>
-                    <MenuOutlined />
-                    <span>Caterogies</span>
-                  </Space>
-                </Flex>
-              </a>
+            <div className="px-4 py-2 rounded cursor-pointer">
+                {exploreMenu ? (<div className='categories-dropdown'>
+                  <Dropdown overlay={exploreMenu} trigger={["click"]}>
+                    <a
+                      className="ant-dropdown-link text-base font-semibold"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <span className="text-primary-blue">Categories<CaretDownOutlined /></span>
+                    </a>
+                  </Dropdown>
+                </div>) : null}
             </div>
             <div className="nav-item px-4 py-2 rounded cursor-pointer">
               <a href="/">

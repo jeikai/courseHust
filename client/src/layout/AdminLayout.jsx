@@ -207,7 +207,7 @@ const AdminLayout = ({ children }) => {
             textAlign: "center",
           }}
         >
-          Fun Course ©{new Date().getFullYear()}
+          Academy ©{new Date().getFullYear()}
         </Footer>
       </Layout>
     </Layout>

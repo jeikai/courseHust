@@ -52,7 +52,7 @@ const Footer = () => {
               {category?.data && category?.data.length > 0 ? (
                 category?.data.map((category, index) => {
                   return (
-                    <List.Item>
+                    <List.Item key={index}>
                       <a href={`/courses?categoryname=${category?.title}`} className="text-[#ffffffa4]">
                         {category?.title}
                       </a>

@@ -132,7 +132,7 @@ const Home = () => {
                       htmlType="submit"
                       size="large"
                       type="primary"
-                      className="bg-[#754FFE]"
+                      className="bg-primary-blue border-r-4"
                       icon={<SearchOutlined />}
                     >
                       Search

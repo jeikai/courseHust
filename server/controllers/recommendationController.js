@@ -1,10 +1,12 @@
 const favoriteModel = require('../models/Favorite');
 const feedbackModel = require('../models/Feedback');
+const courseModel = require('../models/Course');
+const natural = require('natural');
 
-async function fetchUserData() {
+async function fetchUserData(userId) {
     try {
-        const favorites = await favoriteModel.get();
-        const feedbacks = await feedbackModel.get();
+        const favorites = await favoriteModel.get(userId);
+        const feedbacks = await feedbackModel.get(userId);
         return { favorites, feedbacks };
     } catch (error) {
         console.error('Error fetching user data:', error);
@@ -12,62 +14,53 @@ async function fetchUserData() {
     }
 }
 
-function buildSeparateMatrices(favorites, feedbacks) {
+async function fetchCourseData() {
     try {
-        let favoriteMatrix = {};
-        let ratingMatrix = {};
-        let courseRatings = {};
-
-        feedbacks.forEach(fb => {
-            const userId = fb.userId._id.toString();
-            const courseId = fb.courseId._id.toString();
-
-            if (!ratingMatrix[userId]) {
-                ratingMatrix[userId] = {};
-            }
-            ratingMatrix[userId][courseId] = fb.rating; 
-
-            if (!courseRatings[courseId]) {
-                courseRatings[courseId] = [];
-            }
-            courseRatings[courseId].push(fb.rating);
-        });
-
-        favorites.forEach(fav => {
-            const userId = fav.userId._id.toString();
-            const courseId = fav.courseId._id.toString();
-
-            if (!favoriteMatrix[userId]) {
-                favoriteMatrix[userId] = {};
-            }
-            favoriteMatrix[userId][courseId] = 1;
-        });
-
-        return { favoriteMatrix, ratingMatrix, courseRatings };
+        const courses = await courseModel.get();
+        return courses;
     } catch (error) {
-        console.error('Error building data:', error);
+        console.error('Error fetching course data:', error);
         throw error;
     }
 }
 
-function cosineSimilarity(matrix1, matrix2) {
-    let dotProduct = 0;
-    let normMatrix1 = 0;
-    let normMatrix2 = 0;
+function buildFeatureVectors(courses) {
+    const tokenizer = new natural.WordTokenizer();
+    const tfidf = new natural.TfIdf();
 
-    for (const courseId in matrix1) {
-        if (matrix2[courseId]) {
-            dotProduct += matrix1[courseId] * matrix2[courseId];
-            normMatrix1 += matrix1[courseId] ** 2;
-            normMatrix2 += matrix2[courseId] ** 2;
-        }
+    courses.forEach(course => {
+        const text = course.title + ' ' + course.description + ' ' + (course.tags || []).join(' ');
+        tfidf.addDocument(text);
+    });
+
+    const courseVectors = courses.map((course, index) => {
+        const text = course.title + ' ' + course.description + ' ' + (course.tags || []).join(' ');
+        const vector = [];
+        tfidf.tfidfs(text, (i, measure) => {
+            vector.push(measure);
+        });
+        return { course, vector };
+    });
+
+    return courseVectors;
+}
+
+function cosineSimilarity(vector1, vector2) {
+    let dotProduct = 0;
+    let normVector1 = 0;
+    let normVector2 = 0;
+
+    for (let i = 0; i < vector1.length; i++) {
+        dotProduct += vector1[i] * vector2[i];
+        normVector1 += vector1[i] ** 2;
+        normVector2 += vector2[i] ** 2;
     }
 
-    normMatrix1 = Math.sqrt(normMatrix1);
-    normMatrix2 = Math.sqrt(normMatrix2);
+    normVector1 = Math.sqrt(normVector1);
+    normVector2 = Math.sqrt(normVector2);
 
-    if (normMatrix1 > 0 && normMatrix2 > 0) {
-        return dotProduct / (normMatrix1 * normMatrix2);
+    if (normVector1 > 0 && normVector2 > 0) {
+        return dotProduct / (normVector1 * normVector2);
     } else {
         return 0;
     }
@@ -75,47 +68,25 @@ function cosineSimilarity(matrix1, matrix2) {
 
 async function recommendCourses(userId) {
     try {
-        const { favorites, feedbacks } = await fetchUserData();
-        const { favoriteMatrix, ratingMatrix } = buildSeparateMatrices(favorites, feedbacks);
+        const { favorites, feedbacks } = await fetchUserData(userId);
+        const courses = await fetchCourseData();
+        const courseVectors = buildFeatureVectors(courses);
 
-        const userRatings = ratingMatrix[userId] || {};
-        const userFavorites = favoriteMatrix[userId] || {};
-        let similarityScores = {};
+        const userCourses = [...favorites.map(fav => fav.courseId.toString()), ...feedbacks.map(fb => fb.courseId.toString())];
+        const userCourseVectors = courseVectors.filter(cv => userCourses.includes(cv.course._id.toString()));
 
-        // Compute similarity scores between the user and all other users
-        Object.keys(ratingMatrix).forEach(otherUserId => {
-            if (otherUserId !== userId) {
-                const otherUserRatings = ratingMatrix[otherUserId] || {};
-                const ratingSimilarity = cosineSimilarity(userRatings, otherUserRatings);
-
-                const otherUserFavorites = favoriteMatrix[otherUserId] || {};
-                const favoriteSimilarity = cosineSimilarity(userFavorites, otherUserFavorites);
-
-                const combinedSimilarity = (ratingSimilarity + favoriteSimilarity) / 2;
-                similarityScores[otherUserId] = combinedSimilarity;
-            }
-        });
-
-        const sortedSimilarUsers = Object.keys(similarityScores).sort((a, b) => similarityScores[b] - similarityScores[a]);
         let recommendedCourses = {};
 
-        sortedSimilarUsers.forEach(similarUserId => {
-            Object.keys(ratingMatrix[similarUserId] || {}).forEach(courseId => {
-                if (!(courseId in userRatings)) {
-                    if (!recommendedCourses[courseId]) {
-                        recommendedCourses[courseId] = { score: 0, count: 0 };
-                    }
-                    recommendedCourses[courseId].score += similarityScores[similarUserId] * ratingMatrix[similarUserId][courseId];
-
-                    const isFavorite = favoriteMatrix[similarUserId] && favoriteMatrix[similarUserId][courseId] ? 1 : 0;
-                    recommendedCourses[courseId].count += similarityScores[similarUserId] * (isFavorite ? 1.1 : 1);
+        courseVectors.forEach(cv => {
+            if (!userCourses.includes(cv.course._id.toString())) {
+                let totalSimilarity = 0;
+                userCourseVectors.forEach(ucv => {
+                    totalSimilarity += cosineSimilarity(cv.vector, ucv.vector);
+                });
+                const averageSimilarity = totalSimilarity / userCourseVectors.length;
+                if (averageSimilarity > 0) {  // Chỉ thêm các khóa học có điểm số lớn hơn 0
+                    recommendedCourses[cv.course._id.toString()] = averageSimilarity;
                 }
-            });
-        });
-
-        Object.keys(recommendedCourses).forEach(courseId => {
-            if (recommendedCourses[courseId].count > 0) {
-                recommendedCourses[courseId] = recommendedCourses[courseId].score / recommendedCourses[courseId].count;
             }
         });
 
@@ -135,4 +106,4 @@ exports.recommend = async function (req, res) {
         console.error('Error in recommend function:', error);
         res.status(500).json({ message: error.message });
     }
-}
+};

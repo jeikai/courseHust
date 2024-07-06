@@ -12,19 +12,19 @@ exports.create = async function (req, res) {
 		});
 		return res.status(200).json({ response: true });
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 		return res.status(500).json({ message: error.message });
 	}
 };
 exports.singleCreate = async (req, res) => {
 	try {
 		const { questionData } = await req.body;
-		console.log(questionData)
+		console.log(questionData);
 		const result = await questionModel.singleCreate(questionData);
 
 		return res.status(200).json({ data: result.data });
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 		return res.status(500).json({ message: error.message });
 	}
 };
@@ -68,13 +68,38 @@ exports.getQuestionByCategory = async (req, res) => {
 
 exports.getAutoQuiz = async (req, res) => {
 	try {
-		const data = req.body
+		const data = req.body;
 		const result = await questionModel.getAutoQuiz(data);
 		return res.status(200).json({
 			data: result?.data,
 		});
 	} catch (error) {
-		console.log(error)
-		return res.status(200).json({ error: error.message });
+		console.log(error);
+		return res.status(500).json({ error: error.message });
 	}
-}
+};
+exports.getById = async (req, res) => {
+	try {
+		const questionId = req.params.questionId;
+		const responseGetQuestion = await questionModel.getById(questionId);
+		return res.status(200).json({
+			data: responseGetQuestion,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			error: error.message,
+		});
+	}
+};
+exports.getAllQuestions = async (req, res) => {
+	try {
+		const userId = req.params.userId;
+		const responseGetQuestions = await questionModel.getAllQuestions(userId);
+		return res.status(200).json({
+			data: responseGetQuestions,
+		});
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({ error: error.message });
+	}
+};

@@ -101,6 +101,7 @@ const AdminLayout = ({ children }) => {
     ]),
     getItem("Quizs", "quiz", <QuestionOutlined />, [
       getItem("Manage Quiz", "/admin_main/quiz"),
+      getItem("Manage Questions", '/admin_main/question'),
       getItem("Add new question", "/admin_main/add_question"),
     ])
   ];
@@ -212,7 +213,7 @@ const AdminLayout = ({ children }) => {
             textAlign: "center",
           }}
         >
-          Fun Course ©{new Date().getFullYear()}
+          Academy ©{new Date().getFullYear()}
         </Footer>
       </Layout>
     </Layout>

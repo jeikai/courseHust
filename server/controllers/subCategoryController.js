@@ -26,3 +26,18 @@ exports.create = async function (req, res) {
 		return res.status(500).json({ message: e.message });
 	}
 };
+
+exports.update = async function (req, res) {
+	try {
+		const subcategoryId = req.params.subcategoryId;
+		const data = req.body;
+		const result = await subcategoryModel.update(subcategoryId, data);
+		if (result.error)
+			return res
+				.status(500)
+				.json({ message: 'Failed to update', data: result.error });
+		return res.status(200).json(result);
+	} catch (e) {
+		return res.status(500).json({ message: e.message });
+	}
+}

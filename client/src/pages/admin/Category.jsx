@@ -5,6 +5,7 @@ import {
   Button,
   ConfigProvider,
   Dropdown,
+  Menu,
   Flex,
   Input,
   Row,
@@ -14,16 +15,20 @@ import {
   Form,
   message,
 } from "antd";
+import { EllipsisOutlined } from "@ant-design/icons";
 import Loader from "../../components/Loader";
 import { Link } from "react-router-dom";
 import Axios from "axios";
 
 const Category = () => {
   const [category, setCategory] = useState({ loading: true, data: null });
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [form] = Form.useForm();
+  const [updateForm] = Form.useForm();
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const [currentSubCategoryId, setCurrentSubCategoryId] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -40,17 +45,41 @@ const Category = () => {
     console.log(category);
   }, []);
 
-  const showModal = (id) => {
+  const showAddModal = (id) => {
     setCurrentCategoryId(id);
-    setIsModalVisible(true);
+    setIsAddModalVisible(true);
   };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
+  const showUpdateModal = (id) => {
+    const selectedCategory = category.data.find((cat) => cat._id === id);
+    updateForm.setFieldsValue({
+      title: selectedCategory.title,
+      description: selectedCategory.description,
+    });
+    setCurrentCategoryId(id);
+    setIsUpdateModalVisible(true);
+  };
+
+  const showSubCategoryUpdateModal = (id, subCategory) => {
+    updateForm.setFieldsValue({
+      title: subCategory.title,
+      description: subCategory.description,
+    });
+    setCurrentSubCategoryId(id);
+    setIsUpdateModalVisible(true);
+  };
+
+  const handleAddCancel = () => {
+    setIsAddModalVisible(false);
     form.resetFields();
   };
 
-  const handleSubmit = async () => {
+  const handleUpdateCancel = () => {
+    setIsUpdateModalVisible(false);
+    updateForm.resetFields();
+  };
+
+  const handleAddSubmit = async () => {
     try {
       setIsLoading(true);
       const values = await form.validateFields();
@@ -69,11 +98,41 @@ const Category = () => {
 
       console.log("API Response: ", responseAPI);
 
-      setIsModalVisible(false);
+      setIsAddModalVisible(false);
       form.resetFields();
       setIsLoading(false);
       message.success("Create successfully");
       fetchData(); // Refresh the categories after adding a subcategory
+    } catch (error) {
+      setIsLoading(false);
+      message.error(error.toString());
+      console.log("Validation Failed or API error:", error);
+    }
+  };
+
+  const handleUpdateSubmit = async () => {
+    try {
+      setIsLoading(true);
+      const values = await updateForm.validateFields();
+      console.log("Submitted values: ", values);
+      console.log("For category ID: ", currentCategoryId);
+
+      const data = {
+        title: values?.title,
+        description: values?.description,
+      };
+
+      const responseAPI = currentSubCategoryId
+        ? await Axios.put(`/api/subcategory/${currentSubCategoryId}`, data)
+        : await Axios.put(`/api/category/${currentCategoryId}`, data);
+
+      console.log("API Response: ", responseAPI);
+
+      setIsUpdateModalVisible(false);
+      updateForm.resetFields();
+      setIsLoading(false);
+      message.success("Update successfully");
+      fetchData(); // Refresh the categories after updating a category or subcategory
     } catch (error) {
       setIsLoading(false);
       message.error(error.toString());
@@ -100,6 +159,18 @@ const Category = () => {
       return str.substring(0, maxLength) + "...";
     }
   }
+
+  const menu = (record) => (
+    <Menu>
+      <Menu.Item key="1" onClick={() => showAddModal(record._id)}>
+        Add new sub category
+      </Menu.Item>
+      <Menu.Item key="2" onClick={() => showUpdateModal(record._id)}>
+        Update
+      </Menu.Item>
+    </Menu>
+  );
+
   const subCategoryColumns = [
     {
       title: "#",
@@ -117,7 +188,22 @@ const Category = () => {
       dataIndex: "description",
       key: "description",
     },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, subCategory) => {
+        return (
+          <Button
+            type="primary"
+            onClick={() => showSubCategoryUpdateModal(subCategory._id, subCategory)}
+          >
+            Update
+          </Button>
+        );
+      },
+    },
   ];
+
   return (
     <Spring>
       <Bread
@@ -189,9 +275,9 @@ const Category = () => {
               key="actions"
               render={(_, record) => {
                 return (
-                  <Button type="primary" onClick={() => showModal(record._id)}>
-                    +
-                  </Button>
+                  <Dropdown overlay={menu(record)} trigger={["click"]}>
+                    <Button icon={<EllipsisOutlined />} />
+                  </Dropdown>
                 );
               }}
             />
@@ -199,18 +285,50 @@ const Category = () => {
         </div>
         <Modal
           title="Add sub category"
-          visible={isModalVisible}
-          onCancel={handleCancel}
+          visible={isAddModalVisible}
+          onCancel={handleAddCancel}
           footer={[
-            <Button key="cancel" onClick={handleCancel}>
+            <Button key="cancel" onClick={handleAddCancel}>
               Cancel
             </Button>,
-            <Button key="submit" type="primary" onClick={handleSubmit}>
+            <Button key="submit" type="primary" onClick={handleAddSubmit}>
               Submit
             </Button>,
           ]}
         >
           <Form form={form} layout="vertical">
+            <Form.Item
+              name="title"
+              label="Title"
+              rules={[{ required: true, message: "Please input the title!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[
+                { required: true, message: "Please input the description!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Form>
+        </Modal>
+        <Modal
+          title="Update"
+          visible={isUpdateModalVisible}
+          onCancel={handleUpdateCancel}
+          footer={[
+            <Button key="cancel" onClick={handleUpdateCancel}>
+              Cancel
+            </Button>,
+            <Button key="submit" type="primary" onClick={handleUpdateSubmit}>
+              Submit
+            </Button>,
+          ]}
+        >
+          <Form form={updateForm} layout="vertical">
             <Form.Item
               name="title"
               label="Title"

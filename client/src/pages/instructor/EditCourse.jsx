@@ -94,6 +94,7 @@ import {
 } from "../../api/course";
 import { ViewContext } from "../../context/View";
 import dayjs from "dayjs";
+import ReactQuill from "react-quill";
 
 const EditCourse = () => {
   const [courseId, setCourseId] = useState(useParams().id);
@@ -195,7 +196,7 @@ const EditCourse = () => {
       dataReq.description = formData.description;
       dataReq.shortDes = formData.shortDes;
       dataReq.level = formData.level;
-	  dataReq.price = formData.price;
+      dataReq.price = formData.price;
 
       console.log({ thumbnail: data.thumbnail.file });
       if (data.thumbnail && typeof data.thumbnail != "string") {
@@ -299,7 +300,9 @@ const EditCourse = () => {
           <Col span={24}>
             <Form.Item
               label={
-                <Typography.Title level={5}>Short description</Typography.Title>
+                <Typography.Title level={5}>
+                  Short description (max: 250 words)
+                </Typography.Title>
               }
               name="shortDes"
             >
@@ -307,7 +310,7 @@ const EditCourse = () => {
                 className="py-2"
                 rows={6}
                 placeholder="Short description for course"
-                maxLength={5}
+                maxLength={250}
               />
             </Form.Item>
           </Col>
@@ -320,18 +323,27 @@ const EditCourse = () => {
               }
               name="description"
             >
-              <Input.TextArea
+              <ReactQuill
                 className="py-2"
-                rows={6}
                 placeholder="Detail description for course"
-                maxLength={50}
+                modules={{
+                  toolbar: [
+                    [{ header: "1" }, { header: "2" }, { font: [] }],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    ["bold", "italic", "underline"],
+                    ["link", "image"],
+                    ["clean"],
+                  ],
+                }}
               />
             </Form.Item>
           </Col>
           <Col span={24}>
             <Form.Item
               className="w-full"
-              label={<Typography.Title level={5}>Price ( VND )</Typography.Title>}
+              label={
+                <Typography.Title level={5}>Price ( VND )</Typography.Title>
+              }
               name="price"
             >
               <InputNumber

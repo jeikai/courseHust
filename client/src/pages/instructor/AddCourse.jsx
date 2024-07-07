@@ -456,7 +456,7 @@ const AddCourse = () => {
           <Form.Item
             label={
               <Typography.Title level={5}>
-                Short description (max: 5 words)
+                Short description (max: 250 words)
               </Typography.Title>
             }
             name="shortDes"
@@ -465,14 +465,14 @@ const AddCourse = () => {
               className="py-2"
               rows={6}
               placeholder="Short description for course"
-              maxLength={5}
+              maxLength={250}
             />
           </Form.Item>
         </Col>
         <Col span={24}>
           <Form.Item
             label={
-              <Typography.Title level={5}>Course Description (max: 10 words)</Typography.Title>
+              <Typography.Title level={5}>Course Description</Typography.Title>
             }
             name="description"
           >

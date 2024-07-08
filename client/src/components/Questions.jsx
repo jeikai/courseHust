@@ -195,7 +195,7 @@ const Questions = ({ lesson, quizId, courseId }) => {
             <Question
               question={quiz?.questions[currentQuestion - 1]}
               answers={answers}
-              current={currentQuestion}
+              current={currentQuestion} 
               setAnswers={setAnswers}
             />
           )}

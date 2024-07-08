@@ -191,10 +191,36 @@ function Purchase() {
     setIsModalOpen(true);
   };
 
+  const checkPaymentStatus = async () => {
+    try {
+      const responseAPI_CreateBill = await Axios({
+        url: "/api/bill",
+        method: "POST",
+        data: {
+          userId: userId,
+        },
+      });
+      fetchData();
+      setIsLoading(false);
+
+      viewContext.handleSuccess("Buy successfully");
+      setIsModalOpen(false);
+    } catch (error) {
+      viewContext.handleError("Buy fail!");
+      setIsLoading(false);
+    }
+  };
+
   const handleOk = async () => {
     try {
       setIsLoading(true);
       localStorage.removeItem("paymentStatus");
+
+      if (total === 0) {
+        checkPaymentStatus();
+        return;
+      }
+
       const responseAPI_VNPAY = await Axios({
         url: "/api/vnpay",
         method: "POST",
@@ -218,27 +244,6 @@ function Purchase() {
           checkPaymentStatus(); // Call the function to proceed with bill creation
         }
       });
-
-      // Function to check payment status and create bill
-      const checkPaymentStatus = async () => {
-        try {
-          const responseAPI_CreateBill = await Axios({
-            url: "/api/bill",
-            method: "POST",
-            data: {
-              userId: userId,
-            },
-          });
-          fetchData();
-          setIsLoading(false);
-
-          viewContext.handleSuccess("Buy successfully");
-          setIsModalOpen(false);
-        } catch (error) {
-          viewContext.handleError("Buy fail!");
-          setIsLoading(false);
-        }
-      };
     } catch (error) {
       viewContext.handleError("Buy fail!");
       setIsLoading(false);
@@ -280,22 +285,24 @@ function Purchase() {
               >
                 <Table columns={columnsBill} dataSource={enrollmentData} />
                 <p>Total: {total} VNĐ</p>
-                <div>
-                  <label>Chọn Phương thức thanh toán:</label>
-                  <Radio.Group
-                    onChange={handlePaymentMethodChange}
-                    value={paymentMethod}
-                  >
-                    <Radio value="VNPAYQR">Cổng thanh toán VNPAYQR</Radio>
-                    <Radio value="VNPAYQR_APP">
-                      Thanh toán qua ứng dụng hỗ trợ VNPAYQR
-                    </Radio>
-                    <Radio value="VNBANK">
-                      Thanh toán qua ATM-Tài khoản ngân hàng nội địa
-                    </Radio>
-                    <Radio value="INTCARD">Thanh toán qua thẻ quốc tế</Radio>
-                  </Radio.Group>
-                </div>
+                {total > 0 && (
+                  <div>
+                    <label>Chọn Phương thức thanh toán:</label>
+                    <Radio.Group
+                      onChange={handlePaymentMethodChange}
+                      value={paymentMethod}
+                    >
+                      <Radio value="VNPAYQR">Cổng thanh toán VNPAYQR</Radio>
+                      <Radio value="VNPAYQR_APP">
+                        Thanh toán qua ứng dụng hỗ trợ VNPAYQR
+                      </Radio>
+                      <Radio value="VNBANK">
+                        Thanh toán qua ATM-Tài khoản ngân hàng nội địa
+                      </Radio>
+                      <Radio value="INTCARD">Thanh toán qua thẻ quốc tế</Radio>
+                    </Radio.Group>
+                  </div>
+                )}
               </Modal>
               <div>
                 <Table columns={columns} dataSource={enrollmentData} />

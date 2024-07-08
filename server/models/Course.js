@@ -2,11 +2,15 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const categoryModel = require('./Category');
 const quizModel = require('./Quiz');
+const sectionModel = require('./Section');
+const lessonModel = require('./Lesson');
+const calendarModel = require('./Calendar');
+
 const courseSchema = new Schema({
 	// Basic info
 	instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	title: { type: String, required: true },
-	shortDes: { type: String }, 
+	shortDes: { type: String },
 	description: { type: String, required: true },
 	isStream: { type: Boolean, required: true },
 	categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
@@ -21,15 +25,14 @@ const courseSchema = new Schema({
 	courseVideo: { type: String },
 	tags: [{ type: String }],
 
-    // Bài học
-    sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }], 
-    
-    thumbnail: { type: String, required: true },
-    rating: { type: Number, min: 0, max: 5, default: 0 },
-    date_created: Date, 
-    date_updated: Date
-})
+	// Bài học
+	sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
 
+	thumbnail: { type: String, required: true },
+	rating: { type: Number, min: 0, max: 5, default: 0 },
+	date_created: Date,
+	date_updated: Date
+})
 
 const Course = mongoose.model('Course', courseSchema, 'courses');
 exports.schema = Course;
@@ -170,7 +173,7 @@ exports.addSection = async function (courseId, sectionId) {
 		course.markModified('sections');
 		course.markModified('date_updated');
 		await course.save();
-	} catch (err) { 
+	} catch (err) {
 		return { error: err };
 	}
 };
@@ -190,6 +193,71 @@ exports.deleteSectionId = async (courseId, sectionId) => {
 				sections: sectionId,
 			},
 		});
-        return newCourse;
-	} catch (error) {return {error}}
+		return newCourse;
+	} catch (error) { return { error } }
 };
+
+exports.deleteCourse = async function (courseId) {
+	try {
+		const course1 = await Course.findById(courseId)
+			.populate(['sections', 'instructorId', 'categoryId'])
+			.populate({
+				path: 'sections',
+				populate: [
+					{ path: 'specs._id', model: 'Lesson' },
+					//   { path: 'specs._id', model: 'Quiz' }
+				],
+			});
+		const course2 = await Course.findById(courseId)
+			.populate(['sections', 'instructorId', 'categoryId'])
+			.populate({
+				path: 'sections',
+				populate: [
+					//   { path: 'specs._id', model: 'Lesson' },
+					{ path: 'specs._id', model: 'Quiz' },
+				],
+			});
+		course1.sections.forEach((section1) => {
+			course2.sections.forEach((section2) => {
+				if (section1._id.toString() === section2._id.toString()) {
+					section1.specs.forEach((spec, index) => {
+						if (section2.specs[index].type === 'quiz') {
+							section1.specs[index] = section2.specs[index];
+						}
+					});
+				}
+			});
+		});
+
+		if (!course1) return { error: 'Course not found' };
+
+		// Delete all sections, lessons, and quizzes associated with the course
+		await Promise.all(
+			course1.sections.map(async (sectionId) => {
+				const section = await sectionModel.getById(sectionId);
+				if (section) {
+					// Delete all lessons and quizzes in the section
+					await Promise.all(
+						section.specs.map(async (spec) => {
+							if (spec.type === 'lesson') {
+								await lessonModel.delete(spec._id);
+							} else if (spec.type === 'quiz') {
+								await quizModel.deleteQuiz(spec._id);
+							}
+						})
+					);
+					// Delete the section itself
+					await sectionModel.delete(sectionId, courseId);
+				}
+			})
+		);
+		await calendarModel.deleteByCourseId(courseId);
+		// Finally, delete the course
+		const deletedCourse = await Course.findByIdAndDelete(courseId);
+		return deletedCourse;
+	} catch (error) {
+		console.log(error)
+		return { error: error.message };
+	}
+};
+

@@ -150,3 +150,15 @@ exports.update = async function (req, res) {
         return res.status(500).json({ message: e.message })
     }
 }
+
+exports.delete = async function (req, res) {
+    try {
+        const courseId = req.params.courseId
+        const result = await courseModel.deleteCourse(courseId)
+        if (result.error) return res.status(500).json({ message: "Failed to update", data: result.error })
+        return res.status(200).json(result)
+    } catch (e) {
+        return res.status(500).json({ message: e.message })
+    }
+}
+

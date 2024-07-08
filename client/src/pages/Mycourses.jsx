@@ -37,10 +37,10 @@ const Course = ({ course }) => {
           <Col span={17}>
             <Space direction="vertical" className="w-full">
               <Typography.Title level={5} style={{ color: "#676C7D" }}>
-                {course.courseId.title}
+                {course?.courseId?.title}
               </Typography.Title>
               <div className="pr-10">
-                <Progress percent={course.process} size="small" />
+                <Progress percent={course?.process} size="small" />
               </div>
               <Flex align="end" justify="space-between" className="mt-2">
                 <Space direction="vertical">
@@ -49,13 +49,15 @@ const Course = ({ course }) => {
                       shape="circle"
                       src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
                     />
-                    <span className="text-[#676C7D]">{course.courseId.instructorId.name}</span>
+                    <span className="text-[#676C7D]">
+                      {course?.courseId?.instructorId?.name}
+                    </span>
                   </Flex>
                   <div>
                     <span className="text-[#676C7D]">
                       Level -{" "}
                       <span className="text-[#198754] font-semibold">
-                        {course.courseId.level}
+                        {course?.courseId?.level}
                       </span>
                     </span>
                   </div>
@@ -89,7 +91,9 @@ const Mycourses = () => {
         url: `/api/process/${userId}`,
       });
       console.log(responseAPI);
-      setCourse(responseAPI?.data?.data);
+      const filteredData = responseAPI?.data?.data?.filter(item => item.courseId !== null);
+    
+      setCourse(filteredData);
       setIsLoading(false);
     } catch (error) {
       console.log(error);

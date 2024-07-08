@@ -1,9 +1,9 @@
-const userModel = require("../models/User");
-const tokenModel = require("../models/Token");
-const utility = require("../helper/utility");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const { refresh } = require("./tokenController");
+const userModel = require('../models/User');
+const tokenModel = require('../models/Token');
+const utility = require('../helper/utility');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const { refresh } = require('./tokenController');
 
 exports.register = async function (req, res) {
   try {
@@ -13,13 +13,13 @@ exports.register = async function (req, res) {
     const checkEmail = await userModel.get(data);
     if (checkEmail)
       return res.status(400).json({
-        message: "Account existed! Please try with a different email",
+        message: 'Account existed! Please try with a different email',
       });
-    console.log("check done");
+    console.log('check done');
     const newUser = await userModel.create(data);
     if (newUser.error)
-      return res.status(500).json({ message: "Failed to register" });
-    console.log("create done");
+      return res.status(500).json({ message: 'Failed to register' });
+    console.log('create done');
     const { JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN } = process.env;
     console.log(JWT_SECRET_ACCESS_TOKEN, JWT_EXPRIRE_ACCESS_TOKEN);
     const token = jwt.sign(
@@ -34,7 +34,7 @@ exports.register = async function (req, res) {
     );
     await tokenModel.create(newUser._id, token);
     return res.status(200).json({
-      message: "Register successfully",
+      message: 'Register successfully',
       account: newUser,
       authenticated: token,
     });
@@ -47,18 +47,18 @@ exports.register = async function (req, res) {
 exports.login = async function (req, res) {
   try {
     const data = req.body;
-    utility.validate(data, ["email", "password"]);
+    utility.validate(data, ['email', 'password']);
 
     const checkUser = await userModel.get(data);
     if (!checkUser)
-      return res.status(500).json({ message: "Account not exist" });
+      return res.status(500).json({ message: 'Account not exist' });
 
     const checkPassword = await bcrypt.compare(
       data.password,
       checkUser.password
     );
     if (!checkPassword)
-      return res.status(400).json({ message: "Incorrect email or password" });
+      return res.status(400).json({ message: 'Incorrect email or password' });
     const {
       JWT_SECRET_ACCESS_TOKEN,
       JWT_EXPRIRE_ACCESS_TOKEN,
@@ -77,7 +77,7 @@ exports.login = async function (req, res) {
       }
     );
     // Create access token
-    console.log(JWT_EXPRIRE_ACCESS_TOKEN);
+
     const token = jwt.sign(
       {
         _id: checkUser._id,
@@ -86,7 +86,7 @@ exports.login = async function (req, res) {
         role: checkUser.role,
       },
       JWT_SECRET_ACCESS_TOKEN,
-      { expiresIn: 30 }
+      { expiresIn: JWT_EXPRIRE_ACCESS_TOKEN }
     );
     const checkToken = await tokenModel.get(checkUser._id);
     if (!checkToken) {
@@ -100,7 +100,7 @@ exports.login = async function (req, res) {
     }
 
     return res.status(200).json({
-      message: "Login successfully",
+      message: 'Login successfully',
       account: checkUser,
       authenticated: token,
       permission: checkUser.role,
@@ -119,7 +119,7 @@ exports.get = async function (req, res) {
 
     const result = await userModel.get(data);
     if (result.error)
-      return res.status(500).json({ message: "Failed to find" });
+      return res.status(500).json({ message: 'Failed to find' });
     return res.status(200).json(result);
   } catch (e) {
     return res.status(500).json({ message: e.message });
@@ -130,7 +130,7 @@ exports.getAll = async function (req, res) {
   try {
     const result = await userModel.getAll();
     if (result.error)
-      return res.status(500).json({ message: "Failed to find" });
+      return res.status(500).json({ message: 'Failed to find' });
     return res.status(200).json(result);
   } catch (e) {
     return res.status(500).json({ message: e.message });
@@ -144,14 +144,14 @@ exports.update = async function (req, res) {
     const query = { id: userId };
     const checkUser = await userModel.get(query);
     if (!checkUser)
-      return res.status(500).json({ message: "Account not exist" });
+      return res.status(500).json({ message: 'Account not exist' });
 
     if (password) {
       const passwordMatch = await bcrypt.compare(password, checkUser.password);
       if (!passwordMatch)
         return res
           .status(400)
-          .json({ message: "Current password is incorrect" });
+          .json({ message: 'Current password is incorrect' });
 
       if (newpassword) {
         rest.password = await bcrypt.hash(newpassword, 10);
@@ -160,7 +160,7 @@ exports.update = async function (req, res) {
 
     const result = await userModel.update(userId, rest);
     if (result.error)
-      return res.status(500).json({ message: "Failed to update" });
+      return res.status(500).json({ message: 'Failed to update' });
 
     return res.status(200).json(result);
   } catch (e) {
@@ -172,7 +172,7 @@ exports.delete = async function (req, res) {
   try {
     const userId = req.params.userId;
     const result = await userModel.delete(userId);
-    if (!result) return res.status(400).json({ message: "Failed to delete" });
+    if (!result) return res.status(400).json({ message: 'Failed to delete' });
     return res.status(200).json(result);
   } catch (e) {
     return res.status(500).json({ message: e.message });
@@ -184,10 +184,10 @@ exports.updateVerify = async function (req, res) {
     const userId = req.params.userId;
     const result = await userModel.update(userId, { is_verified: true });
     if (result.error)
-      return res.status(500).json({ message: "Failed to verify user" });
+      return res.status(500).json({ message: 'Failed to verify user' });
     return res
       .status(200)
-      .json({ message: "User verified successfully", user: result });
+      .json({ message: 'User verified successfully', user: result });
   } catch (e) {
     return res.status(500).json({ message: e.message });
   }

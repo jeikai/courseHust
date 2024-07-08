@@ -161,7 +161,8 @@ const Curriculum = ({ course, process }) => {
                   !process?.data
                     ? () => {}
                     : () => {
-                        spec?.type === "lesson" && spec?._id?.docURL
+                        (spec.type === "lesson" && spec?._id?.docURL) ||
+                        (!spec?._id?.videoURL && !spec?._id?.docURL)
                           ? navigate(
                               "/home/document/" +
                                 spec?._id?._id +
@@ -184,7 +185,8 @@ const Curriculum = ({ course, process }) => {
                 <Flex align="center" gap={12}>
                   {
                     // dành cho document
-                    spec.type === "lesson" && spec?._id?.docURL  ? (
+                    (spec.type === "lesson" && spec?._id?.docURL) ||
+                    (!spec?._id?.videoURL && !spec?._id?.docURL) ? (
                       !process?.data ? (
                         <LockOutlined className="text-xl text-[#ccc]" />
                       ) : process?.data?.lessonId?.some(
@@ -197,7 +199,7 @@ const Curriculum = ({ course, process }) => {
                     ) : !process?.data ? (
                       <LockOutlined className="text-xl text-[#ccc]" />
                     ) : // dành cho lesson video
-                    spec.type === "lesson" ? (
+                    spec.type === "lesson" && spec?._id?.videoURL ? (
                       !process?.data ? (
                         <LockOutlined className="text-xl text-[#ccc]" />
                       ) : process?.data?.lessonId?.some(

@@ -68,17 +68,22 @@ exports.getByCourseId = async function (courseId) {
 
 exports.getByUserId = async function (userId) {
   try {
-    let result = []
+    let result = [];
     const process = await processModel.getByUserId(userId);
-    for (const proc of process) {
+
+    const validProcesses = process.filter(proc => proc?.courseId !== null);
+
+    for (const proc of validProcesses) {
       const resultCalendar = await Calendar.find({ courseId: proc?.courseId._id }).populate("courseId");
       resultCalendar.forEach(calendar => result.push(calendar));
     }
     return result;
   } catch (error) {
-    return { error: error }; 
+    console.log(error);
+    return { error: error };
   }
 }
+
 
 exports.update = async function (id, data) {
   try {

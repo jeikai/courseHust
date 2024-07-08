@@ -122,7 +122,7 @@ const Header = () => {
       }
     };
     fetchNotifications();
-  }, [user]);
+  }, [user?.account?._id]);
 
   if (user != null) {
     useEffect(() => {
@@ -130,10 +130,11 @@ const Header = () => {
         const response = await axios.get(
           `/api/calendar/user/${user.account._id}`
         );
+        console.log(response)
         setSchedule(response.data);
       };
       fetchSchedule();
-    }, [user.account._id]);
+    }, [user?.account?._id]);
   }
 
   useEffect(() => {

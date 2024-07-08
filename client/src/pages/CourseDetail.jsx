@@ -162,7 +162,7 @@ const Curriculum = ({ course, process }) => {
                     ? () => {}
                     : () => {
                         (spec.type === "lesson" && spec?._id?.docURL) ||
-                        (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson")
+                        (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson") || spec?._id?.duration == 0
                           ? navigate(
                               "/home/document/" +
                                 spec?._id?._id +
@@ -186,7 +186,7 @@ const Curriculum = ({ course, process }) => {
                   {
                     // dành cho document
                     (spec.type === "lesson" && spec?._id?.docURL) ||
-                    (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson") ? (
+                    (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson") || spec?._id?.duration == 0 ? (
                       !process?.data ? (
                         <LockOutlined className="text-xl text-[#ccc]" />
                       ) : process?.data?.lessonId?.some(

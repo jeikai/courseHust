@@ -185,7 +185,7 @@ const Header = () => {
         }
       });
     };
-
+    
     const sendNotification = async (item) => {
       // Check if browser supports notifications
       if ("Notification" in window) {

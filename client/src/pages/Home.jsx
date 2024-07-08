@@ -39,10 +39,25 @@ import { useAPI } from "../hooks/api.jsx";
 import { Form } from "antd";
 import { ViewContext } from "../context/View.jsx";
 import Loader from "../components/Loader.jsx";
+
 const Home = () => {
   const [courses, setCourse] = useState();
   const [category, setCategory] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const categoriesPerPage = 8;
+
+   // Calculate the current categories to display
+   const indexOfLastCategory = currentPage * categoriesPerPage;
+   const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
+   const currentCategories = category?.data.slice(indexOfFirstCategory, indexOfLastCategory);
+
+  // Change page function
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Total pages
+  const totalPages = Math.ceil(category?.data.length / categoriesPerPage);
+
   const viewContext = useContext(ViewContext);
   
   const coursesAPI = useAPI("/api/course", null);
@@ -121,7 +136,7 @@ const Home = () => {
                 <Form.Item name={"search"}>
                   <Space.Compact
                     style={{ width: "90%" }}
-                    className="bg-[#F8F7FF] p-1 border"
+                    className="bg-[#F8F7FF] p-1 border rounded-lg"
                   >
                     <Input
                       size="large"
@@ -132,7 +147,7 @@ const Home = () => {
                       htmlType="submit"
                       size="large"
                       type="primary"
-                      className="bg-primary-blue border-r-4"
+                      className="bg-primary-blue"
                       icon={<SearchOutlined />}
                     >
                       Search
@@ -235,46 +250,49 @@ const Home = () => {
           </Row>
         </div>
       </section>
-      <section
-        className="bg-secondary-blue py-20 mb-12"
-      >
-        <div className="max-w-screen-xl m-auto">
-          <div className="mb-10">
-            <h2 className="text-bold text-center text-primary-blue">
-                Choice favourite course from top category
-            </h2>
-          </div>
-          <Row className="mt-12" gutter={[16, 24]}>
-            {category?.data && category?.data.length > 0 ? (
-              category?.data.map((category, index) => {
-                return (
-                  <Col
-                    span={6}
-                    key={index}
-                    onClick={() =>
-                      navigate(`/courses?categoryname=${category?.title}`)
-                    }
-                  > 
-                    <Space
-                      direction="vertical"
-                      className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500"
-                    >
-                      <h5 className="font-bold group-hover:text-white">
-                        {category?.title}
-                      </h5>
-                      <a href="" className="block mt-4 pb-6">
-                        <ArrowRightOutlined className="text-xl font-bold group-hover:text-white text-[#FB6871]" />
-                      </a>
-                    </Space>
-                  </Col>
-                );
-              })
-            ) : (
-              <p className="text-white">No categories available</p>
-            )}
-          </Row>
+
+      <section className="bg-secondary-blue py-20 mb-12 h-[600px]">
+      <div className="max-w-screen-xl m-auto">
+        <div className="mb-10">
+          <h2 className="text-bold text-center text-primary-blue">
+            Choice favourite course from top category
+          </h2>
         </div>
-      </section>
+        <Row className="mt-12" gutter={[16, 24]}>
+          {currentCategories && currentCategories.length > 0 ? (
+            currentCategories.map((category, index) => (
+              <Col
+                span={6}
+                key={index}
+                onClick={() => navigate(`/courses?categoryname=${category?.title}`)}
+              >
+                <Space
+                  direction="vertical"
+                  className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500"
+                >
+                  <h5 className="font-bold group-hover:text-white">
+                    {category?.title}
+                  </h5>
+                  <a href="#" className="block mt-4 pb-6">
+                    <ArrowRightOutlined className="text-xl font-bold group-hover:text-white text-[#FB6871]" />
+                  </a>
+                </Space>
+              </Col>
+            ))
+          ) : (
+            <p className="text-white">No categories available</p>
+          )}
+        </Row>
+        <div className="pagination text-primary-blue font-medium flex justify-center gap-4 pt-10">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button key={index} onClick={() => paginate(index + 1)}>
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
       <section className="max-w-screen-xl m-auto">
         <div className="mb-10">
           <h2 className="text-bold text-center">

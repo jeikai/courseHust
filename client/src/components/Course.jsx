@@ -21,7 +21,7 @@ const Course = ({ list = "Grid", course = {} }) => {
     <Space
       direction={layout}
       className={`group rounded-lg bg-white overflow-hidden courses-card-body p-3 ${
-        list === "Grid" ? "w-[290px] " : "w-full "
+        list === "Grid" ? "w-[290px] h-[380px] " : "w-full "
       } cursor-pointer`}
       onClick={() => navigate("/courses/" + course._id)}
     >
@@ -40,11 +40,11 @@ const Course = ({ list = "Grid", course = {} }) => {
         ) : null}
       </div>
       <div className="px-3 py-1">
-        <h5 className="group-hover:text-[#754FFE] font-semibold text-base capitalize">
+        <h5 className="group-hover:text-[#754FFE] font-semibold text-base capitalize h-[48px]">
           {course.title}
         </h5>
         <div className="course-info-card flex">
-              <span className="text-[10px] text-bold my-2">{course?.instructorId.name}</span>
+              <span className="text-[10px] text-gray-400 text-semibold my-2">{course?.instructorId.name}</span>
         </div>
         <Flex justify="space-between">
           <Flex align="center" gap={8} className="text-[#6e798a]">

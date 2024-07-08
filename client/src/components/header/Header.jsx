@@ -300,8 +300,8 @@ const Header = () => {
   
 
   return (
-    <header className={`py-1 pt-3 ${type_header === 'home' ? 'bg-primary-green' : 'border-solid'}`}>
-      <div className="container mx-auto max-w-screen-xl flex gap-6 items-center p-1">
+    <header className={`pt-3 ${type_header === 'home' ? 'bg-primary-green' : 'border-solid'}`}>
+      <div className="container mx-auto max-w-screen-xl flex gap-6 items-center">
         <Link to={"/"} className="logo w-[136px] h-[36px]">
           <img src={logo} alt="logo" className="w-full h-full object-contain" />
         </Link>
@@ -322,14 +322,14 @@ const Header = () => {
             <div className="nav-item px-4 py-2 rounded cursor-pointer">
               <a href="/">
                 <Flex align="center" gap={2} className="text-base font-semibold">
-                  <span>Home</span>
+                  <span className={type_header === 'home' ? 'text-white' : 'text-primary-blue'}>Home</span>                
                 </Flex>
               </a>
             </div>
             <div className="nav-item px-4 py-2 rounded cursor-pointer">
               <a href="/courses">
                 <Flex align="center" gap={2} className="text-base font-semibold">
-                  <span>Course</span>
+                <span className={type_header === 'home' ? 'text-white' : 'text-primary-blue'}>Courses</span>                
                 </Flex>
               </a>
             </div>

@@ -40,7 +40,7 @@ const DocumentLesson = () => {
 
   if (responseAPI.loading) return <Loader />;
 
-  const { title, content, date_created, docURL } = responseAPI.data;
+  const { title, content, date_created, docURL, videoURL } = responseAPI.data;
   if (isLoading) return <Loader />;
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -55,7 +55,7 @@ const DocumentLesson = () => {
             <strong>Date Created: </strong>
             {new Date(date_created).toLocaleDateString()}
           </Typography.Paragraph>
-          {docURL && (
+          {(docURL || videoURL) && (
             <div className="text-center">
               <Button
                 type="primary"

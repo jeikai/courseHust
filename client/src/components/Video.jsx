@@ -1,10 +1,9 @@
-import React from 'react'
-import ReactPlayer from 'react-player'
-import vid from '../assets/video/vid.mp4'
-import thumbnail from '../assets/image/thumbnail.jpg'
-const Video = ({video, setIsPlaying}) => {
-    console.log(video)
-    const videoUrl = video.startsWith("http") ? video : vid
+import React from 'react';
+import ReactPlayer from 'react-player';
+import thumbnail from '../assets/image/thumbnail.jpg';
+
+const Video = ({ video, setIsPlaying }) => {
+    const videoUrl = video.startsWith("http") ? video : 'https://path/to/your/playlist.m3u8';
     return (
         <div className='max-w-[1200px] h-[720px]'>
             <ReactPlayer
@@ -19,7 +18,7 @@ const Video = ({video, setIsPlaying}) => {
                 pip
             />
         </div>
-    )
-}
+    );
+};
 
 export default Video

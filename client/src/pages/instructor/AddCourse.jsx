@@ -169,7 +169,7 @@ const AddCourse = () => {
     }));
 
     setOpenInputLesson(false);
-    viewContext.handleSuccess("Upload successfully");
+    viewContext.handleSuccess("Create successfully");
     formLesson.resetFields();
 
     console.log("data", data);
@@ -337,37 +337,47 @@ const AddCourse = () => {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
-    data.thumbnail = thumbnail.file_url;
+      let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
+      data.thumbnail = thumbnail.file_url;
 
-    setData({ ...data });
-    let { sections } = data;
-    for (let section of sections) {
-      let { specials } = section;
-      for (let spec of specials) {
-        if (spec.file && spec.file.length > 0) {
-          let uploadFileResponse = await uploadFile(spec.file[0].originFileObj);
-          const fileType = spec.file[0].type;
+      setData({ ...data });
+      let { sections } = data;
+      for (let section of sections) {
+        let { specials } = section;
+        console.log(specials);
+        if (Array.isArray(specials)) {
+          for (let spec of specials) {
+            if (spec.file && spec.file.length > 0) {
+              let uploadFileResponse = await uploadFile(
+                spec.file[0].originFileObj
+              );
+              const fileType = spec.file[0].type;
 
-          if (fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || fileType === "application/pdf") {
-            spec.docURL = uploadFileResponse.file_url;
-          } else {
-            spec.videoURL = uploadFileResponse.file_url;
-            spec.duration = uploadFileResponse.duration;
+              if (
+                fileType ===
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+                fileType === "application/pdf"
+              ) {
+                spec.docURL = uploadFileResponse.file_url;
+              } else {
+                spec.videoURL = uploadFileResponse.file_url;
+                spec.duration = uploadFileResponse.duration;
+              }
+            }
           }
         }
       }
-    }
-    if (data.free) {
-      data.price = 0;
-    }
-    console.log(data);
-    let user = localStorage.getItem("user");
-    user = JSON.parse(user);
-    // console.log(user.authenticated);
-    try {
+      if (data.free) {
+        data.price = 0;
+      }
+      console.log(data);
+      let user = localStorage.getItem("user");
+      user = JSON.parse(user);
+      // console.log(user.authenticated);
+
       const resCourse = await Axios({
         url: "/api/course",
         method: "POST",
@@ -997,17 +1007,6 @@ const AddCourse = () => {
       ),
       content: <BasicInfor index={0} />,
     },
-    // {
-    //   title: (
-    //     <Typography.Title
-    //       level={5}
-    //       style={{ display: "inline-block", marginBottom: 0 }}
-    //     >
-    //       Info
-    //     </Typography.Title>
-    //   ),
-    //   content: <Information index={1} />,
-    // },
     {
       title: (
         <Typography.Title

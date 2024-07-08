@@ -117,6 +117,20 @@ exports.delete = async function (id) {
   }
 };
 
+exports.deleteByCourseId = async function (courseId) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      throw new Error('Invalid course ID');
+    }
+
+    const deletedCalendars = await Calendar.deleteMany({ courseId });
+    return deletedCalendars;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 exports.addException = async function (id, date) {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {

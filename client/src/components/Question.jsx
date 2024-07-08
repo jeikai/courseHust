@@ -4,7 +4,7 @@ import {
   Input,
   Radio,
   Space,
-  Switch,
+  Checkbox,
   Typography,
 } from "antd";
 import React from "react";
@@ -17,15 +17,13 @@ const Question = ({ question, answers, current, setAnswers }) => {
   };
 
   const handleSingleChoice = (e) => {
-    console.log(answers);
     let newAnswers = answers;
     newAnswers[current - 1].choices = [e.target.value];
-    setAnswers([...newAnswers]); 
+    setAnswers([...newAnswers]);
   };
 
   const handleMultipleChoice = (e, value) => {
-    console.log(answers);
-    if (e) {
+    if (e.target.checked) {
       let newAnswers = answers;
       newAnswers[current - 1].choices.push(value);
       setAnswers([...newAnswers]);
@@ -40,8 +38,8 @@ const Question = ({ question, answers, current, setAnswers }) => {
   };
 
   return (
-    <Space direction="vertical w-full min-h-72">
-      <Typography.Title level={3}>{question.title} ({question.level})</Typography.Title>
+    <Space direction="vertical" className="w-full min-h-72">
+      <Typography.Title level={3}>{question.title}</Typography.Title>
       <ConfigProvider
         theme={{
           components: {
@@ -52,7 +50,6 @@ const Question = ({ question, answers, current, setAnswers }) => {
           },
         }}
       >
-        {/* question.type === "scq" */}
         {question.type === "single" && (
           <Radio.Group
             onChange={handleSingleChoice}
@@ -61,72 +58,49 @@ const Question = ({ question, answers, current, setAnswers }) => {
             value={answers[current - 1].choices[0]}
           >
             <Space direction="vertical" size={12} className="w-full">
-              {question?.options.map((option, index) => {
-                // console.log(option);
-                return (
-                  <Radio
-                    key={index}
-                    value={option.label}
-                    className="w-full border p-4 rounded-md"
-                  >
-                    {option.label}
-                  </Radio>
-                );
-              })}
+              {question?.options.map((option, index) => (
+                <Radio
+                  key={index}
+                  value={option.label}
+                  className="w-full border p-4 rounded-md"
+                >
+                  {option.label}
+                </Radio>
+              ))}
             </Space>
           </Radio.Group>
         )}
         {question.type === "multiple" && (
-          <Radio.Group className="w-full" size="large">
-            <Space direction="vertical" size={12} className="w-full">
-              {question?.options.map((option, index) => {
-                console.log(option);
-                return (
-                  <Flex
-                    align="center"
-                    gap={12}
-                    className="w-full border p-4 rounded-md"
-                  >
-                    <ConfigProvider
-                      theme={{
-                        components: {
-                          Switch: {
-                            // handleBg: '#ccc'
-                          },
-                        },
-                        token: {
-                          colorPrimary: "#754FFE",
-                          /* here is your global tokens */
-                        },
-                      }}
-                    >
-                      <Switch
-                        checked={
-                          answers[current - 1].choices.includes(option.label)
-                            ? true
-                            : false
-                        }
-                        onChange={(e) => handleMultipleChoice(e, option.label)}
-                      ></Switch>
-                    </ConfigProvider>
-                    <Typography.Text>{option.label}</Typography.Text>
-                  </Flex>
-                );
-              })}
-            </Space>
-          </Radio.Group>
+          <Space direction="vertical" size={12} className="w-full">
+            {question?.options.map((option, index) => (
+              <Flex
+                align="center"
+                gap={12}
+                className="w-full border p-4 rounded-md"
+                key={index}
+              >
+                <Checkbox
+                  checked={
+                    answers[current - 1].choices.includes(option.label)
+                      ? true
+                      : false
+                  }
+                  onChange={(e) => handleMultipleChoice(e, option.label)}
+                />
+                <Typography.Text>{option.label}</Typography.Text>
+              </Flex>
+            ))}
+          </Space>
         )}
-        
-        {/* fill text */}
         {question.type === "text" && (
-        <Input.TextArea
-          onChange={(e) => handleTextChange(e.target.value)}
-          className="w-full p-4 rounded-md"
-          size="large"
-          value={answers[current - 1].choices || ""}
-          placeholder="Fill your answer here..."
-          autoSize={{ minRows: 4, maxRows: 10 }}
-        />
+          <Input.TextArea
+            onChange={(e) => handleTextChange(e.target.value)}
+            className="w-full p-4 rounded-md"
+            size="large"
+            value={answers[current - 1].choices || ""}
+            placeholder="Fill your answer here..."
+            autoSize={{ minRows: 4, maxRows: 10 }}
+          />
         )}
       </ConfigProvider>
     </Space>

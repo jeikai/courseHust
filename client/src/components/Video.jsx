@@ -1,29 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
-import Hls from "hls.js";
-import thumbnail from "../assets/image/thumbnail.jpg";
-import Loader from "./Loader";
 import axios from "axios";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
+import Loader from "./Loader";
 
 const Video = ({ video, setIsPlaying }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const [m3u8Url, setM3u8Url] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    const convertVideo = async () => {
+    const fetchVideoUrl = async () => {
       try {
         setLoading(true);
         const response = await axios.post("/api/video", { video });
 
         const data = response?.data;
-        console.log(data);
         if (data.videoPath) {
-          setM3u8Url(data.videoPath);
+          console.log(data.videoPath)
+          setVideoUrl(data.videoPath);
         } else {
-          console.error("Failed to convert video");
+          console.error("Failed to fetch video URL");
         }
         setLoading(false);
       } catch (error) {
@@ -31,8 +29,9 @@ const Video = ({ video, setIsPlaying }) => {
         console.error("Error:", error);
       }
     };
+
     if (video) {
-      convertVideo();
+      fetchVideoUrl();
     }
   }, [video]);
 
@@ -42,7 +41,7 @@ const Video = ({ video, setIsPlaying }) => {
         controls: true,
         autoplay: true,
         preload: "auto",
-        sources: [{ src: "http://localhost:5173" + m3u8Url , type: "application/x-mpegURL" }],
+        sources: [{ src: videoUrl, type: "application/x-mpegURL" }],
       });
 
       return () => {
@@ -51,7 +50,7 @@ const Video = ({ video, setIsPlaying }) => {
         }
       };
     }
-  }, [m3u8Url]);
+  }, [videoUrl]);
 
   if (isLoading) return <Loader />;
   return (

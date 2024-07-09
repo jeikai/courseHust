@@ -19,4 +19,5 @@ module.exports = [
   require('./subcategory'),
   require('./historyquiz'),
   require('./notification'),
+  require('./video'),
 ]

@@ -119,7 +119,7 @@ const Lesson = () => {
         <Col span={16} pull={8}>
           <div className="mb-4 mt-2">
             <Video
-              video={responseAPI.data.videoURL}
+              video={responseAPI?.data?.videoURL}
               setIsPlaying={setIsPlaying}
             />
           </div>

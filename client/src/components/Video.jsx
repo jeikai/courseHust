@@ -1,16 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import Hls from "hls.js";
-import thumbnail from "../assets/image/thumbnail.jpg";
-import Loader from "./Loader";
-import axios from "axios";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
+import Loader from "./Loader";
+import axios from "axios";
 
 const Video = ({ video, setIsPlaying }) => {
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
-  const [m3u8Url, setM3u8Url] = useState("");
+  const [m3u8Content, setM3u8Content] = useState("");
   const [isLoading, setLoading] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const convertVideo = async () => {
@@ -20,8 +17,8 @@ const Video = ({ video, setIsPlaying }) => {
 
         const data = response?.data;
         console.log(data);
-        if (data.videoPath) {
-          setM3u8Url(data.videoPath);
+        if (data.videoContent) {
+          setM3u8Content(data.videoContent);
         } else {
           console.error("Failed to convert video");
         }
@@ -37,27 +34,39 @@ const Video = ({ video, setIsPlaying }) => {
   }, [video]);
 
   useEffect(() => {
-    if (videoRef.current) {
-      playerRef.current = videojs(videoRef.current, {
-        controls: true,
-        autoplay: true,
-        preload: "auto",
-        sources: [{ src: "http://localhost:5173" + m3u8Url , type: "application/x-mpegURL" }],
-      });
-
-      return () => {
-        if (playerRef.current) {
-          playerRef.current.dispose();
+    if (m3u8Content) {
+      try {
+        const blob = new Blob([m3u8Content], {
+          type: "application/vnd.apple.mpegurl",
+        });
+        const url = URL.createObjectURL(blob);
+        if (videoRef.current) {
+          const player = videojs(videoRef.current);
+          player.src({
+            src: url,
+            type: "application/x-mpegURL",
+          });
+          player.play();
         }
-      };
+      } catch (error) {
+        console.log(error);
+      }
     }
-  }, [m3u8Url]);
+  }, [m3u8Content]);
 
   if (isLoading) return <Loader />;
   return (
     <div className="max-w-[1200px] h-[720px]">
       <div>
-        <video ref={videoRef} className="video-js vjs-default-skin" />
+        <video
+          ref={videoRef}
+          className="video-js vjs-default-skin"
+          controls
+          preload="auto"
+          width="640"
+          height="264"
+          data-setup="{}"
+        ></video>
       </div>
     </div>
   );

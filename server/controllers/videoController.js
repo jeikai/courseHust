@@ -17,11 +17,12 @@ exports.convert = async function (req, res) {
         const videoUrl = new URL(data.video);
         const videoName = path.basename(videoUrl.pathname, path.extname(videoUrl.pathname)); 
         const outputFileName = `${videoName}.m3u8`;
-        const outputFilePath = path.join(videoFolder, outputFileName);
+        const outputFilePath = path.join(videoFolder, videoName, outputFileName);
 
         // Check if a folder with the name of videoName exists
         if (fs.existsSync(path.join(videoFolder, videoName))) {
-            return res.json({ message: 'Folder already exists', videoPath: `/videos/${videoName}/${outputFileName}` });
+            const fileContent = fs.readFileSync(outputFilePath, 'utf8');
+            return res.json({ message: 'Folder already exists', videoContent: fileContent });
         }
 
         // Create a new folder with the name of videoName
@@ -42,7 +43,10 @@ exports.convert = async function (req, res) {
                 console.error(`Stderr: ${stderr}`);
             }
             console.log(`Stdout: ${stdout}`);
-            return res.json({ videoPath: `/videos/${videoName}/${outputFileName}` });
+
+            // Read the content of the .m3u8 file
+            const fileContent = fs.readFileSync(finalOutputFilePath, 'utf8');
+            return res.json({ videoContent: fileContent });
         });
     } catch (e) {
         console.log(e);

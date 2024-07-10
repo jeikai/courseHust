@@ -1,65 +1,24 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import videojs from "video.js";
-import "video.js/dist/video-js.css";
-import Loader from "./Loader";
+import React from 'react';
+import ReactPlayer from 'react-player';
+import thumbnail from '../assets/image/thumbnail.jpg';
 
 const Video = ({ video, setIsPlaying }) => {
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
-  const [videoUrl, setVideoUrl] = useState("");
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchVideoUrl = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.post("/api/video", { video });
-
-        const data = response?.data;
-        if (data.videoPath) {
-          console.log(data.videoPath)
-          setVideoUrl(data.videoPath);
-        } else {
-          console.error("Failed to fetch video URL");
-        }
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        console.error("Error:", error);
-      }
-    };
-
-    if (video) {
-      fetchVideoUrl();
-    }
-  }, [video]);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      playerRef.current = videojs(videoRef.current, {
-        controls: true,
-        autoplay: true,
-        preload: "auto",
-        sources: [{ src: videoUrl, type: "application/x-mpegURL" }],
-      });
-
-      return () => {
-        if (playerRef.current) {
-          playerRef.current.dispose();
-        }
-      };
-    }
-  }, [videoUrl]);
-
-  if (isLoading) return <Loader />;
-  return (
-    <div className="max-w-[1200px] h-[720px]">
-      <div>
-        <video ref={videoRef} className="video-js vjs-default-skin" />
-      </div>
-    </div>
-  );
+    const videoUrl = video.startsWith("http") ? video : 'https://path/to/your/playlist.m3u8';
+    return (
+        <div className='max-w-[1200px] h-[720px]'>
+            <ReactPlayer
+                url={videoUrl}
+                light={<img src={thumbnail} className='w-full h-full' alt='Thumbnail' />}
+                width="100%"
+                height="100%"
+                playing={true}
+                controls={true}
+                onPlay={() => setIsPlaying(true)} 
+                onPause={() => setIsPlaying(false)}
+                pip
+            />
+        </div>
+    );
 };
 
-export default Video;
+export default Video

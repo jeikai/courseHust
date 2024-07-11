@@ -1,8 +1,8 @@
 import Axios from "axios";
 
 const handleUpdateCourse = async (data) => {
+  debugger
   console.log("submitted data", data);
-
   const sections = data.sections;
   const courseId = data._id;
   const newSections = [];
@@ -20,7 +20,7 @@ const handleUpdateCourse = async (data) => {
         await Promise.all(
           specs.map(async (spec) => {
             if (spec._id._id && spec.type == "lesson") {
-              //If lesson existed
+              console.log("If lesson existed")
               const lessonId = spec._id._id;
               const lessonData = spec._id;
 
@@ -43,8 +43,9 @@ const handleUpdateCourse = async (data) => {
                 url: `/api/lesson`,
                 data: {
                   title: lessonData.title,
-                  content: lessonData.title,
+                  content: lessonData.content,
                   videoURL: lessonData.videoURL || "",
+                  docURL: lessonData.docURL || "",
                   duration: lessonData.duration,
                   sectionId: sectionId,
                 },
@@ -141,8 +142,9 @@ const handleUpdateCourse = async (data) => {
               url: `/api/lesson`,
               data: {
                 title: lessonData.title,
-                content: lessonData.title,
+                content: lessonData.content,
                 videoURL: lessonData.videoURL || "",
+                docURL: lessonData.docURL || "",
                 duration: 0,
                 sectionId: sectionId,
               },

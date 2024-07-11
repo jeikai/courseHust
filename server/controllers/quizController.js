@@ -18,9 +18,11 @@ exports.getByInstructorId = async function (req, res) {
 		const { instructorId } = req.params;
 
 		const result = await quizModel.getByInstructorId(instructorId);
-
+		if (result.hasOwnProperty('error'))
+			return res.status(500).json({ message: result.error });
 		return res.status(200).json({ data: result });
 	} catch (e) {
+		console.log(e)
 		return res.status(500).json({ message: e.message });
 	}
 };

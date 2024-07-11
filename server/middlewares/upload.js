@@ -27,14 +27,14 @@ const storage = new CloudinaryStorage({
       };
     } else if (file.mimetype === 'application/pdf' || file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       return {
-        resource_type: 'raw',
+        resource_type: 'auto',
         folder: 'course_HUST/document',
       };
     } else {
       return {
         folder: 'course_HUST/images',
       };
-    }
+    } 
   },
 });
 

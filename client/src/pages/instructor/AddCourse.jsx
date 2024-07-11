@@ -355,11 +355,11 @@ const AddCourse = () => {
                 spec.file[0].originFileObj
               );
               const fileType = spec.file[0].type;
-
+              console.log(fileType)
               if (
-                fileType ===
+                fileType ==
                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-                fileType === "application/pdf"
+                fileType == "application/pdf"
               ) {
                 spec.docURL = uploadFileResponse.file_url;
               } else {

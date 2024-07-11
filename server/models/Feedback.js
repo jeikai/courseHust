@@ -58,7 +58,7 @@ exports.get = async function () {
 
 exports.getByUserId = async function (userId) {
     try {
-        const result = await Feedback.find({ userId }).populate('userId');
+        const result = await Feedback.find({ userId }).populate('userId').populate('courseId');
         return result;
     } catch (err) {
         return { error: err };

@@ -5,8 +5,8 @@ const natural = require('natural');
 
 async function fetchUserData(userId) {
     try {
-        const favorites = await favoriteModel.get(userId);
-        const feedbacks = await feedbackModel.get(userId);
+        const favorites = await favoriteModel.getByUserId(userId);
+        const feedbacks = await feedbackModel.getByUserId(userId);
         return { favorites, feedbacks };
     } catch (error) {
         console.error('Error fetching user data:', error);
@@ -70,11 +70,17 @@ async function recommendCourses(userId) {
     try {
         const { favorites, feedbacks } = await fetchUserData(userId);
         const courses = await fetchCourseData();
+
         const courseVectors = buildFeatureVectors(courses);
 
-        const userCourses = [...favorites.map(fav => fav.courseId.toString()), ...feedbacks.map(fb => fb.courseId.toString())];
-        const userCourseVectors = courseVectors.filter(cv => userCourses.includes(cv.course._id.toString()));
+        // Filter out null courseId entries from favorites and feedbacks
+        const validFavorites = favorites.filter(fav => fav.courseId !== null);
+        const validFeedbacks = feedbacks.filter(fb => fb.courseId !== null);
+        console.log(validFavorites, validFeedbacks)
+        const userCourses = [...validFavorites.map(fav => fav.courseId._id.toString()), ...validFeedbacks.map(fb => fb.courseId._id.toString())];
 
+        const userCourseVectors = courseVectors.filter(cv => userCourses.includes(cv.course._id.toString()));
+        
         let recommendedCourses = {};
 
         courseVectors.forEach(cv => {
@@ -84,7 +90,7 @@ async function recommendCourses(userId) {
                     totalSimilarity += cosineSimilarity(cv.vector, ucv.vector);
                 });
                 const averageSimilarity = totalSimilarity / userCourseVectors.length;
-                if (averageSimilarity > 0) {  // Chỉ thêm các khóa học có điểm số lớn hơn 0
+                if (averageSimilarity > 0) {  // Only add courses with a similarity score greater than 0
                     recommendedCourses[cv.course._id.toString()] = averageSimilarity;
                 }
             }
@@ -101,6 +107,7 @@ exports.recommend = async function (req, res) {
     try {
         const userId = req.params.userId;
         const recommendations = await recommendCourses(userId);
+        console.log(recommendations)
         res.status(200).json(recommendations);
     } catch (error) {
         console.error('Error in recommend function:', error);

@@ -63,6 +63,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   ScheduleOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -204,7 +205,7 @@ const EditCourse = () => {
         dataReq.thumbnail = thumbnail.file_url;
         console.log("get new link");
       }
-      console.log(dataReq.thumbnail);
+      console.log(dataReq);
       setData((prev) => dataReq);
       const result = await handleUpdateCourse(dataReq);
       setIsLoading(false);
@@ -597,6 +598,8 @@ const EditCourse = () => {
           <Flex align="center" gap={6}>
             {item?.videoURL !== "" && item?.videoURL ? (
               <VideoCameraOutlined />
+            ) : item?.docURL !== "" && item?.docURL ? (
+              <FileTextOutlined />
             ) : (
               <QuestionCircleOutlined />
             )}
@@ -699,59 +702,74 @@ const EditCourse = () => {
 
   const Curriculum = () => {
     const handleOkLesson = async () => {
-      // debugger
-      // callback()
-      setIsLoading((prev) => true);
-      setOpenInputLesson(false);
-      const fieldLessons = formLesson.getFieldsValue();
-      let lessonId = uuidv4();
-      let sectionId = fieldLessons.sectionId;
-      fieldLessons.id = lessonId;
+      try {
+        setIsLoading((prev) => true);
+        setOpenInputLesson(false);
+        const fieldLessons = formLesson.getFieldsValue();
+        let lessonId = uuidv4();
+        let sectionId = fieldLessons.sectionId;
+        fieldLessons.id = lessonId;
 
-      const { sections } = data;
-      //get video URL
-      let videoURL = "";
-      let duration = 0;
-      if (fieldLessons.file && fieldLessons.file != undefined) {
-        const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
-        videoURL = upFile.file_url;
-        duration = upFile.duration || 0;
-      }
-      console.log({ fieldLessons });
-      sections.forEach((section) => {
-        if (section._id === sectionId) {
-          if (!section?.specs) {
-            (section.specs = []), (section.specs = []);
+        const { sections } = data;
+        //get video URL
+        let videoURL = "";
+        let docURL = "";
+        let duration = 0;
+        if (fieldLessons.file && fieldLessons.file != undefined) {
+          const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
+          const fileType = fieldLessons.file[0].type;
+          if (
+            fileType ==
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+            fileType == "application/pdf"
+          ) {
+            docURL = upFile.file_url;
+          } else {
+            videoURL = upFile.file_url;
+            duration = upFile.duration || 0;
           }
-          let obj = {
-            _id: {
-              content: fieldLessons.content,
-              id: fieldLessons.id,
-              sectionId: fieldLessons.sectionId,
-              title: fieldLessons.title,
-              videoURL: videoURL,
-              duration: duration,
-            },
-            type: "lesson",
-          };
-          section.specs.push(obj);
         }
-      });
+        console.log({ fieldLessons });
+        sections.forEach((section) => {
+          if (section._id === sectionId) {
+            if (!section?.specs) {
+              (section.specs = []), (section.specs = []);
+            }
+            let obj = {
+              _id: {
+                content: fieldLessons.content,
+                id: fieldLessons.id,
+                sectionId: fieldLessons.sectionId,
+                title: fieldLessons.title,
+                videoURL: videoURL,
+                docURL: docURL,
+                duration: duration,
+              },
+              type: "lesson",
+            };
+            section.specs.push(obj);
+          }
+        });
 
-      setData((prevData) => ({
-        ...prevData,
-        sections: sections,
-      }));
+        setData((prevData) => ({
+          ...prevData,
+          sections: sections,
+        }));
 
-      formLesson.resetFields();
+        formLesson.resetFields();
 
-      setIsLoading((prev) => false);
-      console.log("data", data);
-      console.log(JSON.stringify(data));
-      console.log("fieldLessons", fieldLessons);
+        setIsLoading((prev) => false);
+        console.log("data", data);
+        console.log(JSON.stringify(data));
+        console.log("fieldLessons", fieldLessons);
+      } catch (error) {
+        setIsLoading((prev) => false);
+        console.log(error);
+      }
     };
 
     const handleEditLesson = async () => {
+
       setIsLoading((prev) => true);
       setOpenEditLesson(false);
 
@@ -759,10 +777,19 @@ const EditCourse = () => {
 
       if (newLesson.file && newLesson.file != undefined) {
         const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-        newLesson.videoURL = uploadedFile.file_url || "";
-        newLesson.duration = uploadedFile.duration;
+        const fileType = newLesson.file[0].type;
+        if (
+          fileType ==
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+          fileType == "application/pdf"
+        ) {
+          newLesson.docURL = uploadedFile.file_url;
+        } else {
+          newLesson.videoURL = uploadedFile.file_url;
+          newLesson.duration = uploadedFile.duration;
+        }
       }
-      newLesson.docURL = "";
+      console.log(newLesson)
       let { sections } = data;
       sections.forEach((section) => {
         let { specs } = section;

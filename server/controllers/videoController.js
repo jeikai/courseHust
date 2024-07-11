@@ -3,7 +3,7 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 // Update the video folder path
-const videoFolder = path.join('D:', 'CodeThue', 'courseHust', 'client', 'videos');
+const videoFolder = path.join('D:', 'CodeThue', 'course_HUST', 'courseHust', 'client', 'videos');
 
 exports.convert = async function (req, res) {
     try {
@@ -16,7 +16,7 @@ exports.convert = async function (req, res) {
         // Generate a proxy URL
         const videoUrl = new URL(data.video);
         const videoName = path.basename(videoUrl.pathname, path.extname(videoUrl.pathname)); 
-        const outputFileName = `${videoName}.m3u8`;
+        const outputFileName = `${videoName}.mp4`; // Output as MP4
         const outputFilePath = path.join(videoFolder, videoName, outputFileName);
 
         // Check if a folder with the name of videoName exists
@@ -32,7 +32,8 @@ exports.convert = async function (req, res) {
         // Define the output file path within the new folder
         const finalOutputFilePath = path.join(newFolderPath, outputFileName);
 
-        const command = `ffmpeg -i ${data.video} -codec: copy -f hls -hls_list_size 0 -hls_segment_type mpegts ${finalOutputFilePath}`;
+        // Encode the video from the URL to MP4 format
+        const command = `ffmpeg -i "${data.video}" -vcodec libx264 -acodec aac ${finalOutputFilePath}`;
 
         exec(command, (error, stdout, stderr) => {
             if (error) {
@@ -44,9 +45,9 @@ exports.convert = async function (req, res) {
             }
             console.log(`Stdout: ${stdout}`);
 
-            // Read the content of the .m3u8 file
-            const fileContent = fs.readFileSync(finalOutputFilePath, 'utf8');
-            return res.json({ videoContent: fileContent });
+            // Read the content of the .mp4 file
+            const fileContent = fs.readFileSync(finalOutputFilePath);
+            return res.json({ videoContent: fileContent.toString('base64') });
         });
     } catch (e) {
         console.log(e);

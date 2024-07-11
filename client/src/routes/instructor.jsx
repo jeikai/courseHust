@@ -6,6 +6,8 @@ import EditCourse from '../pages/instructor/EditCourse';
 import EditQuiz from '../pages/instructor/EditQuiz';
 import Quiz from '../pages/instructor/Quiz';
 import AddQuestion from '../pages/instructor/AddQuestion';
+import Question from '../pages/instructor/Question';
+import EditQuestion from '../pages/instructor/EditQuestion';
 const Routes = [
 	{
 		path: '/admin/manage_courses',
@@ -62,6 +64,20 @@ const Routes = [
 		layout: 'admin',
 		// permission: 'student',
 		title: 'FunCourse - Add a question | E-Learning',
+	},
+	{
+		path: '/admin/question',
+		view: Question,
+		layout: 'admin',
+		// permission: 'student',
+		title: 'FunCourse - Question | E-Learning',
+	},
+	{
+		path: '/admin/edit_question/:id',
+		view: EditQuestion,
+		layout: 'admin',
+		// permission: 'student',
+		title: 'FunCourse - Edit Question | E-Learning',
 	},
 ];
 

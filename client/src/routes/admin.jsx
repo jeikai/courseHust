@@ -20,7 +20,7 @@ const Routes = [
 		view: Dashboard,
 		layout: 'admin_main',
 		// permission: 'student',
-		title: 'FunCourse - Dash board | E-Learning',
+		title: 'FunCourse - Dash board | E-Learning', 
 	},
 	{
 		path: '/admin_main/manage_courses',
@@ -92,7 +92,6 @@ const Routes = [
 		// permission: 'student',
 		title: 'FunCourse - Edit Question | E-Learning',
 	},
-
 	{
 		path: '/admin_main/add_quiz',
 		view: AddQuiz,

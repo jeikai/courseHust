@@ -120,7 +120,7 @@ const Question = () => {
                     <Flex justify="flex-end" onClick={() => question.id}>
                       <Button
                         className="text-base text-blue-500 border-blue-400"
-                        href={`/admin_main/edit_question/${question.id}`}
+                        href={`/admin/edit_question/${question.id}`}
                       >
                         Update
                       </Button>

@@ -145,6 +145,7 @@ const EditCourse = () => {
     isStream: false,
   });
   const courseDataApi = useAPI(`/api/course/${courseId}`, null);
+  console.log(courseDataApi)
   const categoryDataApi = useAPI(`/api/category`, null);
 
   const breadcrumb = [
@@ -579,7 +580,7 @@ const EditCourse = () => {
       transform,
       transition,
     } = useSortable({
-      id: item.id,
+      id: item?.id,
       data: { ...item },
     });
 
@@ -604,18 +605,18 @@ const EditCourse = () => {
               <QuestionCircleOutlined />
             )}
             <Typography.Title style={{ marginBottom: 0 }} level={5}>
-              {item.title}
+              {item?.title}
             </Typography.Title>
           </Flex>
           <Space>
             <EditOutlined
               onClick={() =>
                 item?.ques
-                  ? navigate(`/admin/edit_quiz/${item._id}`)
-                  : openModalEditLesson(item._id)
+                  ? navigate(`/admin/edit_quiz/${item?._id}`)
+                  : openModalEditLesson(item?._id)
               }
             />
-            <DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
+            <DeleteOutlined onClick={() => handleRemoveLesson(item?._id)} />
           </Space>
         </Flex>
       </div>
@@ -823,7 +824,7 @@ const EditCourse = () => {
       console.log(id);
       sections.forEach((section) => {
         section?.specs?.forEach((item) => {
-          if (item._id._id === id) {
+          if (item?._id?._id === id) {
             console.log("item lesson", item._id);
 
             formEditLesson.setFieldsValue({
@@ -893,7 +894,7 @@ const EditCourse = () => {
       let { sections } = data;
       sections.forEach((section) => {
         let { specs } = section;
-        let index = specs.findIndex((spec) => spec._id._id === id);
+        let index = specs.findIndex((spec) => spec?._id?._id === id);
         console.log(index);
 
         if (index !== -1) {

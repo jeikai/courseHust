@@ -4,8 +4,10 @@ import LessonHeader from '../components/header/LessonHeader'
 const LessonLayout = ({children}) => {
   return (
     <>
-        <LessonHeader />
-        {children}
+        <div className='h-full'>
+          <LessonHeader />
+          {children}
+        </div>
     </>
   )
 }

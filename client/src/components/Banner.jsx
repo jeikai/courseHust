@@ -5,7 +5,7 @@ import { Breadcrumb, Col, Row, Space, Typography } from 'antd'
 import { HomeOutlined } from '@ant-design/icons'
 const Banner = (props) => {
   return (
-    <section style={{ backgroundImage: `url(${list_banner})` }} className="my-6">
+    <section className="my-6">
     <Row className="max-w-screen-xl m-auto">
         <Col span={18} className="flex items-center">
             <Space direction="vertical">

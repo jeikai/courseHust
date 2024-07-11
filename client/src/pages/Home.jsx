@@ -113,9 +113,11 @@ const Home = () => {
       navigate(`/courses?q=${search}`);
     }
   };
+
   if (isLoading) {
     return <Loader />;
   }
+
   return (
     <>
       <section className="m-auto">

@@ -16,7 +16,7 @@ const LessonHeader = () => {
   };
 
   return (
-    <nav className="h-16 p-2 bg-black fixed top-0 right-0 left-0 z-[1000]">
+    <div className="h-16 p-2 bg-black fixed top-0 right-0 left-0 z-[1000]">
       <Flex className="flex-1 h-full items-center px-4">
         <Link to={"/"}>
           <div className="logo w-[150px] h-[33px]">
@@ -35,7 +35,7 @@ const LessonHeader = () => {
           Back
         </Button>
       </Flex>
-    </nav>
+    </div>
   );
 };
 

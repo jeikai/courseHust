@@ -1,8 +1,7 @@
 import Axios from "axios";
 
 const handleUpdateCourse = async (data) => {
-  console.log("submitted data", data);
-
+  
   const sections = data.sections;
   const courseId = data._id;
   const newSections = [];

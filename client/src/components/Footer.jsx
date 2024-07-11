@@ -3,6 +3,7 @@ import logo from "../assets/logo-white.png";
 import { Col, Flex, Input, List, Row, Typography, Form } from "antd";
 import { useAPI } from "../hooks/api";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 const Footer = () => {
   const [category, setCategory] = useState();
   const categoryAPI = useAPI("/api/category", null);

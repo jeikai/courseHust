@@ -291,18 +291,19 @@ const Header = () => {
 
   const exploreMenu = (
     <Menu>
-      {category?.data.map((cat) => (
-        <Menu.Item key={cat.id}>
-          <a href={`/courses?categoryname=${cat.title}`}>{cat.title}</a>
-        </Menu.Item>
-      ))}
+      {category?.data.map((cat) => {
+        return (
+          <Menu.Item key={cat._id}>
+            <a href={`/courses?categoryname=${cat.title}`}>{cat.title}</a>
+          </Menu.Item>
+        );
+      })}
     </Menu>
   );
-  
 
   return (
-    <header className={`pt-3 ${type_header === 'home' ? 'bg-primary-green' : 'border-solid'}`}>
-      <div className="container mx-auto max-w-screen-xl flex gap-6 items-center">
+    <header className={`pt-6 ${type_header === 'home' ? 'bg-primary-green' : 'border-solid'}`}>
+      <div className="container mx-auto max-w-screen-xl flex gap-6">
         <Link to={"/"} className="logo w-[136px] h-[36px]">
           <img src={logo} alt="logo" className="w-full h-full object-contain" />
         </Link>
@@ -320,6 +321,19 @@ const Header = () => {
                   </Dropdown>
                 </div>) : null}
             </div>
+
+            <div className="mt-2 rounded cursor-pointer search-container">
+            <Form layout="horizontal" onFinish={handleSearch}>
+              <Form.Item name={"search"}>
+                <Input.Search
+                  placeholder="What do you want to learn?"
+                  enterButton
+                  className="custom-search"
+                />
+              </Form.Item>
+            </Form>
+          </div>
+
             <div className="nav-item px-4 py-2 rounded cursor-pointer">
               <a href="/">
                 <Flex align="center" gap={2} className="text-base font-semibold">
@@ -431,22 +445,24 @@ const Header = () => {
               </>
             ) : (
               <>
-                <div className="login-btn bg-white text-white font-bold py-2 px-8 rounded-full cursor-pointer">
-                  <Flex align="center" gap={2} className="text-black">
-                    <Link to={"/login"} className="text-base font-semibold">
-                      Login
-                    </Link>
-                  </Flex>
-                </div>
-                <div className="signup-btn bg-custom-green text-white font-bold py-2 px-8 rounded-full cursor-pointer">
-                  <Flex align="center" gap={2}>
-                    <Link
-                      to={"/signup"}
-                      className="text-base text-black font-semibold"
-                    >
-                      Sign Up
-                    </Link>
-                  </Flex>
+                <div className="h-[40px] flex gap-3">
+                  <div className="login-btn bg-white text-white font-bold py-2 px-8 rounded-full cursor-pointer">
+                    <Flex align="center" gap={2} className="text-black">
+                      <Link to={"/login"} className="text-base font-semibold">
+                        Login
+                      </Link>
+                    </Flex>
+                  </div>
+                  <div className="signup-btn bg-custom-green text-white font-bold py-2 px-8 rounded-full cursor-pointer">
+                    <Flex align="center" gap={2}>
+                      <Link
+                        to={"/signup"}
+                        className="text-base text-black font-semibold"
+                      >
+                        Sign Up
+                      </Link>
+                    </Flex>
+                  </div>
                 </div>
               </>
             )}

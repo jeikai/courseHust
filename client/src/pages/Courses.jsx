@@ -195,8 +195,7 @@ const Courses = () => {
   return (
     <>
       <section
-        style={{ backgroundImage: `url(${list_banner})` }}
-        className="my-6 p-10"
+        className="my-6 p-10 bg-primary-blue"
       >
         <Row className="max-w-screen-xl m-auto">
           <Col span={18} className="flex items-center">

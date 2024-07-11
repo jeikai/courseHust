@@ -192,7 +192,9 @@ const Courses = () => {
     }
   };
 
-  if (loading || deleting) return <Loader />;
+  if (loading || deleting) {    
+    return <Loader />;
+  }  
 
   const breadcrumb = [
     {

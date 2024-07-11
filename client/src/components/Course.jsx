@@ -52,7 +52,7 @@ const Course = ({ list = "Grid", course = {} }) => {
             <p>({reviews?.data?.length} Reviews)</p>
           </Flex>
         </Flex>
-        <p className="my-2 text-line-2 text-[#6e798a]">{course.shortDes}</p>
+        <p className="my-2 text-[#6e798a] truncate">{course.shortDes}</p>
         <Flex
           align="center"
           justify="space-between"

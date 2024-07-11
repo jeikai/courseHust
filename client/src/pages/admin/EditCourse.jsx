@@ -63,6 +63,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   ScheduleOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -94,11 +95,9 @@ import {
 } from "../../api/course";
 import { ViewContext } from "../../context/View";
 import dayjs from "dayjs";
-import { string } from "mathjs";
-import { io } from "socket.io-client";
 import ReactQuill from "react-quill";
+
 const EditCourse = () => {
-  const socket = useRef();
   const [courseId, setCourseId] = useState(useParams().id);
   const userId = JSON.parse(localStorage.getItem("user")).account._id;
   const [isLoading, setIsLoading] = useState(false);
@@ -146,6 +145,7 @@ const EditCourse = () => {
     isStream: false,
   });
   const courseDataApi = useAPI(`/api/course/${courseId}`, null);
+  console.log(courseDataApi)
   const categoryDataApi = useAPI(`/api/category`, null);
 
   const breadcrumb = [
@@ -174,13 +174,6 @@ const EditCourse = () => {
     }
     return e && e.fileList;
   };
-
-  useEffect(() => {
-    if (userId) {
-      socket.current = io("http://localhost:5050");
-      socket.current.emit("add-user", userId);
-    }
-  }, [userId]);
 
   useEffect(() => {
     const field = form.getFieldsValue();
@@ -213,7 +206,7 @@ const EditCourse = () => {
         dataReq.thumbnail = thumbnail.file_url;
         console.log("get new link");
       }
-      console.log(dataReq.thumbnail);
+      console.log(dataReq);
       setData((prev) => dataReq);
       const result = await handleUpdateCourse(dataReq);
       setIsLoading(false);
@@ -587,7 +580,7 @@ const EditCourse = () => {
       transform,
       transition,
     } = useSortable({
-      id: item.id,
+      id: item?.id,
       data: { ...item },
     });
 
@@ -606,22 +599,24 @@ const EditCourse = () => {
           <Flex align="center" gap={6}>
             {item?.videoURL !== "" && item?.videoURL ? (
               <VideoCameraOutlined />
+            ) : item?.docURL !== "" && item?.docURL ? (
+              <FileTextOutlined />
             ) : (
               <QuestionCircleOutlined />
             )}
             <Typography.Title style={{ marginBottom: 0 }} level={5}>
-              {item.title}
+              {item?.title}
             </Typography.Title>
           </Flex>
           <Space>
             <EditOutlined
               onClick={() =>
                 item?.ques
-                  ? navigate(`/admin/edit_quiz/${item._id}`)
-                  : openModalEditLesson(item._id)
+                  ? navigate(`/admin_main/edit_quiz/${item?._id}`)
+                  : openModalEditLesson(item?._id)
               }
             />
-            <DeleteOutlined onClick={() => handleRemoveLesson(item._id)} />
+            <DeleteOutlined onClick={() => handleRemoveLesson(item?._id)} />
           </Space>
         </Flex>
       </div>
@@ -708,59 +703,74 @@ const EditCourse = () => {
 
   const Curriculum = () => {
     const handleOkLesson = async () => {
-      // debugger
-      // callback()
-      setIsLoading((prev) => true);
-      setOpenInputLesson(false);
-      const fieldLessons = formLesson.getFieldsValue();
-      let lessonId = uuidv4();
-      let sectionId = fieldLessons.sectionId;
-      fieldLessons.id = lessonId;
+      try {
+        setIsLoading((prev) => true);
+        setOpenInputLesson(false);
+        const fieldLessons = formLesson.getFieldsValue();
+        let lessonId = uuidv4();
+        let sectionId = fieldLessons.sectionId;
+        fieldLessons.id = lessonId;
 
-      const { sections } = data;
-      //get video URL
-      let videoURL = "";
-      let duration = 0;
-      if (fieldLessons.file && fieldLessons.file != undefined) {
-        const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
-        videoURL = upFile.file_url;
-        duration = upFile.duration || 0;
-      }
-      console.log({ fieldLessons });
-      sections.forEach((section) => {
-        if (section._id === sectionId) {
-          if (!section?.specs) {
-            (section.specs = []), (section.specs = []);
+        const { sections } = data;
+        //get video URL
+        let videoURL = "";
+        let docURL = "";
+        let duration = 0;
+        if (fieldLessons.file && fieldLessons.file != undefined) {
+          const upFile = await uploadFile(fieldLessons.file[0].originFileObj);
+          const fileType = fieldLessons.file[0].type;
+          if (
+            fileType ==
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+            fileType == "application/pdf"
+          ) {
+            docURL = upFile.file_url;
+          } else {
+            videoURL = upFile.file_url;
+            duration = upFile.duration || 0;
           }
-          let obj = {
-            _id: {
-              content: fieldLessons.content,
-              id: fieldLessons.id,
-              sectionId: fieldLessons.sectionId,
-              title: fieldLessons.title,
-              videoURL: videoURL,
-              duration: duration,
-            },
-            type: "lesson",
-          };
-          section.specs.push(obj);
         }
-      });
+        console.log({ fieldLessons });
+        sections.forEach((section) => {
+          if (section._id === sectionId) {
+            if (!section?.specs) {
+              (section.specs = []), (section.specs = []);
+            }
+            let obj = {
+              _id: {
+                content: fieldLessons.content,
+                id: fieldLessons.id,
+                sectionId: fieldLessons.sectionId,
+                title: fieldLessons.title,
+                videoURL: videoURL,
+                docURL: docURL,
+                duration: duration,
+              },
+              type: "lesson",
+            };
+            section.specs.push(obj);
+          }
+        });
 
-      setData((prevData) => ({
-        ...prevData,
-        sections: sections,
-      }));
+        setData((prevData) => ({
+          ...prevData,
+          sections: sections,
+        }));
 
-      formLesson.resetFields();
+        formLesson.resetFields();
 
-      setIsLoading((prev) => false);
-      console.log("data", data);
-      console.log(JSON.stringify(data));
-      console.log("fieldLessons", fieldLessons);
+        setIsLoading((prev) => false);
+        console.log("data", data);
+        console.log(JSON.stringify(data));
+        console.log("fieldLessons", fieldLessons);
+      } catch (error) {
+        setIsLoading((prev) => false);
+        console.log(error);
+      }
     };
 
     const handleEditLesson = async () => {
+
       setIsLoading((prev) => true);
       setOpenEditLesson(false);
 
@@ -768,10 +778,19 @@ const EditCourse = () => {
 
       if (newLesson.file && newLesson.file != undefined) {
         const uploadedFile = await uploadFile(newLesson.file[0].originFileObj);
-        newLesson.videoURL = uploadedFile.file_url || "";
-        newLesson.duration = uploadedFile.duration;
+        const fileType = newLesson.file[0].type;
+        if (
+          fileType ==
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+          fileType == "application/pdf"
+        ) {
+          newLesson.docURL = uploadedFile.file_url;
+        } else {
+          newLesson.videoURL = uploadedFile.file_url;
+          newLesson.duration = uploadedFile.duration;
+        }
       }
-      newLesson.docURL = "";
+      console.log(newLesson)
       let { sections } = data;
       sections.forEach((section) => {
         let { specs } = section;
@@ -805,7 +824,7 @@ const EditCourse = () => {
       console.log(id);
       sections.forEach((section) => {
         section?.specs?.forEach((item) => {
-          if (item._id._id === id) {
+          if (item?._id?._id === id) {
             console.log("item lesson", item._id);
 
             formEditLesson.setFieldsValue({
@@ -875,7 +894,7 @@ const EditCourse = () => {
       let { sections } = data;
       sections.forEach((section) => {
         let { specs } = section;
-        let index = specs.findIndex((spec) => spec._id._id === id);
+        let index = specs.findIndex((spec) => spec?._id?._id === id);
         console.log(index);
 
         if (index !== -1) {

@@ -169,7 +169,7 @@ const Curriculum = ({ course, process }) => {
                                 "/" +
                                 course?._id
                             )
-                          : spec?.type === "lesson"
+                          : spec?.type === "lesson" 
                           ? navigate(
                               "/home/lesson/" +
                                 spec?._id?._id +

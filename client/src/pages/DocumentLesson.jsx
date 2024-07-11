@@ -5,6 +5,7 @@ import Axios from "axios";
 import { ViewContext } from "../context/View.jsx";
 import { useAPI } from "../hooks/api";
 import Loader from "../components/Loader.jsx";
+import ReactPlayer from "react-player";
 
 const DocumentLesson = () => {
   const { lessonId, courseId } = useParams();
@@ -12,6 +13,7 @@ const DocumentLesson = () => {
   const viewContext = useContext(ViewContext);
   const responseAPI = useAPI(`/api/lesson/${lessonId}`, null);
   const [isLoading, setIsLoading] = useState(false);
+  
   const handleDone = async () => {
     try {
       setIsLoading(true);
@@ -20,7 +22,7 @@ const DocumentLesson = () => {
         courseId: courseId,
         lessonId: lessonId,
       };
-      const responseUpdate = await Axios({
+      await Axios({
         url: "/api/process/lesson",
         method: "PUT",
         data: data,
@@ -57,19 +59,27 @@ const DocumentLesson = () => {
           </Typography.Paragraph>
           {(docURL || videoURL) && (
             <div className="text-center">
-              <Button
-                type="primary"
-                size="large"
-                style={{
-                  backgroundColor: "#754FFE",
-                  borderColor: "#754FFE",
-                  color: "#fff",
-                  borderRadius: "5px",
-                }}
-                onClick={handleDownload}
-              >
-                Download Document Here
-              </Button>
+              {videoURL && (
+                <div className="mb-4">
+                  <ReactPlayer url={videoURL} controls width="100%" />
+                </div>
+              )}
+              {docURL && (
+                <Button
+                  type="primary"
+                  size="large"
+                  style={{
+                    backgroundColor: "#754FFE",
+                    borderColor: "#754FFE",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    marginTop: videoURL ? '16px' : '0'
+                  }}
+                  onClick={handleDownload}
+                >
+                  View Document Here
+                </Button>
+              )}
             </div>
           )}
           <Divider />

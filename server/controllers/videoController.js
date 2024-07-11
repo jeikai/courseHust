@@ -16,13 +16,13 @@ exports.convert = async function (req, res) {
         // Generate a proxy URL
         const videoUrl = new URL(data.video);
         const videoName = path.basename(videoUrl.pathname, path.extname(videoUrl.pathname)); 
-        const outputFileName = `${videoName}.mp4`; // Output as MP4
+        const outputFileName = `${videoName}.mp4`;
         const outputFilePath = path.join(videoFolder, videoName, outputFileName);
 
         // Check if a folder with the name of videoName exists
         if (fs.existsSync(path.join(videoFolder, videoName))) {
-            const fileContent = fs.readFileSync(outputFilePath, 'utf8');
-            return res.json({ message: 'Folder already exists', videoContent: fileContent });
+            const fileContent = fs.readFileSync(outputFilePath);
+            return res.json({ message: 'Folder already exists', videoContent: fileContent.toString('base64') });
         }
 
         // Create a new folder with the name of videoName

@@ -50,7 +50,7 @@ const AdminLayout = ({ children }) => {
         key: "1",
         label: (
           <Space
-            direction="vertical" 
+            direction="vertical"
             align="center"
             justify="center"
             className="p-4"
@@ -96,7 +96,6 @@ const AdminLayout = ({ children }) => {
     ]),
     getItem("Quizs", "quiz", <QuestionOutlined />, [
       getItem("Manage Quiz", "/admin/quiz"),
-      getItem("Manage Questions", '/admin/question'),
       getItem("Add new question", "/admin/add_question"),
     ]),
   ];
@@ -208,7 +207,7 @@ const AdminLayout = ({ children }) => {
             textAlign: "center",
           }}
         >
-          Fun Course ©{new Date().getFullYear()}
+          Academy ©{new Date().getFullYear()}
         </Footer>
       </Layout>
     </Layout>

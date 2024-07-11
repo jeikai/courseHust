@@ -20,11 +20,11 @@ import {
   BellOutlined,
   BookOutlined,
   CalendarOutlined,
-  DownOutlined,
+  CaretDownOutlined,
+  MenuOutlined,
   EditOutlined,
   HeartOutlined,
   LaptopOutlined,
-  MenuOutlined,
   MessageOutlined,
   RollbackOutlined,
   ShopOutlined,
@@ -49,8 +49,20 @@ const Header = () => {
   const categoryAPI = useAPI("/api/category", null);
   const [schedule, setSchedule] = useState(null);
   const [notifiedCourses, setNotifiedCourses] = useState(new Set());
-  const [notifications, setNotifications] = useState([]);
 
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "New Course Available", body: "Check out our new course on React!" },
+    { id: 2, title: "Reminder", body: "Your subscription is expiring soon." },
+    { id: 3, title: "Message from Instructor", body: "You have a new message from your instructor." }
+  ]);
+
+  let type_header = "primary";
+  if (window.location.pathname === "/") {
+    type_header = "home";
+  }
+
+  //check if localStorage has item user
+  const temp = localStorage.getItem("user");
   let itemProfile = [];
   if (user != null) {
     itemProfile = [
@@ -185,7 +197,7 @@ const Header = () => {
         }
       });
     };
-    
+
     const sendNotification = async (item) => {
       // Check if browser supports notifications
       if ("Notification" in window) {
@@ -213,7 +225,7 @@ const Header = () => {
         time_end: item?.time_end,
         now: now,
       });
-      console.log(responseAPI);
+
       notification.info({
         message: `${item?.title}`,
         description: `It's time for your class: ${item?.courseId?.title}`,
@@ -279,36 +291,38 @@ const Header = () => {
 
   const exploreMenu = (
     <Menu>
-      {category?.data.map((cat) => (
-        <Menu.Item key={cat.id}>
-          <a href={`/courses?categoryname=${cat.title}`}>{cat.title}</a>
-        </Menu.Item>
-      ))}
+      {category?.data.map((cat) => {
+        return (
+          <Menu.Item key={cat._id}>
+            <a href={`/courses?categoryname=${cat.title}`}>{cat.title}</a>
+          </Menu.Item>
+        );
+      })}
     </Menu>
   );
 
   return (
-    <header className="py-1">
-      <div className="container mx-auto max-w-screen-xl flex gap-4 items-center p-1">
+    <header className={`pt-6 ${type_header === 'home' ? 'bg-primary-green' : 'border-solid'}`}>
+      <div className="container mx-auto max-w-screen-xl flex gap-6">
         <Link to={"/"} className="logo w-[136px] h-[36px]">
           <img src={logo} alt="logo" className="w-full h-full object-contain" />
         </Link>
         <Flex justify="space-between" className="flex-1">
-          <div className="px-4 py-2 rounded cursor-pointer">
-            <Dropdown overlay={exploreMenu} trigger={["hover"]}>
-              <a href="#">
-                <Flex
-                  align="center"
-                  gap={2}
-                  className="text-base font-semibold"
-                >
-                  <span>Explore</span>
-                  <DownOutlined />
-                </Flex>
-              </a>
-            </Dropdown>
-          </div>
-          <div className="px-4 py-2 rounded cursor-pointer search-container">
+          <div className="flex gap-5">
+            <div className="px-4 py-2 rounded cursor-pointer">
+                {exploreMenu ? (<div className='categories-dropdown'>
+                  <Dropdown overlay={exploreMenu} trigger={["click"]}>
+                    <a
+                      className="ant-dropdown-link text-base font-semibold"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <span className="text-primary-blue">Categories<CaretDownOutlined /></span>
+                    </a>
+                  </Dropdown>
+                </div>) : null}
+            </div>
+
+            <div className="mt-2 rounded cursor-pointer search-container">
             <Form layout="horizontal" onFinish={handleSearch}>
               <Form.Item name={"search"}>
                 <Input.Search
@@ -320,118 +334,139 @@ const Header = () => {
             </Form>
           </div>
 
-          {authContext.user ? (
-            <>
-              <div className="px-4 py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2} className="text-black">
-                  <Link
-                    to={"/home/my_courses"}
-                    className="text-base font-semibold"
-                  >
-                    My course
-                  </Link>
+            <div className="nav-item px-4 py-2 rounded cursor-pointer">
+              <a href="/">
+                <Flex align="center" gap={2} className="text-base font-semibold">
+                  <span className={type_header === 'home' ? 'text-white' : 'text-primary-blue'}>Home</span>                
                 </Flex>
-              </div>
-              {user.account.role === "teacher" &&
-              user.account.is_verified === true ? (
-                <div className="px-4 py-2 rounded cursor-pointer">
-                  <Flex align="center" gap={0} className="text-black">
-                    <Link
-                      to={"/admin/manage_courses"}
-                      className="text-base font-semibold"
-                    >
-                      Instructor
-                    </Link>
-                  </Flex>
-                </div>
-              ) : user.account.role === "admin" ? (
-                <div className="px-4 py-2 rounded cursor-pointer">
-                  <Flex align="center" gap={0} className="text-black">
-                    <Link
-                      to={"/admin_main"}
-                      className="text-base font-semibold"
-                    >
-                      Admin Dashboard
-                    </Link>
-                  </Flex>
-                </div>
-              ) : null}
+              </a>
+            </div>
+            <div className="nav-item px-4 py-2 rounded cursor-pointer">
+              <a href="/courses">
+                <Flex align="center" gap={2} className="text-base font-semibold">
+                <span className={type_header === 'home' ? 'text-white' : 'text-primary-blue'}>Courses</span>                
+                </Flex>
+              </a>
+            </div>
+          </div>
 
-              <div className="py-2 rounded cursor-pointer">
-                <Flex
-                  align="center"
-                  gap={0}
-                  onClick={() => {
-                    navigate("/home/purchase_course");
-                  }}
-                >
-                  <Badge count={0}>
-                    <ShoppingCartOutlined className="text-2xl" />
-                  </Badge>
-                </Flex>
-              </div>
-              <div className="px-2 py-2 rounded cursor-pointer">
-                <Flex
-                  align="center"
-                  gap={2}
-                  onClick={() => {
-                    navigate("/home/my_whishlist");
-                  }}
-                >
-                  <Badge count={0}>
-                    <HeartOutlined className="text-2xl" />
-                  </Badge>
-                </Flex>
-              </div>
-              <div className="py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2}>
-                  <Dropdown
-                    menu={{
-                      items: notificationItems,
+
+          <div className="flex gap-3">
+            {authContext.user ? (
+              <>
+                <div className="px-4 py-2 rounded cursor-pointer">
+                  <Flex align="center" gap={2} className="text-black">
+                    <Link
+                      to={"/home/my_courses"}
+                      className="text-base font-semibold"
+                    >
+                      My course
+                    </Link>
+                  </Flex>
+                </div>
+                {user.account.role === "teacher" &&
+                user.account.is_verified == true ? (
+                  <div className="px-4 py-2 rounded cursor-pointer">
+                    <Flex align="center" gap={0} className="text-black">
+                      <Link
+                        to={"/admin/manage_courses"}
+                        className="text-base font-semibold"
+                      >
+                        Instructor
+                      </Link>
+                    </Flex>
+                  </div>
+                ) : user.account.role === "admin" ? (
+                  <div className="px-4 py-2 rounded cursor-pointer">
+                    <Flex align="center" gap={0} className="text-black">
+                      <Link
+                        to={"/admin_main"}
+                        className="text-base font-semibold"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    </Flex>
+                  </div>
+                ) : null}
+
+                <div className="py-2 rounded cursor-pointer">
+                  <Flex
+                    align="center"
+                    gap={0}
+                    onClick={() => {
+                      navigate("/home/purchase_course");
                     }}
-                    placement="bottomRight"
                   >
-                    <Badge count={notifications.length}>
-                      <BellOutlined className="text-2xl" />
+                    <Badge count={0}>
+                      <ShoppingCartOutlined className="text-2xl" />
                     </Badge>
-                  </Dropdown>
-                </Flex>
-              </div>
-              <div className="px-4 py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2} className="text-black">
-                  <Dropdown
-                    menu={{
-                      items: itemProfile,
-                      onClick: handleClickProfile,
+                  </Flex>
+                </div>
+                <div className="px-2 py-2 rounded cursor-pointer">
+                  <Flex
+                    align="center"
+                    gap={2}
+                    onClick={() => {
+                      navigate("/home/my_whishlist");
                     }}
-                    placement="bottomRight"
                   >
-                    <Avatar src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png" />
-                  </Dropdown>
-                </Flex>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="px-4 py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2} className="text-black">
-                  <Link to={"/login"} className="text-base font-semibold">
-                    Login
-                  </Link>
-                </Flex>
-              </div>
-              <div className="px-4 py-2 rounded cursor-pointer">
-                <Flex align="center" gap={2}>
-                  <Link
-                    to={"/signup"}
-                    className="text-base text-black font-semibold"
-                  >
-                    Join now
-                  </Link>
-                </Flex>
-              </div>
-            </>
-          )}
+                    <Badge count={0}>
+                      <HeartOutlined className="text-2xl" />
+                    </Badge>
+                  </Flex>
+                </div>
+                <div className="py-2 rounded cursor-pointer">
+                  <Flex align="center" gap={2}>
+                    <Dropdown
+                      menu={{
+                        items: notificationItems,
+                      }}
+                      placement="bottomRight"
+                    >
+                      <Badge count={notifications.length}>
+                        <BellOutlined className="text-2xl" />
+                      </Badge>
+                    </Dropdown>
+                  </Flex>
+                </div>
+                <div className="px-4 py-2 rounded cursor-pointer">
+                  <Flex align="center" gap={2} className="text-black">
+                    <Dropdown
+                      menu={{
+                        items: itemProfile,
+                        onClick: handleClickProfile,
+                      }}
+                      placement="bottomRight"
+                    >
+                      <Avatar src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png" />
+                    </Dropdown>
+                  </Flex>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="h-[40px] flex gap-3">
+                  <div className="login-btn bg-white text-white font-bold py-2 px-8 rounded-full cursor-pointer">
+                    <Flex align="center" gap={2} className="text-black">
+                      <Link to={"/login"} className="text-base font-semibold">
+                        Login
+                      </Link>
+                    </Flex>
+                  </div>
+                  <div className="signup-btn bg-custom-green text-white font-bold py-2 px-8 rounded-full cursor-pointer">
+                    <Flex align="center" gap={2}>
+                      <Link
+                        to={"/signup"}
+                        className="text-base text-black font-semibold"
+                      >
+                        Sign Up
+                      </Link>
+                    </Flex>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </Flex>
       </div>
     </header>

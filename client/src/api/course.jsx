@@ -1,18 +1,16 @@
 import Axios from "axios";
 
 const handleUpdateCourse = async (data) => {
-  debugger;
-  console.log("submitted data", data);
+  
   const sections = data.sections;
   const courseId = data._id;
   const newSections = [];
   const prevQuizIds = [];
-  const newQuizSpecs = [];
-  // Create new sections and add to course
+  //Create new sections and add to course
 
   await Promise.all(
     sections.map(async (section) => {
-      // If section existed
+      //If section existed
       if (!section._id.includes("-")) {
         const newSpecs = [];
         const sectionId = section._id;
@@ -21,7 +19,7 @@ const handleUpdateCourse = async (data) => {
         await Promise.all(
           specs.map(async (spec) => {
             if (spec._id._id && spec.type == "lesson") {
-              console.log("If lesson existed");
+              //If lesson existed
               const lessonId = spec._id._id;
               const lessonData = spec._id;
 
@@ -36,7 +34,7 @@ const handleUpdateCourse = async (data) => {
                 type: "lesson",
               });
             } else if (spec.type == "lesson") {
-              // If lesson not existed
+              //If lesson not existed
               const lessonData = spec._id;
 
               const createLesson = await Axios({
@@ -44,9 +42,8 @@ const handleUpdateCourse = async (data) => {
                 url: `/api/lesson`,
                 data: {
                   title: lessonData.title,
-                  content: lessonData.content,
+                  content: lessonData.title,
                   videoURL: lessonData.videoURL || "",
-                  docURL: lessonData.docURL || "",
                   duration: lessonData.duration,
                   sectionId: sectionId,
                 },
@@ -56,18 +53,10 @@ const handleUpdateCourse = async (data) => {
                 _id: createLesson.data.data._id,
                 type: "lesson",
               });
-            } else if (spec.type == "quiz") {
-              // If quiz existed
-              if (spec._id._id) {
-                newQuizSpecs.push({
-                  _id: spec._id._id,
-                  type: "quiz"
-                });
-              } 
             }
           })
         );
-        // Update existed section
+        //Update existed section
         try {
           const prevSectionLesson = await Axios({
             method: "POST",
@@ -83,9 +72,8 @@ const handleUpdateCourse = async (data) => {
           });
 
           prevSection.data.specs.forEach((spec) => {
-            if (spec.type == "quiz") prevQuizIds.push(spec._id._id);
+            if (spec.type == "quiz") prevQuizIds.push(spec);
           });
-
           const prevLessonIds = [];
           const prevSpecs = prevSectionLesson.data.specs;
           console.log({ prevSpecs });
@@ -94,35 +82,19 @@ const handleUpdateCourse = async (data) => {
               if (spec.type == "lesson") prevLessonIds.push(spec._id._id);
             });
           }
-          const deleteLessonIds = [];
+          const deleteId = [];
           console.log({ newSpecs });
           console.log({ prevLessonIds });
           prevLessonIds.forEach((prevId) => {
             const id = newSpecs.findIndex((spec) => spec._id == prevId);
-            if (id == -1) deleteLessonIds.push(prevId);
+            if (id == -1) deleteId.push(prevId);
           });
-          console.log({ deleteLessonIds });
+          console.log({ deleteId });
           await Promise.all(
-            deleteLessonIds.map(async (id) => {
+            deleteId.forEach(async (id) => {
               await Axios({
                 method: "DELETE",
                 url: `/api/lesson/${id}`,
-              });
-            })
-          );
-
-          // Handle quizzes
-          const deleteQuizIds = [];
-          prevQuizIds.forEach((prevId) => {
-            const id = newQuizSpecs.findIndex((quizSpec) => quizSpec._id == prevId);
-            if (id == -1) deleteQuizIds.push(prevId);
-          });
-          console.log({ deleteQuizIds });
-          await Promise.all(
-            deleteQuizIds.map(async (id) => {
-              await Axios({
-                method: "DELETE",
-                url: `/api/quiz/${id}`,
               });
             })
           );
@@ -132,18 +104,18 @@ const handleUpdateCourse = async (data) => {
             specType: "lesson",
           });
         }
-        console.log({ finalSpecs: [...newSpecs, ...newQuizSpecs] });
+        console.log({ finalSpecs: [...newSpecs, ...prevQuizIds] });
         const updateSection = await Axios({
           method: "PUT",
           url: `/api/section/${sectionId}`,
           data: {
             ...section,
-            specs: [...newSpecs, ...newQuizSpecs],
+            specs: [...newSpecs, ...prevQuizIds],
           },
         });
         newSections.push(sectionId);
       } else {
-        // If section not existed
+        //If section not existed
         const newSection = await Axios({
           method: "POST",
           url: `/api/section/${courseId}`,
@@ -168,9 +140,8 @@ const handleUpdateCourse = async (data) => {
               url: `/api/lesson`,
               data: {
                 title: lessonData.title,
-                content: lessonData.content,
+                content: lessonData.title,
                 videoURL: lessonData.videoURL || "",
-                docURL: lessonData.docURL || "",
                 duration: 0,
                 sectionId: sectionId,
               },
@@ -227,7 +198,8 @@ const handleUpdateCourse = async (data) => {
       }
     }
   }
-  // fetch prev course to delete section
+  //fetch prev course to delete section
+  // }))
   const updatedCourse = await Axios({
     method: "PUT",
     url: `/api/course/${courseId}`,
@@ -258,7 +230,6 @@ const formatTime = (time) => {
 
   return formattedTime;
 };
-
 const handleCreateSchedule = async (scheduleForm) => {
   const dataReq = {};
   const { deadline, startTime, endTime } = scheduleForm;
@@ -317,7 +288,6 @@ const handleCreateSchedule = async (scheduleForm) => {
     error: false,
   };
 };
-
 const handleUpdateSchedule = async (data) => {
   const dataReq = {
     title: data.title,
@@ -371,9 +341,8 @@ const handleUpdateSchedule = async (data) => {
     };
   }
   return {
-    message: "Update schedule successfully",
+    message: "Create schedule successfully",
     error: false,
   };
 };
-
 export { handleUpdateCourse, handleCreateSchedule, handleUpdateSchedule };

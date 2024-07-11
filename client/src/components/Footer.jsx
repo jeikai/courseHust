@@ -3,6 +3,7 @@ import logo from "../assets/logo-white.png";
 import { Col, Flex, Input, List, Row, Typography, Form } from "antd";
 import { useAPI } from "../hooks/api";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 const Footer = () => {
   const [category, setCategory] = useState();
   const categoryAPI = useAPI("/api/category", null);
@@ -52,7 +53,7 @@ const Footer = () => {
               {category?.data && category?.data.length > 0 ? (
                 category?.data.map((category, index) => {
                   return (
-                    <List.Item>
+                    <List.Item key={index}>
                       <a href={`/courses?categoryname=${category?.title}`} className="text-[#ffffffa4]">
                         {category?.title}
                       </a>

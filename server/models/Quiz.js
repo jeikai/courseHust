@@ -69,12 +69,11 @@ exports.getByInstructorId = async function (data) {
 			.flat()
 			.map((section) => section.specs);
 
-		console.log(allSpecs)
+		// Filter only quiz specs
 		const quizSpecs = allSpecs.flat().filter((spec) => spec.type === 'quiz');
-		console.log(quizSpecs.length);
+		console.log(quizSpecs);
 		return quizSpecs;
 	} catch (error) {
-		console.log(error)
 		return { error: error };
 	}
 };

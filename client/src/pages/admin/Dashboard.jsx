@@ -45,7 +45,7 @@ const Dashboard = () => {
       try {
         // Fetch monthly, quarterly, and yearly statistics
         const response = await axios.get("/api/bill/get/statistic");
-        let statistics = response.data;
+        const statistics = response.data;
 
         // Initialize data structures
         let monthlyData = [];
@@ -57,54 +57,51 @@ const Dashboard = () => {
           const yearMonth = `${stat._id.year}-${stat._id.month}`;
           const yearQuarter = `${stat._id.year}-Q${stat._id.quarter}`;
 
-          stat.courses
-            .filter((course) => course.details) // Lọc bỏ các phần tử không có trường `details`
-            .forEach((course) => {
-              const title = course.details.title;
+          stat.courses.forEach((course) => {
+            const title = course.details.title;
 
-              // Monthly data
-              const existingMonthlyEntry = monthlyData.find(
-                (entry) => entry.month === yearMonth && entry.title === title
-              );
-              if (existingMonthlyEntry) {
-                existingMonthlyEntry.value += course.count;
-              } else {
-                monthlyData.push({
-                  month: yearMonth,
-                  title,
-                  value: course.count,
-                });
-              }
+            // Monthly data
+            const existingMonthlyEntry = monthlyData.find(
+              (entry) => entry.month === yearMonth && entry.title === title
+            );
+            if (existingMonthlyEntry) {
+              existingMonthlyEntry.value += course.count;
+            } else {
+              monthlyData.push({
+                month: yearMonth,
+                title,
+                value: course.count,
+              });
+            }
 
-              // Quarterly data
-              const existingQuarterlyEntry = quarterlyData.find(
-                (entry) =>
-                  entry.quarter === yearQuarter && entry.title === title
-              );
-              if (existingQuarterlyEntry) {
-                existingQuarterlyEntry.value += course.count;
-              } else {
-                quarterlyData.push({
-                  quarter: yearQuarter,
-                  title,
-                  value: course.count,
-                });
-              }
+            // Quarterly data
+            const existingQuarterlyEntry = quarterlyData.find(
+              (entry) => entry.quarter === yearQuarter && entry.title === title
+            );
+            if (existingQuarterlyEntry) {
+              existingQuarterlyEntry.value += course.count;
+            } else {
+              quarterlyData.push({
+                quarter: yearQuarter,
+                title,
+                value: course.count,
+              });
+            }
 
-              // Yearly data
-              const existingYearlyEntry = yearlyData.find(
-                (entry) => entry.year === stat._id.year && entry.title === title
-              );
-              if (existingYearlyEntry) {
-                existingYearlyEntry.value += course.count;
-              } else {
-                yearlyData.push({
-                  year: stat._id.year,
-                  title,
-                  value: course.count,
-                });
-              }
-            });
+            // Yearly data
+            const existingYearlyEntry = yearlyData.find(
+              (entry) => entry.year === stat._id.year && entry.title === title
+            );
+            if (existingYearlyEntry) {
+              existingYearlyEntry.value += course.count;
+            } else {
+              yearlyData.push({
+                year: stat._id.year,
+                title,
+                value: course.count,
+              });
+            }
+          });
         });
         // lấy dữ liệu bar chart
         const responseBarChart = await axios.get("/api/bill");

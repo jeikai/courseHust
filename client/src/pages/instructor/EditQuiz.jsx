@@ -1,4 +1,6 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import Bread from "../../components/Bread";
+import Loader from "../../components/Loader";
 import {
   Avatar,
   Button,
@@ -9,25 +11,20 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Row,
   Select,
   Switch,
   TimePicker,
   Typography,
-  Card
 } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import Spring from "../../components/Spring";
+import { getQuizById, updateQuiz } from "../../api/quiz";
 import { useParams } from "react-router-dom";
-import Axios from "axios";
+import { ViewContext } from "../../context/View";
+import { useContext } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { getQuizById, updateQuiz } from "../../api/quiz";
-import { ViewContext } from "../../context/View";
-import Loader from "../../components/Loader";
-import Bread from "../../components/Bread";
-import Spring from "../../components/Spring";
-import { useAPI } from "../../hooks/api";
 
 dayjs.extend(customParseFormat);
 const dateFormat = "YYYY-MM-DD HH:mm";
@@ -46,17 +43,10 @@ const EditQuiz = () => {
       title: "Quiz",
     },
   ];
-
   const [formQuiz] = Form.useForm();
   const [isLoading, setIsLoading] = useState(true);
   const [initialForm, setInitialForm] = useState({});
-  const [suggestionModal, setSuggestionModal] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [suggestedQuestion, setSuggestedQuestion] = useState([]);
-  const [formattedQuestion, setFormattedQuestion] = useState([]);
-  const [selectedSuggestQues, setSelectedSuggestQues] = useState([]);
-  const categoryResponseApi = useAPI(`/api/category`, null).data;
+
   const handleSetAsDefaultChange = (indexQuestion, indexOption) => {
     const fieldQuiz = formQuiz.getFieldsValue();
     const { questions } = fieldQuiz;
@@ -102,57 +92,6 @@ const EditQuiz = () => {
         viewContext.handleError(error);
       });
   }, [id]);
-
-  useEffect(() => {
-    if (categoryResponseApi) {
-      setCategories(
-        categoryResponseApi.map((category) => ({
-          _id: category._id,
-          title: category.title,
-          description: category.description,
-        }))
-      );
-    }
-  }, [categoryResponseApi]);
-
-  const fetchQuestions = async (categoryId) => {
-    const response = await Axios.get(`/api/question/category/${categoryId}`);
-    setSuggestedQuestion(response.data.data);
-  };
-
-  const addNewSuggestQues = (question) => {
-    const formatQues = {
-      id: question._id,
-      title: question.question,
-      level: question.level,
-      answer: question.answer,
-      type: question.type,
-      options: question.options.map((option) => ({
-        isSelected: Array.isArray(question.answer)
-          ? question.answer.includes(option)
-          : option === question.answer,
-        label: option,
-      })),
-    };
-  
-    console.log(formatQues);
-    setFormattedQuestion((prev) => {
-      const updatedQuestions = [...prev, formatQues];
-      formQuiz.setFieldsValue({
-        questions: updatedQuestions,
-      });
-      return updatedQuestions;
-    });
-    setSelectedSuggestQues((prev) => [...prev, question]);
-    setSuggestionModal(false); // Close the modal after adding the question
-  };
-  
-  // Make sure to update initial values in the form correctly
-  useEffect(() => {
-    if (initialForm.questions) {
-      setFormattedQuestion(initialForm.questions);
-    }
-  }, [initialForm]);
 
   return (
     <>
@@ -273,7 +212,7 @@ const EditQuiz = () => {
                                 <Button
                                   className=""
                                   size="large"
-                                  onClick={() => setSuggestionModal(true)}
+                                  onClick={() => add()}
                                 >
                                   Add a new question
                                 </Button>
@@ -281,7 +220,8 @@ const EditQuiz = () => {
                             </Col>
                             {fields.map((field, index) => {
                               const question = initialForm.questions[field.name];
-                              const isEditable = true;
+                              console.log(question, userId)
+                              const isEditable = question.userId === userId;
 
                               return (
                                 <Fragment key={index}>
@@ -462,70 +402,6 @@ const EditQuiz = () => {
           </div>
         </Spring>
       )}
-
-      <Modal
-        open={suggestionModal}
-        okText="Finish"
-        cancelText="Close"
-        onCancel={() => setSuggestionModal(false)}
-        onOk={() => setSuggestionModal(false)}
-        className="min-h-[20rem] h-[20rem] w-auto"
-      >
-        <Flex justify="center" vertical={true} gap={10}>
-          <Select
-            placeholder="Select category"
-            className="capitalize w-3/4"
-            onSelect={(e) => {
-              const category = categories.find(
-                (category) => category.title === e
-              );
-              setSelectedCategory(category);
-              fetchQuestions(category._id); // Fetch questions for the selected category
-            }}
-          >
-            {categories.map(({ title }, index) => (
-              <Select.Option value={title} key={index}>
-                {title}
-              </Select.Option>
-            ))}
-          </Select>
-          <p className="font-bold">Description</p>
-          <p>{selectedCategory.description}</p>
-          <div className="overflow-y-scroll max-h-[15rem] flex flex-col gap-5">
-            {suggestedQuestion.map((question, index) => (
-              <Card key={question._id}>
-                <Flex vertical={true} flex={1} justify="space-around" gap={10}>
-                  <Flex vertical={false} justify="space-between">
-                    <p className="text-base">
-                      <span className="font-bold text-lg">Question {index + 1}:</span>{" "}
-                      {question.question}
-                    </p>
-                    <Button
-                      icon={<PlusOutlined />}
-                      onClick={() => addNewSuggestQues(question)}
-                    />
-                  </Flex>
-                  <Flex vertical={true} gap={5} className="">
-                    {question.options.map((opt, index) => (
-                      <div
-                        className={`py-2 rounded-xl pl-5 border-slate-200 border-[1px] ${
-                          Array.isArray(question.answer) &&
-                          question.answer.includes(opt)
-                            ? "bg-green-300"
-                            : ""
-                        }`}
-                        key={opt}
-                      >
-                        {index + 1}. {opt}
-                      </div>
-                    ))}
-                  </Flex>
-                </Flex>
-              </Card>
-            ))}
-          </div>
-        </Flex>
-      </Modal>
     </>
   );
 };

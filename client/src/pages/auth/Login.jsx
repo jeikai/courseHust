@@ -108,7 +108,7 @@ const Login = () => {
                     span: 24,
                   }}
                 >
-                  <Button type="primary" size="large" htmlType="submit" className="w-full bg-purple-600">
+                  <Button type="primary" size="large" htmlType="submit" className="hover:background-primary-blue w-full bg-primary-green">
                     Log in
                   </Button>
                 </Form.Item>

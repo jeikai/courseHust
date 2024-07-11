@@ -18,8 +18,7 @@ const Mywishlist = () => {
         const fetchFavorites = async () => {
             try {
                 const response = await axios.get(`/api/favorite/${userId}`);
-                const filteredFavorites = response.data.filter(item => item.courseId !== null); // Filter out items with null courseId
-                setFavorites(filteredFavorites); // Assuming the data is the array of courses
+                setFavorites(response.data); // Assuming the data is the array of courses
             } catch (error) {
                 console.error('Failed to fetch favorites:', error);
             }

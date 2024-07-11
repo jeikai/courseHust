@@ -41,7 +41,7 @@ import {
   TwitterOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import breadcramb from "../assets/course-breadcramb.png";
+import list_banner from "../assets/banner/list_banner.png";
 import Course from "../components/Course";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAPI } from "../hooks/api.jsx";
@@ -53,14 +53,19 @@ import { Scheduler } from "devextreme-react";
 import { Editing, Scrolling } from "devextreme-react/scheduler";
 import moment from "moment";
 
+const formattedDate = (isoDateString) => moment(isoDateString).format('Do MMMM, YYYY');
+
 const Overview = ({ course }) => {
   return (
     <Space direction="vertical">
       <Typography.Title level={3}>Course description</Typography.Title>
+
       <Typography.Paragraph style={{ color: "#676C7D" }}>
-        {course.description.toString()}
-      </Typography.Paragraph>
+        <span dangerouslySetInnerHTML={{ __html: course.description }} />
+     </Typography.Paragraph>
+
       <Typography.Title level={3}>Categories</Typography.Title>
+
       <Typography.Paragraph>
         <ul>
           <li>
@@ -69,25 +74,13 @@ const Overview = ({ course }) => {
               style={{ color: "#676C7D" }}
               href="#"
             >
-              {course.categoryId.description}
+              {course.categoryId?.description}
             </Typography.Link>
           </li>
         </ul>
+        
       </Typography.Paragraph>
-      <Typography.Title level={3}>Language</Typography.Title>
-      <Typography.Paragraph>
-        <ul>
-          <li>
-            <Typography.Link
-              className="text-base"
-              style={{ color: "#676C7D" }}
-              href="/docs/spec/proximity"
-            >
-              {course.language}
-            </Typography.Link>
-          </li>
-        </ul>
-      </Typography.Paragraph>
+    
     </Space>
   );
 };
@@ -135,8 +128,9 @@ const Curriculum = ({ course, process }) => {
   };
 
   const totalLectures = calculateTotalLectures();
-
-  const items = course.sections.map((section) => ({
+  console.log('course', course);
+  const items = course.sections
+  .map((section) => ({
     key: section._id,
     label: (
       <Flex align="center" justify="space-between">
@@ -151,7 +145,6 @@ const Curriculum = ({ course, process }) => {
     children: (
       <ul>
         {section.specs.map((spec) => {
-          console.log(spec);
           return (
             <li key={spec?._id?._id} className="hover:bg-slate-100 px-1 py-3">
               <Flex
@@ -162,14 +155,14 @@ const Curriculum = ({ course, process }) => {
                     ? () => {}
                     : () => {
                         (spec.type === "lesson" && spec?._id?.docURL) ||
-                        (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson") || spec?._id?.duration == 0
+                        (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson")
                           ? navigate(
                               "/home/document/" +
                                 spec?._id?._id +
                                 "/" +
                                 course?._id
                             )
-                          : spec?.type === "lesson" 
+                          : spec?.type === "lesson"
                           ? navigate(
                               "/home/lesson/" +
                                 spec?._id?._id +
@@ -186,7 +179,7 @@ const Curriculum = ({ course, process }) => {
                   {
                     // dành cho document
                     (spec.type === "lesson" && spec?._id?.docURL) ||
-                    (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson") || spec?._id?.duration == 0 ? (
+                    (!spec?._id?.videoURL && !spec?._id?.docURL && spec.type === "lesson") ? (
                       !process?.data ? (
                         <LockOutlined className="text-xl text-[#ccc]" />
                       ) : process?.data?.lessonId?.some(
@@ -391,7 +384,7 @@ const Instructor = ({ instructorId, navigate }) => {
         <Typography.Title level={5}>{instructorId.name}</Typography.Title>
         <Typography.Text>Email: {instructorId.email}</Typography.Text>
         <Typography.Text className="text-line-2">
-          Join Date: {instructorId.date_created}
+          Join Date: {formattedDate(instructorId.date_created)}
         </Typography.Text>
         <Flex gap="small" className="mt-6">
           <Button
@@ -529,6 +522,7 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [recommendedCourses, setRecommendedCourses] = useState([]);
+
   useEffect(() => {
     setIsLiked(favorite?.data?.exists);
   }, [favorite]);
@@ -780,17 +774,17 @@ const CourseDetail = () => {
     }
   };
 
+
   if (loading) return <Loader />;
 
   return (
     <>
       <section
-        style={{ backgroundImage: `url(${breadcramb})` }}
-        className="my-6 py-12"
+        className="my-6 py-12 bg-primary-blue"
       >
         <Row className="max-w-screen-xl m-auto">
           <Space direction="vertical">
-            <Typography.Title style={{ color: "white" }}>
+            <Typography.Title style={{ color: "white", fontWeight: "bold" }}>
               {course.data.title}
             </Typography.Title>
             <Typography.Text style={{ color: "white", fontSize: "18px" }}>
@@ -834,7 +828,7 @@ const CourseDetail = () => {
             <Space align="center">
               <CalendarOutlined className="text-white" />
               <span className="text-white text-base">
-                last updated {course?.data?.date_updated}
+                last updated {formattedDate(course?.data?.date_updated)}
               </span>
             </Space>
           </Space>

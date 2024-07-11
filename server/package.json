@@ -19,7 +19,6 @@
     "express": "~4.16.1",
     "get-video-duration": "^4.1.0",
     "http-errors": "~1.6.3",
-    "http-proxy-middleware": "^3.0.0",
     "image-to-pdf": "^2.0.0",
     "jade": "~1.11.0",
     "joi": "^17.12.2",

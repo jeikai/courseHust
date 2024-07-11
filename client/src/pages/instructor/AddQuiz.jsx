@@ -41,7 +41,6 @@ import { useAPI } from "../../hooks/api";
 import { ViewContext } from "../../context/View";
 import { useContext } from "react";
 import AddQuestion from "./AddQuestion";
-import { useNavigate } from "react-router-dom";
 const AddQuiz = () => {
   const breadcrumb = [
     {
@@ -52,7 +51,6 @@ const AddQuiz = () => {
       title: "Quiz",
     },
   ];
-  const navigate = useNavigate();
   const viewContext = useContext(ViewContext);
   const [formQuiz] = Form.useForm();
   const [course, setCourse] = useState([]);
@@ -175,7 +173,6 @@ const AddQuiz = () => {
     await createQuizWithSuggestedQues(data)
       .then((res) => {
         if (res == true) {
-          navigate('/admin/quiz')
           viewContext.handleSuccess("Create quiz successfully!");
         } else if (res == false) {
           viewContext.handleError("Create quiz failed");

@@ -5,7 +5,6 @@ import Axios from "axios";
 import { ViewContext } from "../context/View.jsx";
 import { useAPI } from "../hooks/api";
 import Loader from "../components/Loader.jsx";
-import ReactPlayer from "react-player";
 
 const DocumentLesson = () => {
   const { lessonId, courseId } = useParams();
@@ -13,7 +12,6 @@ const DocumentLesson = () => {
   const viewContext = useContext(ViewContext);
   const responseAPI = useAPI(`/api/lesson/${lessonId}`, null);
   const [isLoading, setIsLoading] = useState(false);
-  
   const handleDone = async () => {
     try {
       setIsLoading(true);
@@ -22,7 +20,7 @@ const DocumentLesson = () => {
         courseId: courseId,
         lessonId: lessonId,
       };
-      await Axios({
+      const responseUpdate = await Axios({
         url: "/api/process/lesson",
         method: "PUT",
         data: data,
@@ -42,7 +40,7 @@ const DocumentLesson = () => {
 
   if (responseAPI.loading) return <Loader />;
 
-  const { title, content, date_created, docURL, videoURL } = responseAPI.data;
+  const { title, content, date_created, docURL } = responseAPI.data;
   if (isLoading) return <Loader />;
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -57,29 +55,21 @@ const DocumentLesson = () => {
             <strong>Date Created: </strong>
             {new Date(date_created).toLocaleDateString()}
           </Typography.Paragraph>
-          {(docURL || videoURL) && (
+          {docURL && (
             <div className="text-center">
-              {videoURL && (
-                <div className="mb-4">
-                  <ReactPlayer url={videoURL} controls width="100%" />
-                </div>
-              )}
-              {docURL && (
-                <Button
-                  type="primary"
-                  size="large"
-                  style={{
-                    backgroundColor: "#754FFE",
-                    borderColor: "#754FFE",
-                    color: "#fff",
-                    borderRadius: "5px",
-                    marginTop: videoURL ? '16px' : '0'
-                  }}
-                  onClick={handleDownload}
-                >
-                  View Document Here
-                </Button>
-              )}
+              <Button
+                type="primary"
+                size="large"
+                style={{
+                  backgroundColor: "#754FFE",
+                  borderColor: "#754FFE",
+                  color: "#fff",
+                  borderRadius: "5px",
+                }}
+                onClick={handleDownload}
+              >
+                Download Document Here
+              </Button>
             </div>
           )}
           <Divider />

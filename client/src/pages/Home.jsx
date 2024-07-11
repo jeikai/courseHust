@@ -22,13 +22,14 @@ import {
   RubyOutlined,
   SearchOutlined,
 } from "@ant-design/icons"; 
-import banner from "../assets/home-3.png";
-import banner1 from "../assets/banner-1.png";
-import banner2 from "../assets/banner-2.png";
-import banner3 from "../assets/banner-3.png";
-import think1 from "../assets/think-1.png";
-import think2 from "../assets/think-2.png";
-import think3 from "../assets/think-3.png";
+import banner from "../assets/lovely-teenage.png";
+import banner4 from "../assets/banner-4.png";
+import course_icon from "../assets/icon/course-icon.png";
+import schedule_icon from "../assets/icon/schedule-icon.png";
+import group_icon from "../assets/icon/group-icon.png";
+import course_banner from "../assets/banner/course-banner.png";
+import meeting_banner from "../assets/banner/meeting-banner.png";
+import quiz_banner from "../assets/banner/quiz-banner.png";
 import bgcategories from "../assets/bgcategories.png";
 import faq2 from "../assets/faq2.jpg";
 import Course from "../components/Course";
@@ -38,10 +39,25 @@ import { useAPI } from "../hooks/api.jsx";
 import { Form } from "antd";
 import { ViewContext } from "../context/View.jsx";
 import Loader from "../components/Loader.jsx";
+
 const Home = () => {
   const [courses, setCourse] = useState();
   const [category, setCategory] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const categoriesPerPage = 8;
+
+   // Calculate the current categories to display
+   const indexOfLastCategory = currentPage * categoriesPerPage;
+   const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
+   const currentCategories = category?.data.slice(indexOfFirstCategory, indexOfLastCategory);
+
+  // Change page function
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Total pages
+  const totalPages = Math.ceil(category?.data.length / categoriesPerPage);
+
   const viewContext = useContext(ViewContext);
   
   const coursesAPI = useAPI("/api/course", null);
@@ -97,22 +113,23 @@ const Home = () => {
       navigate(`/courses?q=${search}`);
     }
   };
+
   if (isLoading) {
     return <Loader />;
   }
+
   return (
     <>
-      <section className="max-w-screen-xl m-auto py-24">
-        <Row>
+      <section className="m-auto">
+        <Row className="home-banner bg-primary-green rounded-bl-[25%] rounded-br-[25%] px-20 pt-20"> 
           <Col span={12}>
-            <h1 className="text-[54px] font-bold text-[#1E293B] tracking-wide mb-6">
-              Start <span className="text-[#FB6871]">learning</span> from <br />{" "}
-              best platform
+            <h1 className="text-[54px] text-white font-bold tracking-wide mb-6">
+            <span className="font-bold"><span className="text-[#F3627C]">Studying Online</span> is now much easier</span>
             </h1>
-            <Typography.Text className="text-base tracking-widest text-[#676C7D] mb-6">
+            <Typography.Text className="text-base tracking-widest text-white mb-6">
               <div className="pl-2 border-l-2 border-l-[#FB6871] leading-7">
-                Study any topic, anytime. explore thousands of courses for{" "}
-                <br /> the lowest price ever!
+                Study any topic, anytime on <span className="text-[#F3627C]">Academy.</span> explore thousands of courses {" "}
+                <br />for the lowest price ever!
               </div>
             </Typography.Text>
 
@@ -121,7 +138,7 @@ const Home = () => {
                 <Form.Item name={"search"}>
                   <Space.Compact
                     style={{ width: "90%" }}
-                    className="bg-[#F8F7FF] p-1 border"
+                    className="bg-[#F8F7FF] p-1 border rounded-lg"
                   >
                     <Input
                       size="large"
@@ -132,7 +149,7 @@ const Home = () => {
                       htmlType="submit"
                       size="large"
                       type="primary"
-                      className="bg-[#754FFE]"
+                      className="bg-primary-blue"
                       icon={<SearchOutlined />}
                     >
                       Search
@@ -144,127 +161,151 @@ const Home = () => {
 
             <div className="mt-12">
               <Row>
-                <Col span={6}>
-                  <h1 className="text-[54px] font-bold text-[#1E293B] tracking-wide mb-0">
-                    9+
+               <Col span={6}>
+                  <h1 className="text-bold text-gradient text-[54px] font-bold text-[#1E293B] tracking-wide mb-0">
+                    89%
                   </h1>
-                  <span>Happy students</span>
+                  <span className="font-medium">Total Success</span>
                 </Col>
                 <Col span={6}>
-                  <h1 className="text-[54px] font-bold text-[#1E293B] tracking-wide mb-0">
-                    5+
+                  <h1 className="text-bold text-gradient text-[54px] font-bold text-[#1E293B] tracking-wide mb-0">
+                    30K+
                   </h1>
-                  <span>Experienced instructors</span>
+                  <span className="font-medium">Quality Courses</span>
+                </Col>
+                <Col span={6}>
+                  <h1 className="text-bold text-gradient text-[54px] font-bold text-[#1E293B] tracking-wide mb-0">
+                    15K+
+                  </h1>
+                  <span className="font-medium">Happy Students</span>
+                </Col>
+                <Col span={6}>
+                  <h1 className="text-bold text-gradient text-[54px] font-bold text-[#1E293B] tracking-wide mb-0">
+                    5K+
+                  </h1>
+                  <span className="font-medium">Experienced Teachers</span>
                 </Col>
               </Row>
             </div>
           </Col>
           <Col span={12}>
             <div className="pt-5">
-              <img src={banner} alt="banner" className="w-[546px] h-[543px]" />
+              <img src={banner} alt="banner" className="w-[500px] h-[600px]" />
+              <img src={banner4} alt="banner-1" className="absolute top-[20%] w-[530px] h-[400px]" />
             </div>
           </Col>
         </Row>
+       
+       
+        <div className="mt-12">
+          <h2 className="text-bold text-center">
+            <span className="font-bold text-[#2F327D]">All-In-One</span>
+            <span className="font-bold text-[#00CBB8]"> Academy Platform</span>
+          </h2>
+          <div className="text-center pt-3">
+            <span className="text-normal  text-[#696984]">
+              Academy is one powerful online software suite that combines all the tools {""} <br></br> needed to run a successful school or office.
+            </span>
+          </div>
+          <Row className="py-4 my-20 px-20 gap-[80px]">
+            <Col span={7} className="shadow-lg p-10">
+                <div className="flex flex-col justify-center items-center flex-columns">
+                  <img src={course_icon} alt="banner-1" className="w-[100px] h-[100px] absolute top-[-50px]" />
+                  <Space direction="vertical" gap="0" className="text-center">
+                    <h4 className="mb-0 pb-0 font-bold text-bold text-primary-blue">
+                      Diverse courses
+                    </h4>
+                    <Typography.Text className="text-base">
+                      Simply register and start learning now with just one click, accessing a diverse range of courses across various domains.
+                    </Typography.Text>
+                  </Space>
+                </div>
+            </Col>
 
-        <Row className="py-4 shadow mt-12">
-          <Col span={8}>
-            <Flex
-              gap={12}
-              align="center"
-              className="p-4 px-8 cursor-pointer border-r-2"
-            >
-              <img src={banner1} alt="banner-1" className="w-10 h-10" />
-              <Space direction="vertical" gap="0">
-                <h4 className="mb-0 pb-0 font-bold text-base">
-                  16 Online courses
-                </h4>
-                <Typography.Text className="text-base">
-                  Explore a variety of fresh topics
-                </Typography.Text>
-              </Space>
-            </Flex>
-          </Col>
-          <Col span={8}>
-            <Flex
-              gap={12}
-              align="center"
-              className="p-4 px-8 cursor-pointer border-r-2"
-            >
-              <img src={banner2} alt="banner-1" className="w-10 h-10" />
-              <Space direction="vertical" gap="0">
-                <h4 className="mb-0 pb-0 font-bold text-base">
-                  Expert instruction
-                </h4>
-                <Typography.Text className="text-base">
-                  Find the right course for you
-                </Typography.Text>
-              </Space>
-            </Flex>
-          </Col>
-          <Col span={8}>
-            <Flex gap={12} align="center" className="p-4 px-8 cursor-pointer">
-              <img src={banner3} alt="banner-1" className="w-10 h-10" />
-              <Space direction="vertical" gap="0">
-                <h4 className="mb-0 pb-0 font-bold text-base">
-                  Smart solution
-                </h4>
-                <Typography.Text className="text-base">
-                  Learn on your schedule
-                </Typography.Text>
-              </Space>
-            </Flex>
-          </Col>
-        </Row>
-      </section>
-      <section
-        className="bg-[#131111] py-20 mb-12"
-        style={{ backgroundImage: `url(${bgcategories})` }}
-      >
-        <div className="max-w-screen-xl m-auto">
-          <Typography.Title
-            level={2}
-            className="text-center"
-            style={{ color: "white" }}
-          >
-            Top categories
-          </Typography.Title>
-          <Row className="mt-12" gutter={[16, 24]}>
-            {category?.data && category?.data.length > 0 ? (
-              category?.data.map((category, index) => {
-                return (
-                  <Col
-                    span={6}
-                    key={index}
-                    onClick={() =>
-                      navigate(`/courses?categoryname=${category?.title}`)
-                    }
-                  > 
-                    <Space
-                      direction="vertical"
-                      className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500"
-                    >
-                      <h5 className="font-bold group-hover:text-white">
-                        {category?.title}
-                      </h5>
-                      <a href="" className="block mt-4 pb-6">
-                        <ArrowRightOutlined className="text-xl font-bold group-hover:text-white text-[#FB6871]" />
-                      </a>
-                    </Space>
-                  </Col>
-                );
-              })
-            ) : (
-              <p className="text-white">No categories available</p>
-            )}
+            <Col span={7} className="shadow-lg p-10">
+              <div className="flex flex-col justify-center items-center flex-columns">
+                <img src={schedule_icon} alt="banner-1" className="w-[100px] h-[100px] absolute top-[-50px]" />
+                <Space direction="vertical" gap="0" className="text-center">
+                  <h4 className="mb-0 pb-0 font-bold text-bold text-primary-blue">
+                    Easy Scheduling & Attendance Tracking
+                  </h4>
+                  <Typography.Text className="text-base">
+                    Schedule and reserve classrooms at one campus or multiple campuses. Keep detailed records of student attendance.
+                  </Typography.Text>
+                </Space>
+              </div>
+            </Col>
+
+            <Col span={7} className="shadow-lg p-10">
+              <div className="flex flex-col justify-center items-center flex-columns">
+                <img src={group_icon} alt="banner-1" className="w-[100px] h-[100px] absolute top-[-50px]" />
+                <Space direction="vertical" gap="0" className="text-center">
+                  <h4 className="mb-0 pb-0 font-bold text-bold text-primary-blue">
+                    Smart Recommendation
+                  </h4>
+                  <Typography.Text className="text-base">
+                     Build strong bootcamp with our smart recommendation system and get the best result in your learning journey.
+                  </Typography.Text>
+                </Space>
+              </div>
+            </Col>
           </Row>
         </div>
       </section>
+
+      <section className="bg-secondary-blue py-20 mb-12 h-[600px]">
+      <div className="max-w-screen-xl m-auto">
+        <div className="mb-10">
+          <h2 className="text-bold text-center text-primary-blue">
+            Choice favourite course from top category
+          </h2>
+        </div>
+        <Row className="mt-12" gutter={[16, 24]}>
+          {currentCategories && currentCategories.length > 0 ? (
+            currentCategories.map((category, index) => (
+              <Col
+                span={6}
+                key={index}
+                onClick={() => navigate(`/courses?categoryname=${category?.title}`)}
+              >
+                <Space
+                  direction="vertical"
+                  className="card-category group w-full cursor-pointer hover:bg-[#FB6871] bg-white p-6 rounded-md duration-500"
+                >
+                  <h5 className="font-bold group-hover:text-white">
+                    {category?.title}
+                  </h5>
+                  <a href="#" className="block mt-4 pb-6">
+                    <ArrowRightOutlined className="text-xl font-bold group-hover:text-white text-[#FB6871]" />
+                  </a>
+                </Space>
+              </Col>
+            ))
+          ) : (
+            <p className="text-white">No categories available</p>
+          )}
+        </Row>
+        <div className="pagination text-primary-blue font-medium flex justify-center gap-4 pt-10">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button key={index} onClick={() => paginate(index + 1)}>
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
       <section className="max-w-screen-xl m-auto">
-        <Typography.Title level={2}>Top courses</Typography.Title>
-        <Typography.Text>
-          These are the most popular courses among listen courses learners
-          worldwide
-        </Typography.Text>
+        <div className="mb-10">
+          <h2 className="text-bold text-center">
+              <span className="font-bold text-[#2F327D]">Top Courses</span>
+          </h2>
+          <div className="text-center pt-3">
+            <span className="text-normal  text-[#696984]">
+              These are the most popular courses among listen courses learners worldwide
+            </span>
+          </div>
+        </div>
         <div className="my-6 relative">
           <Button
             onClick={() => carousel1.current.prev()}
@@ -287,14 +328,17 @@ const Home = () => {
           />
         </div>
       </section>
-      <section className="max-w-screen-xl m-auto mt-24">
-        <Typography.Title className="text-center" level={2}>
-          Top 10 Latest courses
-        </Typography.Title>
-        <Typography.Text className="text-center block">
-          These are the most popular courses among listen courses learners
-          worldwide
-        </Typography.Text>
+      <section className="p-20 m-auto mt-24 bg-secondary-blue">
+        <div className="mb-10">
+          <h2 className="text-bold text-center">
+              <span className="font-bold text-[#2F327D]">Recommended for you</span>
+          </h2>
+          <div className="text-center pt-3">
+            <span className="text-normal  text-[#696984]">
+              These are course recommendations based on your learning history
+            </span>
+          </div>
+        </div>
         <div className="my-6 relative">
           <Button
             onClick={() => carousel2.current.prev()}
@@ -318,88 +362,86 @@ const Home = () => {
         </div>
       </section>
       <section className="max-w-screen-xl m-auto mt-24">
-        <Typography.Title className="text-center" level={2}>
-          Think more clearly
-        </Typography.Title>
-        <Typography.Text className="text-center block">
-          Gather your thoughts, and make your decisions clearly
-        </Typography.Text>
+        <div className="mb-10">
+          <h2 className="text-bold text-center">
+              <span className="font-bold text-[#2F327D]">Our</span>
+              <span className="font-bold text-[#00CBB8]"> Features</span>
+          </h2>
+          <div className="text-center pt-3">
+            <span className="text-normal  text-[#696984]">
+              This very extraordinary feature, can make learning activities more efficient.
+            </span>
+          </div>
+        </div>
         <Row className="mb-12">
-          <Col span={8}>
+          <Col span={11}>
             <div>
               <img
-                src={think1}
-                alt="think1"
-                className="w-[300px] h-[300px] block m-auto"
+                src={course_banner}
+                alt="course_banner"
+                className="w-[800px] h-[300px]"
               />
             </div>
           </Col>
-          <Col span={16}>
+          <Col span={13}>
             <Flex align="center" gap={16}>
-              <p className="text-[138px] text-[#8054e7] font-bold">1</p>
+              <p className="text-[138px] text-primary-blue font-bold">1</p>
               <div>
                 <h4 className="text-2xl font-bold text-[#1e293b] mb-5">
-                  "Unleashing Your Inner Champion"
+                  Tools For Teachers And Learners
                 </h4>
                 <p className="text-base font-normal text-[#676c7d]">
-                  Embrace your untapped potential, push your limits, and unlock
-                  the champion within you. This motivational title encourages
-                  you to tap into your inner strength, overcome obstacles, and
-                  strive for excellence in all areas of your life.
+                  Class has a dynamic set of teaching tools built to be deployed and used during class.
+                  Teachers can handout assignments in real-time for students to complete and submit.
                 </p>
               </div>
             </Flex>
           </Col>
         </Row>
-        <Row className="mb-12">
-          <Col span={16} className="pl-10">
+        <Row className="mb-14">
+          <Col span={11} className="pl-10 mt-10">
             <Flex align="center" justify="flex-end" gap={16}>
-              <p className="text-[138px] text-[#8054e7] font-bold">2</p>
+              <p className="text-[100px] text-primary-blue font-bold">2</p>
               <div>
                 <h4 className="text-2xl font-bold text-[#1e293b] mb-5">
-                  "Embracing the Journey of Growth"
+                Everything you can do in a physical classroom, you can do with virtual classroom
                 </h4>
                 <p className="text-base font-normal text-[#676c7d]">
-                  Life is a constant journey of growth and self-improvement.
-                  This motivational title reminds you to embrace challenges,
-                  learn from failures, and celebrate successes along the way.
-                  Embrace the journey of personal and professional development.
+                  Academy's school management software helps traditional and online schools manage scheduling, attendance, payments and virtual classrooms all in one secure cloud-based system.Teachers can easily see all students and class data at one time.
                 </p>
               </div>
             </Flex>
           </Col>
-          <Col span={8}>
+          <Col span={13}>
             <div>
               <img
-                src={think2}
-                alt="think2"
-                className="w-[300px] h-[300px] block ml-auto"
+                src={meeting_banner}
+                alt="meeting_banner"
+                className="w-[700px] h-[400px] block ml-auto"
               />
             </div>
           </Col>
         </Row>
         <Row className="mb-12">
-          <Col span={8}>
+          <Col span={9}>
             <div>
               <img
-                src={think3}
-                alt="think3"
-                className="w-[300px] h-[300px] block m-auto"
+                src={quiz_banner}
+                alt="quiz_banner"
+                className="w-[700px] h-[400px] block m-auto"
               />
             </div>
           </Col>
-          <Col span={16}>
+          <Col span={13}>
             <Flex align="center" gap={16}>
-              <p className="text-[138px] text-[#8054e7] font-bold">4</p>
+              <p className="text-[138px] text-primary-blue font-bold">3</p>
               <div>
                 <h4 className="text-2xl font-bold text-[#1e293b] mb-5">
-                  "Igniting the Spark of Possibility"
+                  Assessments, Quizzes, Tests
                 </h4>
                 <p className="text-base font-normal text-[#676c7d]">
-                  Within each of us lies a spark of possibility waiting to be
-                  ignited. This motivational title inspires you to dream big,
-                  believe in yourself, and pursue your passions with unwavering
-                  determination.
+                  Easily launch live assignments, quizzes, and tests.
+                  Student results are automatically entered in the online gradebook.
                 </p>
               </div>
             </Flex>
@@ -407,12 +449,17 @@ const Home = () => {
         </Row>
       </section>
       <section className="max-w-screen-xl m-auto mt-24">
-        <Typography.Title className="text-center" level={2}>
-          Frequently asked questions
-        </Typography.Title>
-        <Typography.Text className="text-center block">
-          Have something to know? Check here if you have any questions about us.
-        </Typography.Text>
+        <div className="mb-10">
+          <h2 className="text-bold text-center">
+              <span className="font-bold text-[#2F327D]">Frequently</span>
+              <span className="font-bold text-[#00CBB8]"> Asked Questions</span>
+          </h2>
+          <div className="text-center pt-3">
+            <span className="text-normal  text-[#696984]">
+              Have something to know? Check here if you have any questions about us.
+            </span>
+          </div>
+        </div>
         <Row>
           <Col span={12}>
             <Flex align="center" justify="center">

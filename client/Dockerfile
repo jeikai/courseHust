@@ -1,29 +1,27 @@
-FROM node:20.15-alpine AS build
+# Stage 1: Build the React app
+FROM node:20-alpine AS builder
 
-# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Sao chép package.json và package-lock.json
-COPY package*.json ./
+COPY package.json ./
+RUN npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retries 5 && \
+    npm install --legacy-peer-deps
 
-# Cài đặt các dependency
-RUN npm install
+# Empty string → Axios uses relative URLs → Nginx proxy handles /api/* → backend
+ARG VITE_BASE_URL=""
+ENV VITE_BASE_URL=$VITE_BASE_URL
 
-# Sao chép toàn bộ mã nguồn vào container
 COPY . .
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
-# Build ứng dụng
-RUN npm run build
-
-# Sử dụng image Nginx để phục vụ nội dung tĩnh
+# Stage 2: Serve with Nginx over HTTP
 FROM nginx:alpine
 
-# Sao chép các file build từ giai đoạn build vào thư mục html của Nginx
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port (thường React.js client chạy trên port 80)
-# EXPOSE 3000
+EXPOSE 5173
 
-# Khởi chạy Nginx
 CMD ["nginx", "-g", "daemon off;"]

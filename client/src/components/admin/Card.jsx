@@ -32,7 +32,7 @@ const Card = ({ item, section, openModalEditLesson, handleRemoveLesson }) => {
                         :
                         <QuestionCircleOutlined />
                     }
-                    <Typography.Title style={{ marginBottom: 0 }} level={5}>{item.name}</Typography.Title>
+                    <Typography.Title style={{ marginBottom: 0 }} level={5}>{item.title}</Typography.Title>
                 </Flex>
                 <Space>
                     <EditOutlined onClick={() => openModalEditLesson(item.id)} />

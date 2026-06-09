@@ -1,0 +1,22 @@
+const api = require('express').Router()
+const billController = require('../controllers/billController')
+const authMiddleware = require('../middlewares/authMiddleware')
+const use = require('../helper/utility').use
+
+api.post('/bill', use(billController.create))
+
+api.post('/vnpay', use(billController.vn_pay))
+
+api.get('/vnpay', use(billController.getVN_PAY))
+
+api.get('/bill/:userId', use(billController.getById))
+
+api.get('/bill', use(billController.get))
+
+api.get('/bill/check/:userId/:courseId', use(billController.getByUserIdAndCourseId))
+
+api.get('/bill/course/:courseId', use(billController.getByCourseId))
+
+api.get('/bill/get/statistic', use(billController.getStatistic))
+
+module.exports = api   

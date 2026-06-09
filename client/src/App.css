@@ -1,0 +1,27 @@
+.custom-search .ant-input-affix-wrapper {
+    border-radius: 25px;
+    border-color: #e1e1e1;
+    height: 48px;
+  }
+  
+  .custom-search .ant-input {
+    border-radius: 25px;
+    height: 48px;
+  }
+  
+  .custom-search .ant-btn {
+    border-radius: 0 25px 25px 0;
+    background-color: #0057e7;
+    color: #ffffff;
+    height: 48px;
+  }
+  
+  .custom-search .ant-input::placeholder {
+    color: #9b9b9b;
+  }
+  
+  .search-container {
+    flex: 1;
+    max-width: 500px;
+  }
+  

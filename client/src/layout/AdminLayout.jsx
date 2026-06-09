@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from "react";
 import {
   ApartmentOutlined,
   AppstoreOutlined,
@@ -16,16 +16,66 @@ import {
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
-} from '@ant-design/icons';
-import { Layout, Menu, Button, theme, Flex, Avatar, Badge } from 'antd';
-import logo from '../assets/logo-white.png'
-import logosm from '../assets/logo-light-sm.png'
-import { Link, useNavigate } from 'react-router-dom';
-import Search from 'antd/es/input/Search';
+  RollbackOutlined,
+} from "@ant-design/icons";
+import {
+  Layout,
+  Menu,
+  Button,
+  theme,
+  Flex,
+  Avatar,
+  Badge,
+  Space,
+  Typography,
+  Dropdown,
+} from "antd";
+import logo from "../assets/logo-white.png";
+import logosm from "../assets/logo-light-sm.png";
+import { Link, useNavigate } from "react-router-dom";
+import Search from "antd/es/input/Search";
+import { AuthContext } from "../context/Auth";
 
 const { Header, Sider, Content, Footer } = Layout;
 
 const AdminLayout = ({ children }) => {
+  const authContext = useContext(AuthContext);
+  let user;
+  const temp = localStorage.getItem("user");
+  let itemProfile = [];
+  if (temp != null) {
+    user = JSON.parse(temp);
+    itemProfile = [
+      {
+        key: "1",
+        label: (
+          <Space
+            direction="vertical" 
+            align="center"
+            justify="center"
+            className="p-4"
+          >
+            <Avatar
+              size={64}
+              src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
+            />
+            <Typography.Title level={5}>{user?.account?.name}</Typography.Title>
+            <Typography.Text>{user?.account?.email}</Typography.Text>
+          </Space>
+        ),
+      },
+      {
+        key: "signout",
+        label: "Log out",
+        icon: <RollbackOutlined />,
+      },
+    ];
+  }
+  const handleClickProfile = ({ key }) => {
+    if (key === "signout") {
+      navigate(authContext.signout());
+    }
+  };
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -40,67 +90,63 @@ const AdminLayout = ({ children }) => {
     };
   }
   const items = [
-    getItem('Dashboard', '/admin', <AppstoreOutlined />),
-    getItem('Courses', 'courses', <ShopOutlined />, [
-      getItem('Manage courses', '/admin/manage_courses'),
-      getItem('Add new course', '/admin/add_course'),
-      getItem('Course category', '/admin/category'),
+    getItem("Courses", "courses", <ShopOutlined />, [
+      getItem("Manage courses", "/admin/manage_courses"),
+      getItem("Add new course", "/admin/add_course"),
     ]),
-    getItem('Users', 'users', <UserOutlined />, [
-      getItem('Instructor', '/admin/instructor', '', [
-        getItem('Manage instructors', '/admin/instructors'),
-        getItem('Add new instructor', '/admin/add_instructor'),
-      ]),
-      getItem('Students', 'students', '', [
-        getItem('Manage students', '/admin/students'),
-        getItem('Add new student', '/admin/add_student'),
-      ]),
+    getItem("Quizs", "quiz", <QuestionOutlined />, [
+      getItem("Manage Quiz", "/admin/quiz"),
+      getItem("Manage Questions", '/admin/question'),
+      getItem("Add new question", "/admin/add_question"),
     ]),
-    getItem('Enrollments', 'enrollment', <ApartmentOutlined />, [
-        getItem('Course enrollment', '/admin/enrollment'),
-        getItem('Enrol History', '/admin/enrol_history'),
-    ]),
-    getItem('Quizs', 'quiz', <QuestionOutlined />, [
-      getItem('Manage Quiz', '/admin/quiz'),
-      getItem('Add new quiz', '/admin/add_quiz'),
-  ]),
-    getItem('Manage Profile', '/admin/profile', <ProfileOutlined />)
   ];
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <Layout hasSider>
       <Sider
-      width={250}
-      trigger={null} collapsible collapsed={collapsed}
+        width={250}
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
         style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
           left: 0,
           top: 0,
           bottom: 0,
-          padding: 12
+          padding: 12,
         }}
       >
         <div className="demo-logo-vertical mb-8">
           <Link to={"/"} className="block m-auto">
-              {
-                collapsed ? 
-                <img src={logosm} alt="logo" className='block m-auto w-[36px] h-[36px] object-contain' />
-                :
-                <img src={logo} alt="logo" className='block m-auto w-[135px] h-[36px] object-contain' />
-              }
+            {collapsed ? (
+              <img
+                src={logosm}
+                alt="logo"
+                className="block m-auto w-[36px] h-[36px] object-contain"
+              />
+            ) : (
+              <img
+                src={logo}
+                alt="logo"
+                className="block m-auto w-[135px] h-[36px] object-contain"
+              />
+            )}
           </Link>
         </div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']}
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={["4"]}
           items={items}
           onClick={(e) => navigate(e.key)}
         />
       </Sider>
       <Layout
         style={{
-          marginLeft: (collapsed ? 80 : 250),
+          marginLeft: collapsed ? 80 : 250,
         }}
       >
         <Header
@@ -109,29 +155,40 @@ const AdminLayout = ({ children }) => {
             background: colorBgContainer,
           }}
         >
-          <Flex align='center' justify='space-between' className='pr-4'>
-            <Flex align='center' gap={12}>
+          <Flex align="center" justify="space-between" className="pr-4">
+            <Flex align="center" gap={12}>
               <Button
                 type="text"
                 icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 onClick={() => setCollapsed(!collapsed)}
                 style={{
-                  fontSize: '24px',
+                  fontSize: "24px",
                   width: 64,
                   height: 64,
                 }}
               />
-              <Search placeholder="input search text" style={{ width: 300 }} />
             </Flex>
             <Flex>
-              <Avatar shape='circle' size={36} src='https://codescandy.com/geeks-bootstrap-5/assets/images/avatar/avatar-1.jpg' />
+              <Dropdown
+                menu={{
+                  items: itemProfile,
+                  onClick: handleClickProfile,
+                }}
+                placement="bottomRight"
+              >
+                <Avatar
+                  shape="circle"
+                  size={36}
+                  src="https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png"
+                />
+              </Dropdown>
             </Flex>
           </Flex>
         </Header>
         <Content
           style={{
-            margin: '24px 16px 0',
-            overflow: 'initial',
+            margin: "24px 16px 0",
+            overflow: "initial",
           }}
         >
           <div
@@ -141,17 +198,17 @@ const AdminLayout = ({ children }) => {
               // background: colorBgContainer,
               // borderRadius: borderRadiusLG,
             }}
-            className='min-h-screen'
+            className="min-h-screen"
           >
             {children}
           </div>
         </Content>
         <Footer
           style={{
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          Fun Course ©{new Date().getFullYear()}
         </Footer>
       </Layout>
     </Layout>

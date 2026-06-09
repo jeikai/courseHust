@@ -1,36 +1,13 @@
 import React, { Fragment, useState } from 'react'
 import Bread from '../../components/Bread'
-import { Avatar, Button, Col, Dropdown, Flex, Form, Input, List, Progress, Row, Space, Table, Typography, Upload, message } from 'antd'
+import { Avatar, Button, Col, Dropdown, Flex, Form, Input, List, Progress, Row, Space, Table, Typography, Upload } from 'antd'
 import { CheckCircleOutlined, CheckOutlined, DollarOutlined, LockOutlined, MoreOutlined, RedditOutlined, UploadOutlined, WifiOutlined } from '@ant-design/icons'
 import { Editor } from '@tinymce/tinymce-react'
 import Spring from '../../components/Spring'
-import { createUser } from '../../api/user'
 
-const AddStudent = () => {
+const AddInstructor = () => {
     const [form] = Form.useForm()
     const [current, setCurrent] = useState(0)
-
-    const handleFinish = (data) => {
-        console.log(data);
-        createUser(data).then(res => {
-            if(res) {
-                message.success("Create a new student")
-            }else {
-                // message.error(err.toString());
-            }
-        }).catch(err => {
-            message.error(err.toString());
-        })
-    }
-
-    const getFile = (e) => {
-        console.log('Upload event:', e);
-
-        if (Array.isArray(e)) {
-            return e;
-        }
-        return e && e.fileList;
-    };
 
     const breadcrumb = [
         {
@@ -38,8 +15,47 @@ const AddStudent = () => {
             href: '',
         },
         {
-            title: 'Add a new student',
+            title: 'Add a new instructor',
         },
+    ]
+    const action = [
+        {
+            label: (
+                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                    1st menu item
+                </a>
+            ),
+            key: '0',
+        },
+        {
+            label: (
+                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                    2nd menu item
+                </a>
+            ),
+            key: '1',
+        },
+        {
+            type: 'divider',
+        },
+        {
+            label: '3rd menu item（disabled）',
+            key: '3',
+            disabled: true,
+        },
+    ];
+    const data = [
+        {
+            id: 1,
+            photo: "https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png",
+            name: "Signe Thompson",
+            email: "demo@creativeitem.com",
+            phone: "0982193203",
+            date: "Mon, 26 Apr 2015",
+            courses: [
+                'course 1', 'course 2', 'course 3', 'course 4', 'course 5',
+            ]
+        }
     ]
 
     const BasicInfo = ({ index }) => (
@@ -97,14 +113,11 @@ const AddStudent = () => {
                 </Col>
                 <Col span={18}>
                     <Form.Item
-                        name={"photo"}
-                        getValueFromEvent={getFile}
+                        name={"file"}
                     >
                         <Upload
-                            maxCount={1}
-                            // action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                             // fileList={fileList}
-                            customRequest={({onSuccess}) => onSuccess("OK")}
                             >
                             <Button icon={<UploadOutlined />}>Click to Upload</Button>
                         </Upload>
@@ -259,9 +272,9 @@ const AddStudent = () => {
 
     return (
         <Spring>
-            <Bread title="Add a new student" items={breadcrumb} />
+            <Bread title="Add a new instructor" items={breadcrumb} />
             <div className='shadow-md border bg-white p-8'>
-                <Typography.Title level={5}>STUDENT ADD FORM</Typography.Title>
+                <Typography.Title level={5}>INSTRUCTOR ADD FORM</Typography.Title>
                 <Flex className='mb-4'>
                     {steps.map((step, index) => {
                         return (
@@ -278,7 +291,7 @@ const AddStudent = () => {
                 <Progress percent={(current + 1) / steps.length * 100} showInfo={false} size="small" />
                 <Form
                     form={form}
-                    onFinish={handleFinish}
+                    onFinish={(data) => console.log(data)}
                 >
                     <div className='mt-4'>
                         {steps.map((step, index) => {
@@ -307,4 +320,4 @@ const AddStudent = () => {
     )
 }
 
-export default AddStudent
+export default AddInstructor

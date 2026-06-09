@@ -1,216 +1,319 @@
-import React, { useState } from 'react'
-import Bread from '../../components/Bread'
-import { Button, ConfigProvider, Dropdown, Flex, Input, Row, Table } from 'antd'
-import { MoreOutlined, SearchOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
-import Spring from '../../components/Spring'
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Card, message } from "antd";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
+import Spring from "../../components/Spring";
+import Bread from "../../components/Bread";
+import { Bar } from "@ant-design/charts";
 const Dashboard = () => {
-    const breadcrumb = [
-        {
-            title: 'Home',
-            href: '',
-        },
-        {
-            title: 'Application Center',
-        },
-    ]
-    const data = [
-        {
-            key: 1,
-            id: 1,
-            title: 'WordPress Theme Development with Bootstrap',
-            instructor: 'Mathew Anderson',
-            category: 'WordPress Theme',
-            section: 12,
-            lesson: 13,
-            enrollment: 1,
-            status: 'Approved',
-            price: 12.000
-        },
-        {
-            key: 2,
-            id: 2,
-            title: 'WordPress Theme Development with Bootstrap',
-            instructor: 'Mathew Anderson',
-            category: 'WordPress Theme',
-            section: 12,
-            lesson: 13,
-            enrollment: 1,
-            status: 'pending',
-            price: 12.000
-        }
-    ]
-    const action = [
-        {
-          label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-              1st menu item
-            </a>
-          ),
-          key: '0',
-        },
-        {
-          label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-              2nd menu item
-            </a>
-          ),
-          key: '1',
-        },
-        {
-          type: 'divider',
-        },
-        {
-          label: '3rd menu item（disabled）',
-          key: '3',
-          disabled: true,
-        },
-      ];
-    const [type, setType] = useState('all')
-    return (
-        <Spring>
-            <Bread title="Courses" items={breadcrumb} label={"Add new courses"} link={'/'} />
-            <div className='shadow-md border bg-white'>
-                <div className='mb-4'>
-                    <Flex align="center" className='border-b'>
-                        <div onClick={() => setType('all')} className={`mx-5 text-base font-semibold text-[#64748b] py-4 border-b-2 ${type === 'all' && 'border-b-[#754FFE] '} cursor-pointer hover:text-[#754FFE] ease-out duration-500`}>All</div>
-                        <div onClick={() => setType('approved')} className={`mx-5 text-base font-semibold text-[#64748b] py-4 border-b-2 ${type === 'approved' && 'border-b-[#754FFE] '} cursor-pointer hover:text-[#754FFE] ease-out duration-500`}>Approved</div>
-                        <div onClick={() => setType('pending')} className={`mx-5 text-base font-semibold text-[#64748b] py-4 border-b-2 ${type === 'pending' && 'border-b-[#754FFE] '} cursor-pointer hover:text-[#754FFE] ease-out duration-500`}>Pending</div>
-                    </Flex>
-                </div>
-                <div className='my-8 mx-4'>
-                    <ConfigProvider
-                        theme={{
-                            components: {
-                                Input: {
-                                    /* here is your component tokens */
-                                    activeBorderColor: '#775FFE',
-                                    hoverBorderColor: '#775FFE'
-                                },
-                            },
-                        }}
-                    >
-                        <Input size="large" placeholder="Search" prefix={<SearchOutlined />} />
-                    </ConfigProvider>
-                </div>
-                <div>
-                    <Table size='large' dataSource={data}  pagination={true}>
-                            <Table.Column
-                                sorter={{ 
-                                    compare: (a, b) => a.id - b.id, 
-                                 }}
-                                title="#"
-                                dataIndex={"id"}
-                                key={"id"}
-                                render={(_, record) => {
-                                    return (
-                                        <>
-                                            {record.id}
-                                        </>
-                                    )
-                                }}
-                            />
-                            <Table.Column
-                                width={550}
-                                title="Title"
-                                dataIndex={"title"}
-                                key={"title"}
-                                render={(_, record) => {
-                                    return (
-                                        <Flex vertical>
-                                            <Link className='font-semibold text-[#775FFE] text-line-1 w-[99%] block'>
-                                                {record.title}
-                                            </Link>
-                                            <span className='text-[#98a6ad]'>Instructor: <strong>{record.instructor}</strong></span>
-                                        </Flex>
-                                    )
-                                }}
-                            />
-                            <Table.Column
-                                // width={150}
-                                title="Category"
-                                dataIndex={"category"}
-                                key={"category"}
-                                render={(_, record) => {
-                                    return (
-                                        <p className='text-xs font-semibold bg-[#313a462e] w-fit p-1 rounded-lg shadow-md'>{record.category}</p>
-                                    )
-                                }}
-                            />
-                            <Table.Column
-                                // width={180}
-                                title="Lesson and section"
-                                key={"curriculum"}
-                                render={(_, record) => {
-                                    return (
-                                        <Flex vertical className='text-[#98a6ad] text-md'>
-                                            <p><span className='font-semibold'>Section</span>: {record.section}</p>
-                                            <p><span className='font-semibold'>Lesson</span>: {record.lesson}</p>
-                                        </Flex>
-                                    )
-                                }}
-                            />
-                            <Table.Column
-                                // width={150}
-                                title="Enrolled student"
-                                dataIndex={"enrollment"}
-                                key={"enrollment"}
-                                render={(_, record) => {
-                                    return (
-                                        <p className='text-[#98a6ad] text-md'>
-                                            <span className='font-semibold'>Enrollments: </span>
-                                            {record.enrollment}
-                                        </p>
-                                    )
-                                }}
-                            />
-                            <Table.Column
-                                // width={120}
-                                title="Status"
-                                dataIndex={"status"}
-                                key={"status"}
-                                render={(_, record) => {
-                                    return (
-                                        <>
-                                            <span className={`mx-1 rounded-full inline-block h-2 w-2 ${record.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
-                                            <span className='capitalize text-sm font-semibold'>{record.status}</span>
-                                        </>
-                                    );
-                                }}
-                            />
-                            <Table.Column
-                                title="Price"
-                                dataIndex={"price"}
-                                key={"price"}
-                                render={(_, record) => {
-                                    return (
-                                        <p className='text-md font-bold bg-[#313a462e] w-fit p-1 rounded-lg shadow-md'>{record.price * 10000000} <sup>đ</sup></p>
-                                    )
-                                }}
-                            />
-                            <Table.Column
-                                title="Action"
-                                key={"action"}
-                                render={(_, record) => {
-                                    return (
-                                        <Dropdown
-                                            menu={{
-                                                items: action,
-                                            }}
-                                        >
-                                            <Button
-                                                icon={<MoreOutlined />}
-                                            />
-                                        </Dropdown>
-                                    )
-                                }}
-                            />
-                    </Table>
-                </div>
-            </div>
-        </Spring>
-    )
-}
+  const [data, setData] = useState([]);
+  const [dataLine, setDataLine] = useState({
+    monthly: [],
+    quarterly: [],
+    yearly: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-export default Dashboard
+  const breadcrumb = [
+    { title: "Home", href: "/" },
+    { title: "Application Center" },
+  ];
+
+  const colors = [
+    "#8884d8",
+    "#82ca9d",
+    "#ffc658",
+    "#ff7300",
+    "#413ea0",
+    "#ff0000",
+    "#00ff00",
+    "#0000ff",
+    "#ff00ff",
+    "#00ffff",
+  ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch monthly, quarterly, and yearly statistics
+        const response = await axios.get("/api/bill/get/statistic");
+        let statistics = response.data;
+
+        // Initialize data structures
+        let monthlyData = [];
+        let quarterlyData = [];
+        let yearlyData = [];
+
+        // Process statistics data
+        statistics.forEach((stat) => {
+          const yearMonth = `${stat._id.year}-${stat._id.month}`;
+          const yearQuarter = `${stat._id.year}-Q${stat._id.quarter}`;
+
+          stat.courses
+            .filter((course) => course.details) // Lọc bỏ các phần tử không có trường `details`
+            .forEach((course) => {
+              const title = course.details.title;
+
+              // Monthly data
+              const existingMonthlyEntry = monthlyData.find(
+                (entry) => entry.month === yearMonth && entry.title === title
+              );
+              if (existingMonthlyEntry) {
+                existingMonthlyEntry.value += course.count;
+              } else {
+                monthlyData.push({
+                  month: yearMonth,
+                  title,
+                  value: course.count,
+                });
+              }
+
+              // Quarterly data
+              const existingQuarterlyEntry = quarterlyData.find(
+                (entry) =>
+                  entry.quarter === yearQuarter && entry.title === title
+              );
+              if (existingQuarterlyEntry) {
+                existingQuarterlyEntry.value += course.count;
+              } else {
+                quarterlyData.push({
+                  quarter: yearQuarter,
+                  title,
+                  value: course.count,
+                });
+              }
+
+              // Yearly data
+              const existingYearlyEntry = yearlyData.find(
+                (entry) => entry.year === stat._id.year && entry.title === title
+              );
+              if (existingYearlyEntry) {
+                existingYearlyEntry.value += course.count;
+              } else {
+                yearlyData.push({
+                  year: stat._id.year,
+                  title,
+                  value: course.count,
+                });
+              }
+            });
+        });
+        // lấy dữ liệu bar chart
+        const responseBarChart = await axios.get("/api/bill");
+        const bills = responseBarChart.data;
+        const courseCount = bills.reduce((acc, bill) => {
+          bill.listOfCourse.forEach((course) => {
+            if (acc[course.title]) {
+              acc[course.title]++;
+            } else {
+              acc[course.title] = 1;
+            }
+          });
+          return acc;
+        }, {});
+        const barchartData = Object.keys(courseCount).map((key) => ({
+          category: key,
+          count: courseCount[key],
+        }));
+
+        setData(barchartData);
+        setDataLine({
+          monthly: monthlyData,
+          quarterly: quarterlyData,
+          yearly: yearlyData,
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Failed to load data");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Helper function to generate unique ticks for the x-axis
+  const generateUniqueTicks = (data, xField) => {
+    return [...new Set(data.map((item) => item[xField]))];
+  };
+
+  const barConfig = {
+    data,
+    xField: "category",
+    yField: "count",
+    seriesField: "category",
+    color: ({ category }) => {
+      return category === "Python Programming" ? "#775FFE" : "#8c8c8c";
+    },
+    legend: false,
+    barStyle: { radius: [5, 5, 0, 0] },
+  };
+  return (
+    <Spring>
+      <Bread title="Dashboard" items={breadcrumb} />
+      <div className="shadow-md border bg-white p-4">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-around",
+          }}
+        >
+          <Card
+            title="Statistics by month"
+            style={{ flex: "1 1 30%", margin: "10px" }}
+          >
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <LineChart
+                width={400}
+                height={300}
+                data={dataLine.monthly}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="month"
+                  ticks={generateUniqueTicks(dataLine.monthly, "month")}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {Object.keys(
+                  dataLine.monthly.reduce((acc, item) => {
+                    acc[item.title] = true;
+                    return acc;
+                  }, {})
+                ).map((title, index) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey="value"
+                    data={dataLine.monthly.filter(
+                      (item) => item.title === title
+                    )}
+                    name={title}
+                    stroke={colors[index % colors.length]}
+                  />
+                ))}
+              </LineChart>
+            )}
+          </Card>
+
+          <Card
+            title="Quarterly statistics"
+            style={{ flex: "1 1 30%", margin: "10px" }}
+          >
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <LineChart
+                width={400}
+                height={300}
+                data={dataLine.quarterly}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="quarter"
+                  ticks={generateUniqueTicks(dataLine.quarterly, "quarter")}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {Object.keys(
+                  dataLine.quarterly.reduce((acc, item) => {
+                    acc[item.title] = true;
+                    return acc;
+                  }, {})
+                ).map((title, index) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey="value"
+                    data={dataLine.quarterly.filter(
+                      (item) => item.title === title
+                    )}
+                    name={title}
+                    stroke={colors[index % colors.length]}
+                  />
+                ))}
+              </LineChart>
+            )}
+          </Card>
+
+          <Card
+            title="Statistics by year"
+            style={{ flex: "1 1 30%", margin: "10px" }}
+          >
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <LineChart
+                width={400}
+                height={300}
+                data={dataLine.yearly}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="year"
+                  ticks={generateUniqueTicks(dataLine.yearly, "year")}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                {Object.keys(
+                  dataLine.yearly.reduce((acc, item) => {
+                    acc[item.title] = true;
+                    return acc;
+                  }, {})
+                ).map((title, index) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey="value"
+                    data={dataLine.yearly.filter(
+                      (item) => item.title === title
+                    )}
+                    name={title}
+                    stroke={colors[index % colors.length]}
+                  />
+                ))}
+              </LineChart>
+            )}
+          </Card>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-around",
+          }}
+        >
+          <Card
+            title="Courses Statistics"
+            style={{ flex: "1 1 30%", margin: "10px" }}
+          >
+            {loading ? <p>Loading...</p> : <Bar {...barConfig} />}
+          </Card>
+        </div>
+      </div>
+    </Spring>
+  );
+};
+
+export default Dashboard;

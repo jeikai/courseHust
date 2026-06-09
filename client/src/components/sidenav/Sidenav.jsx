@@ -1,9 +1,10 @@
-import { BarChartOutlined, HeartOutlined, HistoryOutlined, KeyOutlined, SolutionOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BilibiliOutlined, CalendarOutlined, DollarCircleOutlined, HeartOutlined, HistoryOutlined, KeyOutlined, ShoppingCartOutlined, SolutionOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { Avatar, Col, Flex, Row, Space, Typography } from 'antd'
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 const Sidenav = () => {
+    const userData = JSON.parse(localStorage.getItem("user")).account
     const location = useLocation()
     console.log(location);
     const links = [
@@ -12,34 +13,34 @@ const Sidenav = () => {
             icon: SolutionOutlined,
             path: '/home/my_courses'
         },
-        {
-            name: 'Bootcamp',
-            icon: VideoCameraOutlined,
-            path: '/home/my_bootcamp'
-        },
+        // {
+        //     name: 'Bootcamp',
+        //     icon: VideoCameraOutlined, 
+        //     path: '/home/my_bootcamp'
+        // },
         {
             name: 'Wishlist',
             icon: HeartOutlined,
             path: '/home/my_whishlist'
-        },
-        {
-            name: 'Affiliate history',
-            icon: BarChartOutlined,
-            path: '/home/affiliate_course'
-        },
+        }, 
         {
             name: 'Purchase history',
             icon: HistoryOutlined,
+            path: '/home/bill'
+        },
+        {
+            name: 'My cart',
+            icon: ShoppingCartOutlined, 
             path: '/home/purchase_course'
         },
         {
-            name: 'Profile',
-            icon: UserOutlined,
-            path: '/home/user_profile'
+            name: 'My calendar',
+            icon: CalendarOutlined,
+            path: '/home/calendar'
         },
         {
             name: 'Account',
-            icon: KeyOutlined,
+            icon: UserOutlined,
             path: '/home/user_credentials'
         },
     ]
@@ -49,8 +50,8 @@ const Sidenav = () => {
             <Col span={24} className='p-4 pt-12'>
                 <Flex vertical align='center' justify='center'>
                     <Avatar size={98} shape='circle' src='https://demo.creativeitem.com/academy/uploads/user_image/placeholder.png' className='mb-6' />
-                    <Typography.Title level={4}>Signe Thompson</Typography.Title>
-                    <Typography.Text>student@example.com</Typography.Text>
+                    <Typography.Title level={4}>{userData.name}</Typography.Title>
+                    <Typography.Text>{userData.email}</Typography.Text>
                 </Flex>
             </Col>
             <Col span={24} className='mt-2 px-5'>

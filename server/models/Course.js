@@ -1,87 +1,263 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
-const categoryModel = require('./Category')
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const categoryModel = require('./Category');
+const quizModel = require('./Quiz');
+const sectionModel = require('./Section');
+const lessonModel = require('./Lesson');
+const calendarModel = require('./Calendar');
 
 const courseSchema = new Schema({
-    instructorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    title: { type: String, required: true, unique: true},
-    description: { type: String, required: true },
-    categoryId: {type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-    level: { type: String, enum: ['basic', 'intermediate', 'advanced', 'specialized'], default: 'basic'},
-    language: { type: String, required: true },
-    tags: [{ type: String, required: true }],
-    price: { type: Number, required: true },
-    thumbnail: { type: String, required: true },
-    sections: [{type: mongoose.Schema.Types.ObjectId, ref: 'Section'}],
-    date_created: Date,
-    date_updated: Date
+	// Basic info
+	instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+	title: { type: String, required: true },
+	shortDes: { type: String },
+	description: { type: String, required: true },
+	isStream: { type: Boolean, required: true },
+	categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+	level: {
+		type: String,
+		enum: ['basic', 'intermediate', 'advanced', 'specialized'],
+		default: 'basic',
+	},
+	price: { type: Number, required: true, default: 0 },
+
+	// ko quan tam truong nay
+	courseVideo: { type: String },
+	tags: [{ type: String }],
+
+	// Bài học
+	sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }],
+
+	thumbnail: { type: String, required: true },
+	rating: { type: Number, min: 0, max: 5, default: 0 },
+	date_created: Date,
+	date_updated: Date
 })
 
-const Course = mongoose.model('Course', courseSchema, 'courses')
-exports.schema = Course
+const Course = mongoose.model('Course', courseSchema, 'courses');
+exports.schema = Course;
 
-exports.create = async function(data){
-    try{
-        const checkCourse = await Course.findOne({instructorId: data.instructorId, title: data.title})
-        if(checkCourse) return {error: 'Course existed'}
-        const courseData = {
-            instructorId: data.instructorId,
-            title: data.title, 
-            description: data.description, 
-            categoryId: data.categoryId,
-            level: data.level || "basic",
-            language: data.language,
-            tags: data.tags || [],
-            price: parseFloat(data.price),
-            thumbnail: data.thumbnail || '',
-            sections: data.sections || [],
-            date_created: new Date(),
-            date_updated: new Date()
-        }
-        const newCourse = Course(courseData)
-        await newCourse.save()
-        return newCourse
-    }catch(err){
-        return {error: err}
-    }
-}
+exports.create = async function (data) {
+	try {
+		// const checkCourse = await Course.findOne({ instructorId: data.instructorId, title: data.title })
+		// if (checkCourse) return { error: 'Course existed' }
+		const courseData = {
+			instructorId: data.instructorId,
+			title: data.title,
+			shortDes: data.shortDes,
+			description: data.description,
+			isStream: data.isStream,
+			categoryId: data.categoryId,
+			level: data.level || 'basic',
+			courseVideo: data.courseVideo || '',
+			tags: data.tags || [],
+			price: parseFloat(data.price || 0),
+			thumbnail: data.thumbnail || '',
+			date_created: new Date(),
+			date_updated: new Date(),
+		};
+		const newCourse = Course(courseData);
+		await newCourse.save();
+		return newCourse;
+	} catch (error) {
+		console.log(error)
+		return { error: error };
+	}
+};
 
-exports.get = async function(query){
-    try{
-        if(!query)
-            return await Course.find({})
-        if(query.hasOwnProperty('courseId')){
-            return await Course.findById(query.courseId).populate('sections')
-        }else if(query.hasOwnProperty('categoryTitle') || query.hasOwnProperty('categoryId')){
-            const category = await categoryModel.get(query)
-            if(category){
-                const courses = await Course.find({categoryId: category._id})
-                return courses
-            }
-            return {error: 'not found'}
-        }else if(query.hasOwnProperty('title')){
-            // const regex = new RegExp(query.title, 'i')
-            return await Course.find({title: { $regex: query.title, $options: 'i' } })
-        }else if(query.hasOwnProperty('instructorId')){
-            return await Course.find({instructorId: query.instructorId})
-        }
+exports.get = async function (query) {
+	try {
+		if (!query)
+			return await Course.find({})
+				.populate(['sections', 'instructorId', 'categoryId'])
+				.populate({
+					path: 'sections',
+				})
+				.populate('instructorId')
+				.populate('categoryId');
+		if (query.hasOwnProperty('courseId')) {
+			const course1 = await Course.findById(query.courseId)
+				.populate(['sections', 'instructorId', 'categoryId'])
+				.populate({
+					path: 'sections',
+					populate: [
+						{ path: 'specs._id', model: 'Lesson' },
+						//   { path: 'specs._id', model: 'Quiz' }
+					],
+				});
+			const course2 = await Course.findById(query.courseId)
+				.populate(['sections', 'instructorId', 'categoryId'])
+				.populate({
+					path: 'sections',
+					populate: [
+						//   { path: 'specs._id', model: 'Lesson' },
+						{ path: 'specs._id', model: 'Quiz' },
+					],
+				});
+			course1.sections.forEach((section1) => {
+				course2.sections.forEach((section2) => {
+					if (section1._id.toString() === section2._id.toString()) {
+						section1.specs.forEach((spec, index) => {
+							if (section2.specs[index].type === 'quiz') {
+								section1.specs[index] = section2.specs[index];
+							}
+						});
+					}
+				});
+			});
+			return course1;
+		} else if (
+			query.hasOwnProperty('categoryTitle') ||
+			query.hasOwnProperty('categoryId')
+		) {
+			const category = await categoryModel.get(query);
+			if (category) {
+				const courses = await Course.find({ categoryId: category._id });
+				return courses;
+			}
+			return { error: 'not found' };
+		} else if (query.hasOwnProperty('title')) {
+			// const regex = new RegExp(query.title, 'i')
+			return await Course.find({
+				title: { $regex: query.title, $options: 'i' },
+			});
+		} else if (query.hasOwnProperty('instructorId')) {
+			const course1 = await Course.find({ instructorId: query.instructorId })
+				.populate(['sections', 'instructorId', 'categoryId'])
+				.populate({
+					path: 'sections',
+					populate: [
+						{ path: 'specs._id', model: 'Lesson' },
+						//   { path: 'specs._id', model: 'Quiz' }
+					],
+				});
+			const course2 = await Course.find({ instructorId: query.instructorId })
+				.populate(['sections', 'instructorId', 'categoryId'])
+				.populate({
+					path: 'sections',
+					populate: [
+						//   { path: 'specs._id', model: 'Lesson' },
+						{ path: 'specs._id', model: 'Quiz' },
+					],
+				});
+			course1.forEach((course1) => {
+				course1.sections.forEach((section1) => {
+					course2.forEach((course2) => {
+						course2.sections.forEach((section2) => {
+							if (section1._id.toString() === section2._id.toString()) {
+								section1.specs.forEach((spec, index) => {
+									if (section2.specs[index].type === 'quiz') {
+										section1.specs[index] = section2.specs[index];
+									}
+								});
+							}
+						});
+					});
+				});
+			});
+			return course1;
+		}
+	} catch (err) {
+		console.log(err);
+		return { error: err };
+	}
+};
 
-    }catch(err){
-        return {error: err}
-    }
-}
+exports.addSection = async function (courseId, sectionId) {
+	try {
+		const course = await Course.findById(courseId);
+		if (!course) return { error: 'course not found' };
 
-exports.addSection = async function(courseId, sectionId){
-    try{
-        const course = await Course.findById(courseId)
-        if(!course) return {error: "course not found"}
+		course.sections.push(sectionId);
+		course.date_updated = new Date();
+		course.markModified('sections');
+		course.markModified('date_updated');
+		await course.save();
+	} catch (err) {
+		return { error: err };
+	}
+};
 
-        course.sections.push(sectionId)
-        course.date_updated = new Date()
-        course.markModified("sections")
-        course.markModified("date_updated")
-        await course.save()
-    }catch(err){
-        return {error: err}
-    }
-}
+exports.update = async function (courseId, data) {
+	try {
+		const result = await Course.findByIdAndUpdate(courseId, data);
+		return await Course.findById(result._id);
+	} catch (err) {
+		return { error: err };
+	}
+};
+exports.deleteSectionId = async (courseId, sectionId) => {
+	try {
+		const newCourse = await Course.findByIdAndUpdate(courseId, {
+			$pull: {
+				sections: sectionId,
+			},
+		});
+		return newCourse;
+	} catch (error) { return { error } }
+};
+
+exports.deleteCourse = async function (courseId) {
+	try {
+		const course1 = await Course.findById(courseId)
+			.populate(['sections', 'instructorId', 'categoryId'])
+			.populate({
+				path: 'sections',
+				populate: [
+					{ path: 'specs._id', model: 'Lesson' },
+					//   { path: 'specs._id', model: 'Quiz' }
+				],
+			});
+		const course2 = await Course.findById(courseId)
+			.populate(['sections', 'instructorId', 'categoryId'])
+			.populate({
+				path: 'sections',
+				populate: [
+					//   { path: 'specs._id', model: 'Lesson' },
+					{ path: 'specs._id', model: 'Quiz' },
+				],
+			});
+		course1.sections.forEach((section1) => {
+			course2.sections.forEach((section2) => {
+				if (section1._id.toString() === section2._id.toString()) {
+					section1.specs.forEach((spec, index) => {
+						if (section2.specs[index].type === 'quiz') {
+							section1.specs[index] = section2.specs[index];
+						}
+					});
+				}
+			});
+		});
+
+		if (!course1) return { error: 'Course not found' };
+
+		// Delete all sections, lessons, and quizzes associated with the course
+		await Promise.all(
+			course1.sections.map(async (sectionId) => {
+				const section = await sectionModel.getById(sectionId);
+				if (section) {
+					// Delete all lessons and quizzes in the section
+					await Promise.all(
+						section.specs.map(async (spec) => {
+							if (spec.type === 'lesson') {
+								await lessonModel.delete(spec._id);
+							} else if (spec.type === 'quiz') {
+								await quizModel.deleteQuiz(spec._id);
+							}
+						})
+					);
+					// Delete the section itself
+					await sectionModel.delete(sectionId, courseId);
+				}
+			})
+		);
+		await calendarModel.deleteByCourseId(courseId);
+		// Finally, delete the course
+		const deletedCourse = await Course.findByIdAndDelete(courseId);
+		return deletedCourse;
+	} catch (error) {
+		console.log(error)
+		return { error: error.message };
+	}
+};
+

@@ -1,0 +1,25 @@
+There will be 3 types of questions: Multiple-Choice, Writing, Filling
+
+Multiple-Choice: The question will have multiple options.
+Writing: The question will have no options, the student will have to write the answer as a paragraph.
+Filling: The question will have some blanks, the student will have to fill the blanks.
+
+Extract the Question using format:
+-Q: <Question detail>
+-T: <Question type>
+
+For Type Multiple-Choice:
+Add field:
+-O: <Options> (for Multiple-Choice type) (can be: null; List of Options)
+
+The List of Options using format:
+[<Answer 1>, ... , <Answer n>]
+
+For Type Writing:
+Add nothing.
+
+For Type Filling:
+Add Field:
+-C: <Number of place to fill>
+
+The Document start from here:

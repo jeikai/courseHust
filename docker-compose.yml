@@ -1,0 +1,71 @@
+services:
+  # ─── MongoDB ───────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7
+    container_name: coursehust-mongodb
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - coursehust-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  # ─── Backend (Node.js / Express) ───────────────────────────────────────────
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: coursehust-backend
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      PORT: "5500"
+      MONGO_URL: "mongodb://mongodb:27017/courseHust"
+      JWT_SECRET_ACCESS_TOKEN: "8hdashd8ajdnahdkansD"
+      JWT_EXPRIRE_ACCESS_TOKEN: "1d"
+      JWT_SECRET_REFRESH_TOKEN: "878af513e1654e690ed68e8336a2f4721dd9b2831dc63f9d47d3aba09fc2ee79"
+      GOOGLE_AI_API_KEY: ""
+      CLOUDINARY_NAME: "dvezv6uvw"
+      CLOUDINARY_KEY: "285544784258865"
+      CLOUDINARY_SECRET: "XnbJxwQTAVIQNgUUHE66VgYORz0"
+      VNPAY_TMNCODE: "0BVCQVRZ"
+      VNPAY_SECRETKEY: "SXURDLLWN3SL665KBMFVUBZAL5QRSFYN"
+      VNPAY_URL: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+      VNPAY_RETURNURL: "http://localhost:5173/home/bill"
+      CORS_ORIGIN: "http://localhost:5173"
+    ports:
+      - "5500:5500"
+    networks:
+      - coursehust-net
+    restart: unless-stopped
+
+  # ─── Frontend (React + Vite → Nginx HTTPS) ────────────────────────────────
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # Empty: Axios uses relative paths, Nginx proxies /api → backend:5500
+        VITE_BASE_URL: ""
+    container_name: coursehust-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    networks:
+      - coursehust-net
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+    name: coursehust-mongodb-data
+
+networks:
+  coursehust-net:
+    driver: bridge

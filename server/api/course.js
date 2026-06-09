@@ -19,4 +19,4 @@ api.put('/course/:courseId', use(courseController.update))
 
 api.delete('/course/:courseId', use(courseController.delete))
 
-module.exports = api 
+module.exports = api

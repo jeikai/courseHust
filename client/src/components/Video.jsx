@@ -27,7 +27,7 @@ const Video = ({ video, setIsPlaying }) => {
         setLoading(false);
         console.error("Error:", error);
       }
-    };
+    }; 
     if (video) {
       convertVideo();
     }

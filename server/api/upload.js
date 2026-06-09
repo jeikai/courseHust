@@ -9,7 +9,7 @@ api.post('/upload', uploadCloud.single('file'), async (req, res, next) => {
   }
   const isVideo = req.file.path.match(/mp4$/)
   if(isVideo) {
-    let duration
+    let duration 
     await getVideoDurationInSeconds(req.file.path)
       .then((response) =>{
         duration = response

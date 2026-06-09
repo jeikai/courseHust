@@ -1,4 +1,3 @@
-const { message } = require('antd');
 const questionModel = require('../models/Question');
 
 exports.create = async function (req, res) {

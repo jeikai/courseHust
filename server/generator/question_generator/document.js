@@ -18,10 +18,10 @@ async function processWordFile(path, fileType) {
 }
 
 async function convertImageToTextOCR(imagePath, outputPath) {
-    const worker = createWorker([
-        "eng",
-        "vie",
-    ]);
+    // langPath points to /app (container root) where eng.traineddata / vie.traineddata live
+    const worker = createWorker(["eng", "vie"], 1, {
+        langPath: path.join(__dirname, '..', '..'),
+    });
 
     let output;
 

@@ -15,9 +15,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 dotenv.config();
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
 app.use(cors({
   credentials: true,
-  origin: ['http://localhost:5173']
+  origin: corsOrigins,
 }));
 app.use(logger('dev'));
 app.use(express.json());

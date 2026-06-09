@@ -339,9 +339,14 @@ const AddCourse = () => {
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-
-      let thumbnail = await uploadFile(data.thumbnail.file.originFileObj);
-      data.thumbnail = thumbnail.file_url;
+      if (data.thumbnail.file) {
+        let thumbnail = await uploadFile(data.thumbnail?.file?.originFileObj);
+        data.thumbnail = thumbnail?.file_url;
+      } else {
+        setIsLoading(false);
+        viewContext.handleError("You need to upload thumbnail!");
+        return;
+      }
 
       setData({ ...data });
       let { sections } = data;
@@ -355,7 +360,7 @@ const AddCourse = () => {
                 spec.file[0].originFileObj
               );
               const fileType = spec.file[0].type;
-              console.log(fileType)
+              console.log(fileType);
               if (
                 fileType ==
                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||

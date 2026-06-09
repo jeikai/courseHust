@@ -90,7 +90,7 @@ async function recommendCourses(userId) {
                     totalSimilarity += cosineSimilarity(cv.vector, ucv.vector);
                 });
                 const averageSimilarity = totalSimilarity / userCourseVectors.length;
-                if (averageSimilarity > 0) {  // Only add courses with a similarity score greater than 0
+                if (averageSimilarity > 0.5) {  // Only add courses with a similarity score greater than 0
                     recommendedCourses[cv.course._id.toString()] = averageSimilarity;
                 }
             }

@@ -27,6 +27,15 @@ exports.create = async function (req, res) {
 	}
 };
 
+exports.get = async function (req, res) {
+	try {
+		const result = await subcategoryModel.get(null);
+		return res.status(200).json(result);
+	} catch (e) {
+		return res.status(500).json({ message: e.message });
+	}
+};
+
 exports.update = async function (req, res) {
 	try {
 		const subcategoryId = req.params.subcategoryId;

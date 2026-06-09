@@ -1,6 +1,5 @@
 const lessonModel = require('../models/Lesson');
 const utility = require('../helper/utility');
-const { message } = require('antd');
 
 exports.create = async function (req, res) {
 	try {

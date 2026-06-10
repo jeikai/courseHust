@@ -25,7 +25,7 @@ export function View(props) {
     app: AppLayout,
     lesson: LessonLayout,
     admin: AdminLayout,
-    admin_main: AdminMainLayout
+    admin_main: AdminMainLayout,
   };
 
   document.title = props.title;

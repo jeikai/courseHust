@@ -20,4 +20,5 @@ module.exports = [
   require('./historyquiz'),
   require('./notification'),
   require('./video'),
+  require('./chat'),
 ]

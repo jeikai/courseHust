@@ -1,5 +1,6 @@
 import Footer from "../components/Footer"
 import Header from "../components/header/Header"
+import ChatWidget from "../components/ChatWidget"
 
 const AppLayout = ({children}) => {
   return (
@@ -7,6 +8,7 @@ const AppLayout = ({children}) => {
         <Header />
           {children}
         <Footer />
+        <ChatWidget />
     </>
   )
 }

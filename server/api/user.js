@@ -14,7 +14,7 @@ api.get('/user/getDetail/:userId', use(userController.get))
 
 api.get('/user/get', use(userController.getAll))
 
-api.put('/user/update/:userId', authMiddleware.checkToken, use(userController.update))
+api.put('/user/update/:userId', authMiddleware.protectSelfOrAdmin, use(userController.update))
 
 api.put('/user/:userId/verify', use(userController.updateVerify))
 

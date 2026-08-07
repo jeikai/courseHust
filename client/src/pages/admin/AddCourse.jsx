@@ -336,6 +336,27 @@ const AddCourse = () => {
     viewContext.handleSuccess("Upload successfully");
   };
 
+  const fieldStepIndex = {
+    title: 0,
+    categoryId: 0,
+    level: 0,
+    shortDes: 0,
+    description: 0,
+    isStream: 0,
+    free: 1,
+    price: 1,
+    thumbnail: 2,
+    courseVideo: 2,
+  };
+
+  const handleSubmitFailed = ({ errorFields }) => {
+    const firstErrorField = errorFields?.[0]?.name?.[0];
+    if (firstErrorField in fieldStepIndex) {
+      setCurrent(fieldStepIndex[firstErrorField]);
+    }
+    message.error("Please fill in all required fields");
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
 
@@ -396,13 +417,13 @@ const AddCourse = () => {
           <Form.Item
             label={<Typography.Title level={5}>Course Title</Typography.Title>}
             name="title"
+            rules={[{ required: true, message: "Please enter the course title" }]}
           >
             <Input
               placeholder="Course Title"
               size="large"
               showCount
               maxLength={60}
-              required={true}
             />
           </Form.Item>
         </Col>
@@ -412,6 +433,7 @@ const AddCourse = () => {
               <Typography.Title level={5}>Courses category</Typography.Title>
             }
             name="categoryId"
+            rules={[{ required: true, message: "Please select a category" }]}
           >
             <Select
               showSearch
@@ -427,6 +449,8 @@ const AddCourse = () => {
           <Form.Item
             label={<Typography.Title level={5}>Courses level</Typography.Title>}
             name="level"
+            initialValue="basic"
+            rules={[{ required: true, message: "Please select a level" }]}
           >
             <Select
               placeholder="Select a level"
@@ -475,6 +499,20 @@ const AddCourse = () => {
               <Typography.Title level={5}>Course Description</Typography.Title>
             }
             name="description"
+            required
+            rules={[
+              {
+                validator: (_, value) => {
+                  const text = (value || "").replace(/<(.|\n)*?>/g, "").trim();
+                  if (!text) {
+                    return Promise.reject(
+                      new Error("Please enter a course description")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <ReactQuill
               className="py-2"
@@ -492,7 +530,12 @@ const AddCourse = () => {
           </Form.Item>
         </Col>
         <Col span={18}>
-          <Form.Item className="w-full" name="isStream" valuePropName="checked">
+          <Form.Item
+            className="w-full"
+            name="isStream"
+            valuePropName="checked"
+            initialValue={false}
+          >
             <Checkbox>Check if you create a stream course</Checkbox>
           </Form.Item>
         </Col>
@@ -542,7 +585,10 @@ const AddCourse = () => {
           <Typography.Title level={5}>Course thumbnail</Typography.Title>
         </Col>
         <Col span={16}>
-          <Form.Item name={"thumbnail"}>
+          <Form.Item
+            name={"thumbnail"}
+            rules={[{ required: true, message: "Please upload a course thumbnail" }]}
+          >
             <Upload
               customRequest={(options) => serverUpload(options, setThumbnail)}
               listType="picture-card"
@@ -810,7 +856,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload fileList={video}>
+                      <Upload fileList={video} customRequest={(options) => serverUpload(options, setVideo)}>
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>
@@ -895,10 +941,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload
-
-                      // fileList={video}
-                      >
+                      <Upload customRequest={(options) => serverUpload(options, setVideo)}>
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>
@@ -1098,6 +1141,7 @@ const AddCourse = () => {
               form={form}
               layout="vertical"
               onFinish={handleSubmit}
+              onFinishFailed={handleSubmitFailed}
               initialValues={{
                 faq: [null],
                 requirements: [null],

@@ -17,11 +17,13 @@ exports.validate = function(form, fields){
   });
 
   if (fields?.length){
-    fields.forEach((f, i) => {    
+    fields.forEach((f, i) => {
       if (!form.hasOwnProperty(f) || !form[f]){
 
         // field is required
-        throw { message: f + ' field is required' };
+        const err = new Error(f + ' field is required');
+        err.status = 400;
+        throw err;
 
       }
     });

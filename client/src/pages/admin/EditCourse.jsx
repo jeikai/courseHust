@@ -411,7 +411,7 @@ const EditCourse = () => {
           <Col span={16}>
             <Form.Item name={"thumbnail"}>
               <Upload
-                // customRequest={(options) => serverUpload(options, setThumbnail)}
+                customRequest={(options) => serverUpload(options, setThumbnail)}
                 listType="picture-card"
                 fileList={thumbnail}
                 onRemove={() => setThumbnail((prev) => [])}
@@ -1033,10 +1033,7 @@ const EditCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload
-
-                      // fileList={video}
-                      >
+                      <Upload customRequest={(options) => serverUpload(options, setVideo)}>
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>
@@ -1129,7 +1126,7 @@ const EditCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload>
+                      <Upload customRequest={(options) => serverUpload(options, setVideo)}>
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>

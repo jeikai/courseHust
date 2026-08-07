@@ -6,11 +6,8 @@ const PrivateRoute = (props) => {
     // check user exists
     const user = JSON.parse(localStorage.getItem('user'));
     const path = window.location.pathname;
-    // console.log(user.permission);
-    // console.log(permission[user.permission]);
     if(user?.authenticated) {
-        debugger
-        if(permission[user.permission][props.permission]) {
+        if(permission[user.permission]?.[props.permission]) {
             
             // if(user.verified) {
 

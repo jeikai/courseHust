@@ -3,6 +3,14 @@ const utility = require('../helper/utility')
 const sectionModel = require('../models/Section')
 const lessonModel = require('../models/Lesson')
 
+// Models return { error: <raw Mongoose error> } on failure instead of throwing.
+// Never forward that raw error object to the client - it leaks schema paths and
+// internal detail. Extract a readable message and a sane status code instead.
+function sendModelError(res, err) {
+    const isValidation = err && err.name === 'ValidationError'
+    return res.status(isValidation ? 400 : 500).json({ message: err?.message || 'Failed to save data' })
+}
+
 exports.create = async function (req, res) {
     try {
         const data = req.body
@@ -11,7 +19,7 @@ exports.create = async function (req, res) {
             'categoryId', 'level'])
 
         const newCourse = await courseModel.create(data)
-        if (newCourse.hasOwnProperty('error')) return res.status(500).json({ message: newCourse.error })
+        if (newCourse.hasOwnProperty('error')) return sendModelError(res, newCourse.error)
 
         if (data.sections) {
             for (const section of data.sections) {
@@ -22,7 +30,7 @@ exports.create = async function (req, res) {
                     if (newSection.hasOwnProperty('error')) {
                         console.log("Lỗi khi tạo section")
                         console.log(newSection.error)
-                        return res.status(500).json({ message: newSection.error })
+                        return sendModelError(res, newSection.error)
                     }
 
                     if (section.specials) {
@@ -36,7 +44,7 @@ exports.create = async function (req, res) {
                                     if (newLesson.hasOwnProperty('error')) {
                                         console.log("Lỗi tạo lesson")
                                         console.log(newLesson.error)
-                                        return res.status(500).json({ message: newLesson.error })
+                                        return sendModelError(res, newLesson.error)
                                     }
                                 }
                                 //if checkSpec.type === "quiz"
@@ -59,7 +67,7 @@ exports.create = async function (req, res) {
         return res.status(200).json({ message: "Course created successfully", data: response })
     } catch (e) {
         console.log(e)
-        return res.status(500).json({ message: e.message })
+        return res.status(e.status || 500).json({ message: e.message })
     }
 }
 

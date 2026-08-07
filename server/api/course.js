@@ -15,8 +15,8 @@ api.get('/course/instructor/:instructorId', use(courseController.getByInstructor
 
 api.get('/course/:courseId', use(courseController.getById))
 
-api.put('/course/:courseId', use(courseController.update))
+api.put('/course/:courseId', authMiddleware.protectInstructor, use(courseController.update))
 
-api.delete('/course/:courseId', use(courseController.delete))
+api.delete('/course/:courseId', authMiddleware.protectInstructor, use(courseController.delete))
 
 module.exports = api

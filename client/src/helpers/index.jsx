@@ -20,14 +20,9 @@ export const filterArray = (arr, e) => {
 }
 
 export const uploadFile = async (file) => {
-  // debugger
-  const res = await Axios.post('/api/upload', {file},
-  {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    }
-  })
-  // debugger
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await Axios.post('/api/upload', formData)
   const data =  {
     file_url: res.data.file_url
   }

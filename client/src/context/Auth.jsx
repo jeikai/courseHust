@@ -54,9 +54,8 @@ export function AuthProvider(props) {
 			axios.defaults.headers.common['Authorization'] =
 				'Bearer ' + res.data.authenticated;
 
-			res.data.permission = 'user';
 			return (window.location =
-				res.data.permission === 'admin' ? '/dashboard' : '/');
+				res.data.permission === 'admin' ? '/admin_main' : '/');
 		}
 	}
 

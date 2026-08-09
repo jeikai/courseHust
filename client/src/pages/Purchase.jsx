@@ -191,33 +191,74 @@ function Purchase() {
     setIsModalOpen(true);
   };
 
-  const checkPaymentStatus = async () => {
-    try {
-      const responseAPI_CreateBill = await Axios({
-        url: "/api/bill",
-        method: "POST",
-        data: {
-          userId: userId,
-        },
-      });
-      fetchData();
-      setIsLoading(false);
+  const finishSuccessfulPurchase = () => {
+    fetchData();
+    setIsLoading(false);
+    viewContext.handleSuccess("Buy successfully");
+    setIsModalOpen(false);
+  };
 
-      viewContext.handleSuccess("Buy successfully");
-      setIsModalOpen(false);
+  const handleFreeCheckout = async () => {
+    try {
+      await Axios({ url: "/api/bill/free-checkout", method: "POST" });
+      finishSuccessfulPurchase();
     } catch (error) {
-      viewContext.handleError("Buy fail!");
+      viewContext.handleError(error);
       setIsLoading(false);
     }
+  };
+
+  // Polls the backend for the payment's verified status instead of trusting
+  // a localStorage "storage" event - any script (or a second tab) could
+  // previously fire that event itself and unlock the cart for free without
+  // ever paying, since it never checked VNPAY's actual response.
+  const pollPaymentStatus = (txnRef, popup) => {
+    const POLL_INTERVAL_MS = 3000;
+    const MAX_ATTEMPTS = 100; // ~5 minutes
+
+    let attempts = 0;
+    const intervalId = setInterval(async () => {
+      attempts += 1;
+      if (popup && popup.closed) {
+        // User closed the VNPAY tab without finishing - stop polling, but
+        // don't assume failure; they may complete it and we'd never know,
+        // which is fine - nothing was granted without a confirmed payment.
+        clearInterval(intervalId);
+        setIsLoading(false);
+        return;
+      }
+      if (attempts > MAX_ATTEMPTS) {
+        clearInterval(intervalId);
+        setIsLoading(false);
+        viewContext.handleError("Payment timed out. Please check your purchase history.");
+        return;
+      }
+      try {
+        const res = await Axios({ url: `/api/vnpay/status/${txnRef}`, method: "GET" });
+        const status = res.data?.status;
+        if (status === "SUCCESS") {
+          clearInterval(intervalId);
+          if (popup && !popup.closed) popup.close();
+          finishSuccessfulPurchase();
+        } else if (status === "FAILED" || status === "CANCELLED") {
+          clearInterval(intervalId);
+          if (popup && !popup.closed) popup.close();
+          setIsLoading(false);
+          viewContext.handleError("Payment was not completed.");
+        }
+        // else still PENDING - keep polling
+      } catch (error) {
+        // transient network error while polling - keep trying until MAX_ATTEMPTS
+      }
+    }, POLL_INTERVAL_MS);
   };
 
   const handleOk = async () => {
     try {
       setIsLoading(true);
-      localStorage.removeItem("paymentStatus");
 
       if (total === 0) {
-        checkPaymentStatus();
+        await handleFreeCheckout();
         return;
       }
 
@@ -225,27 +266,17 @@ function Purchase() {
         url: "/api/vnpay",
         method: "POST",
         data: {
-          userId: userId,
           bankCode: paymentMethod,
         },
       });
 
-      const { data } = responseAPI_VNPAY;
-      const paymentUrl = data?.data;
+      const paymentUrl = responseAPI_VNPAY.data?.data;
+      const txnRef = new URL(paymentUrl).searchParams.get("vnp_TxnRef");
 
-      // Open the VNPAY payment page in a new tab
       const newTab = window.open(paymentUrl, "_blank");
-
-      // Listen for the event when the user accesses the specific URL
-      window.addEventListener("storage", (event) => {
-        if (event.key === "paymentStatus" && event.newValue === "success") {
-          localStorage.removeItem("paymentStatus");
-          newTab.close(); // Close the payment tab
-          checkPaymentStatus(); // Call the function to proceed with bill creation
-        }
-      });
+      pollPaymentStatus(txnRef, newTab);
     } catch (error) {
-      viewContext.handleError("Buy fail!");
+      viewContext.handleError(error);
       setIsLoading(false);
     }
   };

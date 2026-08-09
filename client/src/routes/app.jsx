@@ -14,7 +14,13 @@ import QuizLesson from "../pages/QuizLesson";
 import QuizResult from "../pages/QuizResult";
 import DocumentLesson from "../pages/DocumentLesson";
 import ReviewQuiz from "../pages/ReviewQuiz";
+import PaymentResult from "../pages/PaymentResult";
 const Routes = [
+  {
+    path: "/payment/result",
+    view: PaymentResult,
+    title: "FunCourse - Payment result | E-Learning",
+  },
   {
     path: "/cart",
     view: Cart,

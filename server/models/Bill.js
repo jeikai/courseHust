@@ -54,6 +54,19 @@ exports.create = async function (data) {
     }
 }
 
+// Sum of the cart's actual course prices, with no platform fee added -
+// used only to decide whether a cart is genuinely free (every course priced
+// at 0) and can skip VNPAY entirely. Kept separate from
+// getTotalAmountByUserId (below), which is the fee-inclusive amount actually
+// charged through VNPAY for paid carts.
+exports.getRawCourseTotal = async function (userId) {
+    const enrollments = await Enrollment.getById(userId);
+    if (!enrollments.length) {
+        return { error: 'Không tìm thấy khóa học nào cho người dùng này.' };
+    }
+    return enrollments.reduce((acc, enrollment) => acc + enrollment.courseId.price, 0);
+};
+
 exports.getTotalAmountByUserId = async function (data) {
     try {
         const enrollments = await Enrollment.getById(data.userId);

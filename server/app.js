@@ -8,6 +8,7 @@ const cors = require('cors');
 const dotenv = require("dotenv");
 const connectDB = require('./config/database')
 const api = require('./api')
+const { assertVnpayConfig } = require('./helper/vnpay')
 
 var app = express();
 
@@ -16,6 +17,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 dotenv.config();
+
+// Fail fast on boot rather than generating broken/unsigned VNPAY payment
+// URLs the first time a customer tries to check out.
+assertVnpayConfig();
+
 const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
 app.use(cors({
   credentials: true,

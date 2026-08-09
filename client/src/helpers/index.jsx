@@ -24,7 +24,9 @@ export const uploadFile = async (file) => {
   formData.append('file', file);
   const res = await Axios.post('/api/upload', formData)
   const data =  {
-    file_url: res.data.file_url
+    file_url: res.data.file_url,
+    originalName: res.data.originalName,
+    mimeType: res.data.mimeType,
   }
   if(res.data.duration){
     data.duration = res.data.duration

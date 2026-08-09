@@ -7,6 +7,12 @@ const LessonSchema = new Schema({
 	content: { type: String, default: '' },
 	videoURL: { type: String, default: '' },
 	docURL: { type: String, default: '' },
+	// Original client-side filename/MIME type for the uploaded document -
+	// Cloudinary's delivery URL for raw resources doesn't reliably carry
+	// this, so the frontend document viewer/downloader needs it stored
+	// separately. Empty for lessons created before this field existed.
+	docFileName: { type: String, default: '' },
+	docMimeType: { type: String, default: '' },
 	duration: { type: Number, required: true, default: 0 },
 	date_created: Date,
 	date_updated: Date, 
@@ -22,6 +28,8 @@ exports.create = async function (data) {
 			content: data.content || '',
 			videoURL: data.videoURL,
 			docURL: data.docURL || '',
+			docFileName: data.docFileName || '',
+			docMimeType: data.docMimeType || '',
 			duration: parseFloat(data.duration) || 0,
 			date_created: new Date(),
 			date_updated: new Date(),

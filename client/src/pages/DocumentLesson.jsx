@@ -1,11 +1,12 @@
-import { Typography, Row, Col, Divider, Button, message } from "antd";
-import React, { useContext, useState } from "react";
+import { Typography, Row, Col, Divider, Button, message, Modal } from "antd";
+import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "axios";
 import { ViewContext } from "../context/View.jsx";
 import { useAPI } from "../hooks/api";
 import Loader from "../components/Loader.jsx";
 import ReactPlayer from "react-player";
+import DocumentViewer from "../components/DocumentViewer.jsx";
 
 const DocumentLesson = () => {
   const { lessonId, courseId } = useParams();
@@ -13,7 +14,8 @@ const DocumentLesson = () => {
   const viewContext = useContext(ViewContext);
   const responseAPI = useAPI(`/api/lesson/${lessonId}`, null);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+
   const handleDone = async () => {
     try {
       setIsLoading(true);
@@ -35,14 +37,22 @@ const DocumentLesson = () => {
     }
   };
 
-  const handleDownload = async () => {
+  const handleViewDocument = async () => {
+    setIsViewerOpen(true);
     await handleDone();
-    window.open(responseAPI.data.docURL, "_blank");
   };
 
   if (responseAPI.loading) return <Loader />;
 
-  const { title, content, date_created, docURL, videoURL } = responseAPI.data;
+  const {
+    title,
+    content,
+    date_created,
+    docURL,
+    docFileName,
+    docMimeType,
+    videoURL,
+  } = responseAPI.data;
   if (isLoading) return <Loader />;
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -75,7 +85,7 @@ const DocumentLesson = () => {
                     borderRadius: "5px",
                     marginTop: videoURL ? '16px' : '0'
                   }}
-                  onClick={handleDownload}
+                  onClick={handleViewDocument}
                 >
                   View Document Here
                 </Button>
@@ -85,6 +95,22 @@ const DocumentLesson = () => {
           <Divider />
         </Col>
       </Row>
+      <Modal
+        title={docFileName || title}
+        open={isViewerOpen}
+        onCancel={() => setIsViewerOpen(false)}
+        footer={null}
+        width="90%"
+        style={{ top: 20 }}
+        destroyOnClose
+      >
+        <DocumentViewer
+          url={docURL}
+          mimeType={docMimeType}
+          originalName={docFileName}
+          height="calc(100vh - 220px)"
+        />
+      </Modal>
     </div>
   );
 };

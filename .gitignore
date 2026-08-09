@@ -1,2 +1,9 @@
 node_modules
 ./client/videos/
+
+# Environment files - contain live secrets (DB credentials, JWT secrets,
+# Cloudinary/VNPAY/Google AI keys). Never commit these; use .env.example
+# as the template instead.
+.env
+.env.*
+!.env.example

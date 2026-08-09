@@ -24,21 +24,11 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-    environment:
-      PORT: "5500"
-      MONGO_URL: "mongodb://mongodb:27017/courseHust"
-      JWT_SECRET_ACCESS_TOKEN: "8hdashd8ajdnahdkansD"
-      JWT_EXPRIRE_ACCESS_TOKEN: "1d"
-      JWT_SECRET_REFRESH_TOKEN: "878af513e1654e690ed68e8336a2f4721dd9b2831dc63f9d47d3aba09fc2ee79"
-      GOOGLE_AI_API_KEY: ""
-      CLOUDINARY_NAME: "dvezv6uvw"
-      CLOUDINARY_KEY: "285544784258865"
-      CLOUDINARY_SECRET: "XnbJxwQTAVIQNgUUHE66VgYORz0"
-      VNPAY_TMNCODE: "0BVCQVRZ"
-      VNPAY_SECRETKEY: "SXURDLLWN3SL665KBMFVUBZAL5QRSFYN"
-      VNPAY_URL: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-      VNPAY_RETURNURL: "http://localhost:5173/home/bill"
-      CORS_ORIGIN: "http://localhost:5173"
+    # Values come from ./.env (gitignored - copy .env.example to .env and
+    # fill in real secrets). Keeping them out of this tracked file is what
+    # actually stops credentials from being committed.
+    env_file:
+      - .env
     ports:
       - "5500:5500"
     networks:

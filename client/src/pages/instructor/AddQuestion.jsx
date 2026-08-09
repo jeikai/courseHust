@@ -38,8 +38,10 @@ import { useAPI } from "../../hooks/api";
 import { ViewContext } from "../../context/View";
 import Loader from "../../components/Loader";
 import { en } from "@faker-js/faker";
+import { useNavigate } from "react-router-dom";
 
 const AddQuestion = () => {
+  const navigate = useNavigate();
   const breadcrumb = [
     {
       title: "Home",
@@ -97,32 +99,29 @@ const AddQuestion = () => {
   };
 
   const handleFinish = (data) => {
-    console.log(data);
     setIsLoading(true);
     createQuestions(data, userId)
       .then((res) => {
         if (res === true) {
           viewContext.handleSuccess("Create questions successfully!");
-          formQuiz.resetFields();
-          formQuiz.setFieldsValue({ questions: [] });
+          navigate("/admin/question");
         } else if (res === false) {
           viewContext.handleError("Create question failed");
         } else {
           viewContext.handleError(res.error);
         }
-        setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
-        setIsLoading(false);
         viewContext.handleError(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   const handleValuesChange = (_, allValues) => {
     const updatedSelectedCategories = {};
     allValues.questions?.forEach((question, index) => {
-      console.log(question);
       if (question?.category) {
         updatedSelectedCategories[index] =
           categories.find((cat) => cat._id === question.category)
@@ -130,6 +129,36 @@ const AddQuestion = () => {
       }
     });
     setSelectedCategories(updatedSelectedCategories);
+  };
+
+  // Keeps `options` consistent with the selected question type: exactly one
+  // answer for Text, exactly one correct answer for Single choice.
+  const normalizeQuestionOptions = (index, kind) => {
+    const fieldQuiz = formQuiz.getFieldsValue();
+    const questions = fieldQuiz.questions || [];
+    const question = questions[index];
+    if (!question) return;
+
+    const options =
+      question.options && question.options.length > 0
+        ? question.options
+        : [{ isSelected: true, label: "" }];
+
+    let normalized;
+    if (kind === "text") {
+      normalized = [{ ...options[0], isSelected: true }];
+    } else if (kind === "single") {
+      const selectedIndex = options.findIndex((option) => option.isSelected);
+      normalized = options.map((option, i) => ({
+        ...option,
+        isSelected: i === (selectedIndex === -1 ? 0 : selectedIndex),
+      }));
+    } else {
+      normalized = options;
+    }
+
+    questions[index] = { ...question, options: normalized };
+    formQuiz.setFieldsValue({ questions });
   };
 
   if (isLoading) return <Loader />;
@@ -292,42 +321,28 @@ const AddQuestion = () => {
                                     >
                                       <Select
                                         onChange={(value) => {
-                                          const newIsSelectedType = [
-                                            ...isSelectedType,
-                                          ];
                                           const newEnableAddAnswers = [
                                             ...enableAddAnswers,
                                           ];
                                           const newEnableMultiple = [
                                             ...enableMultipleChoice,
                                           ];
-                                          newIsSelectedType[index] = true;
-                                          setIsSelectedType(newIsSelectedType);
-                                          value === "text"
-                                            ? (newEnableAddAnswers[
-                                                index
-                                              ] = false)
-                                            : (newEnableAddAnswers[
-                                                index
-                                              ] = true);
-                                          value === "multiple"
-                                            ? (newEnableMultiple[index] = true)
-                                            : (newEnableMultiple[
-                                                index
-                                              ] = false);
+                                          newEnableAddAnswers[index] =
+                                            value !== "text";
+                                          newEnableMultiple[index] =
+                                            value === "multiple";
                                           setEnableAddAnswers(
                                             newEnableAddAnswers
                                           );
                                           setEnableMultipleChoice(
                                             newEnableMultiple
                                           );
+                                          normalizeQuestionOptions(
+                                            index,
+                                            value
+                                          );
                                         }}
                                         placeholder="Select kind of question"
-                                        disabled={
-                                          isSelectedType[index] === undefined
-                                            ? false
-                                            : isSelectedType[index]
-                                        }
                                       >
                                         <Select.Option value="multiple">
                                           Multiple choice
@@ -335,7 +350,9 @@ const AddQuestion = () => {
                                         <Select.Option value="single">
                                           Single choice
                                         </Select.Option>
-                                        <Select.Option value="text"></Select.Option>
+                                        <Select.Option value="text">
+                                          Text
+                                        </Select.Option>
                                       </Select>
                                     </Form.Item>
                                     <Button
@@ -415,45 +432,53 @@ const AddQuestion = () => {
                                           className="w-full"
                                         >
                                           <Flex align="center" gap={12}>
-                                            <ConfigProvider
-                                              theme={{
-                                                components: {
-                                                  Switch: {
-                                                    // handleBg: '#ccc'
+                                            {enableAddAnswers[index] !==
+                                              false && (
+                                              <ConfigProvider
+                                                theme={{
+                                                  components: {
+                                                    Switch: {
+                                                      // handleBg: '#ccc'
+                                                    },
                                                   },
-                                                },
-                                                token: {
-                                                  colorPrimary: "#754FFE",
-                                                  /* here is your global tokens */
-                                                },
-                                              }}
-                                            >
-                                              <Form.Item
-                                                noStyle
-                                                name={[
-                                                  subField.name,
-                                                  "isSelected",
-                                                ]}
-                                                valuePropName="checked"
+                                                  token: {
+                                                    colorPrimary: "#754FFE",
+                                                    /* here is your global tokens */
+                                                  },
+                                                }}
                                               >
-                                                <Switch
-                                                  onChange={() =>
-                                                    handleSetAsDefaultChange(
-                                                      field.key,
-                                                      subField.key,
-                                                      index
-                                                    )
-                                                  }
-                                                  checked
-                                                ></Switch>
-                                              </Form.Item>
-                                            </ConfigProvider>
+                                                <Form.Item
+                                                  noStyle
+                                                  name={[
+                                                    subField.name,
+                                                    "isSelected",
+                                                  ]}
+                                                  valuePropName="checked"
+                                                >
+                                                  <Switch
+                                                    onChange={() =>
+                                                      handleSetAsDefaultChange(
+                                                        field.key,
+                                                        subField.key,
+                                                        index
+                                                      )
+                                                    }
+                                                    checked
+                                                  ></Switch>
+                                                </Form.Item>
+                                              </ConfigProvider>
+                                            )}
                                             <Form.Item
                                               noStyle
                                               name={[subField.name, "label"]}
                                             >
                                               <Input
-                                                placeholder="Question title"
+                                                placeholder={
+                                                  enableAddAnswers[index] ===
+                                                  false
+                                                    ? "Expected answer"
+                                                    : "Question title"
+                                                }
                                                 style={{ width: 400 }}
                                               />
                                             </Form.Item>
@@ -469,7 +494,8 @@ const AddQuestion = () => {
                                                 }}
                                               ></Button>
                                             )}
-                                          {subField.name !== 0 && (
+                                          {enableAddAnswers[index] !== false &&
+                                            subField.name !== 0 && (
                                             <Button
                                               danger
                                               icon={<DeleteOutlined />}

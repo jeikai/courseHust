@@ -10,33 +10,13 @@ export function AuthProvider(props) {
 	const cache = JSON.parse(localStorage.getItem('user'));
 	const [user, setUser] = useState(cache);
 
-	const auth = useAPI(user ? '/api/auth' : null, null, async (err) => {
-		if (err.response.status === 403) {
-			const refreshToken = localStorage.getItem('refreshToken');
-			if (refreshToken) {
-				try {
-					const response = await axios.post('/api/auth/refresh', {
-						refreshToken,
-					});
-					const newToken = response.data.authenticated;
-					localStorage.setItem(
-						'user',
-						JSON.stringify({ ...user, authenticated: newToken })
-					);
-					axios.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
-
-					window.location.reload();
-					return;
-				} catch (refreshError) {
-					console.log({ refreshError });
-					signout();
-				}
-			} else {
-				signout();
-			}
-		} else {
-			signout();
-		}
+	// The global axios interceptor (see helpers/axiosInterceptor.js) already
+	// attempts a silent refresh-and-retry on any 401/403 caused by an expired
+	// access token, for every API call in the app - not just this one.
+	// Reaching this callback means that already failed (refresh token missing,
+	// invalid, or expired), so the only thing left to do is sign the user out.
+	const auth = useAPI(user ? '/api/auth' : null, null, () => {
+		signout();
 	});
 
 	useEffect(() => {
@@ -93,7 +73,8 @@ export function AuthProvider(props) {
 				permission: permissions[user?.permission],
 			}}
 			{...props}>
-			{auth.loading ? <Loader /> : { ...props.children }}
+			{auth.loading && <Loader fullScreen />}
+			{props.children}
 		</AuthContext.Provider>
 	);
 }

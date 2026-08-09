@@ -282,8 +282,31 @@ const EditQuestion = () => {
                                 ...prev,
                                 type: e,
                               }));
-                              if (e == "text") {
-                                handleSetAsDefaultChange(0, 0, true);
+                              const options =
+                                formQuestion.getFieldValue("options") || [];
+                              if (e === "text") {
+                                formQuestion.setFieldValue("options", [
+                                  {
+                                    ...(options[0] || {}),
+                                    isSelected: true,
+                                    label: options[0]?.label || "",
+                                  },
+                                ]);
+                              } else if (e === "single") {
+                                const selectedIndex = options.findIndex(
+                                  (option) => option.isSelected
+                                );
+                                formQuestion.setFieldValue(
+                                  "options",
+                                  options.map((option, i) => ({
+                                    ...option,
+                                    isSelected:
+                                      i ===
+                                      (selectedIndex === -1
+                                        ? 0
+                                        : selectedIndex),
+                                  }))
+                                );
                               }
                             }}
                             options={["single", "multiple", "text"]}
@@ -308,72 +331,86 @@ const EditQuestion = () => {
                                 rowGap: 16,
                               }}
                             >
-                              {subFields.map((subField) => (
-                                <Flex key={subField.key}>
-                                  <Flex
-                                    align="center"
-                                    justify="space-between"
-                                    className="w-full"
-                                  >
-                                    <Flex align="center" gap={12}>
-                                      <ConfigProvider
-                                        theme={{
-                                          token: {
-                                            colorPrimary: "#754FFE",
-                                          },
-                                        }}
-                                      >
+                              {subFields.map((subField) => {
+                                if (
+                                  settings.type === "text" &&
+                                  subField.name !== 0
+                                ) {
+                                  return null;
+                                }
+                                return (
+                                  <Flex key={subField.key}>
+                                    <Flex
+                                      align="center"
+                                      justify="space-between"
+                                      className="w-full"
+                                    >
+                                      <Flex align="center" gap={12}>
+                                        {settings.type !== "text" && (
+                                          <ConfigProvider
+                                            theme={{
+                                              token: {
+                                                colorPrimary: "#754FFE",
+                                              },
+                                            }}
+                                          >
+                                            <Form.Item
+                                              noStyle
+                                              name={[
+                                                subField.name,
+                                                "isSelected",
+                                              ]}
+                                              valuePropName="checked"
+                                            >
+                                              <Switch
+                                                onChange={() =>
+                                                  handleSetAsDefaultChange(
+                                                    0,
+                                                    subField.key
+                                                  )
+                                                }
+                                                checked
+                                              ></Switch>
+                                            </Form.Item>
+                                          </ConfigProvider>
+                                        )}
                                         <Form.Item
                                           noStyle
-                                          name={[subField.name, "isSelected"]}
-                                          valuePropName="checked"
+                                          name={[subField.name, "label"]}
                                         >
-                                          <Switch
-                                            onChange={() =>
-                                              handleSetAsDefaultChange(
-                                                0,
-                                                subField.key
-                                              )
+                                          <Input
+                                            placeholder={
+                                              settings.type === "text"
+                                                ? "Expected answer"
+                                                : "Question title"
                                             }
-                                            checked
-                                          ></Switch>
+                                            className="min-w-[20rem] max-w-[25rem]"
+                                          />
                                         </Form.Item>
-                                      </ConfigProvider>
-                                      <Form.Item
-                                        noStyle
-                                        name={[subField.name, "label"]}
-                                      >
-                                        <Input
-                                          disabled={
-                                            settings.type == "text" &&
-                                            subField.key != 0
-                                          }
-                                          placeholder="Question title"
-                                          className="min-w-[20rem] max-w-[25rem]"
-                                        />
-                                      </Form.Item>
+                                      </Flex>
+                                      {settings.type !== "text" &&
+                                        subField.name === 0 && (
+                                          <Button
+                                            icon={<PlusOutlined />}
+                                            onClick={() => {
+                                              subOpt.add();
+                                            }}
+                                          />
+                                        )}
+                                      {settings.type !== "text" &&
+                                        subField.name !== 0 && (
+                                          <Button
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            onClick={() => {
+                                              subOpt.remove(subField.name);
+                                            }}
+                                          ></Button>
+                                        )}
                                     </Flex>
-                                    {true && subField.name === 0 && (
-                                      <Button
-                                        icon={<PlusOutlined />}
-                                        onClick={() => {
-                                          subOpt.add();
-                                        }}
-                                        disabled={settings.type == "text"}
-                                      />
-                                    )}
-                                    {true && subField.name !== 0 && (
-                                      <Button
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        onClick={() => {
-                                          subOpt.remove(subField.name);
-                                        }}
-                                      ></Button>
-                                    )}
                                   </Flex>
-                                </Flex>
-                              ))}
+                                );
+                              })}
                             </div>
                           )}
                         </Form.List>

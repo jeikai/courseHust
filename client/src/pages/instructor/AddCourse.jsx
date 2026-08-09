@@ -136,180 +136,162 @@ const AddCourse = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const [thumbnail, setThumbnail] = useState([]);
-  const [video, setVideo] = useState([]);
+  // Dedicated file-list state per drawer instance, separate from `thumbnail`.
+  // Sharing one state across lesson drawers was why Lesson 1's file kept showing in Lesson 2.
+  const [lessonFileList, setLessonFileList] = useState([]);
+  const [editLessonFileList, setEditLessonFileList] = useState([]);
 
   const handleOkLesson = () => {
-    // debugger
-    // callback()
     const fieldLessons = formLesson.getFieldsValue();
-    let lessonId = uuidv4();
-    let sectionId = fieldLessons.sectionId;
-    fieldLessons.id = lessonId;
-
-    const { sections } = data;
-
-    sections.forEach((section) => {
-      if (section.id === sectionId) {
-        console.log("hehe");
-
-        if (!section?.specialIds) {
-          (section.specialIds = []), (section.specials = []);
-        }
-        let obj = {
-          id: lessonId,
-          type: "lesson",
-        };
-        section.specialIds.push(obj), section.specials.push(fieldLessons);
-      }
-    });
+    const lessonId = uuidv4();
+    const sectionId = fieldLessons.sectionId;
+    const newLesson = { ...fieldLessons, id: lessonId };
 
     setData((prevData) => ({
       ...prevData,
-      sections: sections,
+      sections: (prevData.sections || []).map((section) => {
+        if (section.id !== sectionId) return section;
+        return {
+          ...section,
+          specialIds: [
+            ...(section.specialIds || []),
+            { id: lessonId, type: "lesson" },
+          ],
+          specials: [...(section.specials || []), newLesson],
+        };
+      }),
     }));
 
     setOpenInputLesson(false);
+    setLessonFileList([]);
     viewContext.handleSuccess("Create successfully");
     formLesson.resetFields();
-
-    console.log("data", data);
-    console.log(JSON.stringify(data));
-    console.log("fieldLessons", fieldLessons);
   };
 
   const handleEditLesson = () => {
-    let newObject = formEditLesson.getFieldsValue();
-    console.log(newObject);
-    let { sections } = data;
-    sections.forEach((section) => {
-      let { specials } = section;
-      let index = specials.findIndex((special) => special.id === idEditLesson);
-      console.log(index);
-
-      if (index !== -1) {
-        // Tìm thấy đối tượng với id tương ứng
-        // Xóa phần tử cũ
-        specials.splice(index, 1);
-
-        // Chèn đối tượng mới vào vị trí đó
-        specials.splice(index, 0, newObject);
-      }
-    });
+    const newValues = formEditLesson.getFieldsValue();
 
     setData((prevData) => ({
       ...prevData,
-      sections: sections,
+      sections: (prevData.sections || []).map((section) => {
+        if (!section.specials?.some((special) => special.id === idEditLesson))
+          return section;
+        return {
+          ...section,
+          specials: section.specials.map((special) =>
+            special.id === idEditLesson
+              ? { ...special, ...newValues, id: idEditLesson }
+              : special
+          ),
+        };
+      }),
     }));
 
-    setIdEditLesson(0);
+    setIdEditLesson(undefined);
     setOpenEditLesson(false);
+    setEditLessonFileList([]);
     formEditLesson.resetFields();
-
-    console.log(sections);
-    console.log(data);
   };
 
   const openModalEditLesson = (id) => {
-    const { sections } = data;
-    console.log(id);
-    sections.forEach((section) => {
-      section?.specials?.forEach((item) => {
-        if (item.id === id) {
-          formEditLesson.setFieldValue("name", item.name);
-          formEditLesson.setFieldValue("content", item.content);
-          formEditLesson.setFieldValue("file", item.file);
-          formEditLesson.setFieldValue("sectionId", item.sectionId);
+    const section = data.sections.find((s) =>
+      s.specials?.some((item) => item.id === id)
+    );
+    const item = section?.specials?.find((item) => item.id === id);
+    if (!item) return;
 
-          setIdEditLesson(id);
-          setOpenEditLesson(true);
-        }
-      });
+    formEditLesson.setFieldsValue({
+      title: item.title,
+      content: item.content,
+      file: item.file,
+      sectionId: section.id,
     });
+    setEditLessonFileList(item.file || []);
+    setIdEditLesson(id);
+    setOpenEditLesson(true);
+  };
+
+  const closeLessonDrawer = () => {
+    setOpenInputLesson(false);
+    setLessonFileList([]);
+    formLesson.resetFields();
+  };
+
+  const closeEditLessonDrawer = () => {
+    setOpenEditLesson(false);
+    setEditLessonFileList([]);
+    setIdEditLesson(undefined);
+    formEditLesson.resetFields();
   };
 
   const handleOkSection = () => {
-    // debugger
-
     const fieldSections = formSection.getFieldsValue();
-    let sectionId = uuidv4();
-    fieldSections.id = sectionId;
+    const sectionId = uuidv4();
+    const newSection = {
+      ...fieldSections,
+      id: sectionId,
+      specialIds: [],
+      specials: [],
+    };
 
-    if (!data.sectionIds) {
-      data.sectionIds = [];
-      data.sections = [];
-    }
+    setData((prevData) => ({
+      ...prevData,
+      sectionIds: [...(prevData.sectionIds || []), sectionId],
+      sections: [...(prevData.sections || []), newSection],
+    }));
 
-    data.sectionIds.push(sectionId);
-    data.sections.push(fieldSections);
-
-    console.log("fieldSections", fieldSections);
-    console.log(data);
-
-    setData(data);
     setOpenInputSections(false);
-
     formSection.resetFields();
   };
 
   const handleEditSection = () => {
-    data.sections.forEach((section) => {
-      if (section.id === idEditSection) {
-        let newName = formEditSection.getFieldValue("title");
-        section.title = newName;
-        setData(data);
+    const newTitle = formEditSection.getFieldValue("title");
 
-        formEditSection.resetFields();
-        setOpenEditSections(false);
-      }
-    });
+    setData((prevData) => ({
+      ...prevData,
+      sections: (prevData.sections || []).map((section) =>
+        section.id === idEditSection
+          ? { ...section, title: newTitle }
+          : section
+      ),
+    }));
+
+    formEditSection.resetFields();
+    setOpenEditSections(false);
   };
 
   const openModalEditSection = (id) => {
-    console.log(id);
-    data.sections.forEach((section) => {
-      if (section.id === id) {
-        console.log(data.sections);
-        formEditSection.setFieldValue("title", section.title);
-        setIdEditSection(id);
-        setOpenEditSections(true);
-      }
-    });
+    const section = data.sections.find((s) => s.id === id);
+    if (!section) return;
+    formEditSection.setFieldValue("title", section.title);
+    setIdEditSection(id);
+    setOpenEditSections(true);
   };
 
   const handleRemoveLesson = (id) => {
-    let { sections } = data;
-    sections.forEach((section) => {
-      let { specials } = section;
-      let index = specials.findIndex((special) => special.id === id);
-      console.log(index);
-
-      if (index !== -1) {
-        // Tìm thấy đối tượng với id tương ứng
-        // Xóa phần tử cũ
-        specials.splice(index, 1);
-      }
-    });
     setData((prevData) => ({
       ...prevData,
-      sections: sections,
+      sections: (prevData.sections || []).map((section) => ({
+        ...section,
+        specialIds: (section.specialIds || []).filter(
+          (special) => special.id !== id
+        ),
+        specials: (section.specials || []).filter(
+          (special) => special.id !== id
+        ),
+      })),
     }));
   };
 
   const handleRemoveSection = (id) => {
-    console.log(id);
-    // Xóa phần tử trong mảng sections
-    const updatedSections = data.sections.filter(
-      (section) => section.id !== id
-    );
-
-    // Xóa id trong mảng sectionIds
-    const updatedSectionIds = data.sectionIds.filter((id) => id !== id);
-
-    // Cập nhật dữ liệu mới
     setData((prevData) => ({
       ...prevData,
-      sections: updatedSections,
-      sectionIds: updatedSectionIds,
+      sections: (prevData.sections || []).filter(
+        (section) => section.id !== id
+      ),
+      sectionIds: (prevData.sectionIds || []).filter(
+        (sectionId) => sectionId !== id
+      ),
     }));
   };
 
@@ -358,68 +340,74 @@ const AddCourse = () => {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      if (data.thumbnail.file) {
-        let thumbnail = await uploadFile(data.thumbnail?.file?.originFileObj);
-        data.thumbnail = thumbnail?.file_url;
-      } else {
-        setIsLoading(false);
-        viewContext.handleError("You need to upload thumbnail!");
-        return;
+      if (!data.thumbnail?.file?.originFileObj) {
+        throw new Error("You need to upload thumbnail!");
       }
 
-      setData({ ...data });
-      let { sections } = data;
-      for (let section of sections) {
-        let { specials } = section;
-        console.log(specials);
-        if (Array.isArray(specials)) {
-          for (let spec of specials) {
-            if (spec.file && spec.file.length > 0) {
-              let uploadFileResponse = await uploadFile(
+      const thumbnailUpload = await uploadFile(
+        data.thumbnail.file.originFileObj
+      );
+      const nextData = { ...data, thumbnail: thumbnailUpload.file_url };
+
+      nextData.sections = await Promise.all(
+        (nextData.sections || []).map(async (section) => {
+          if (!Array.isArray(section.specials)) return section;
+
+          const specials = await Promise.all(
+            section.specials.map(async (spec) => {
+              if (!spec.file || spec.file.length === 0) return spec;
+
+              const uploadFileResponse = await uploadFile(
                 spec.file[0].originFileObj
               );
               const fileType = spec.file[0].type;
-              console.log(fileType);
-              if (
-                fileType ==
+              const isDocument =
+                fileType ===
                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-                fileType == "application/pdf"
-              ) {
-                spec.docURL = uploadFileResponse.file_url;
-              } else {
-                spec.videoURL = uploadFileResponse.file_url;
-                spec.duration = uploadFileResponse.duration;
-              }
-            }
-          }
-        }
-      }
-      if (data.free) {
-        data.price = 0;
-      }
-      console.log(data);
-      let user = localStorage.getItem("user");
-      user = JSON.parse(user);
-      // console.log(user.authenticated);
+                fileType === "application/pdf";
 
-      const resCourse = await Axios({
+              return {
+                ...spec,
+                ...(isDocument
+                  ? {
+                      docURL: uploadFileResponse.file_url,
+                      docFileName: uploadFileResponse.originalName,
+                      docMimeType: uploadFileResponse.mimeType,
+                    }
+                  : {
+                      videoURL: uploadFileResponse.file_url,
+                      duration: uploadFileResponse.duration,
+                    }),
+              };
+            })
+          );
+          return { ...section, specials };
+        })
+      );
+
+      if (nextData.free) {
+        nextData.price = 0;
+      }
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      await Axios({
         url: "/api/course",
         method: "POST",
         headers: {
           Authorization: `Bearer ${user.authenticated}`,
         },
-        data: data,
+        data: nextData,
       });
-      console.log(resCourse.data);
-      setIsLoading(false);
+
+      setData(nextData);
       viewContext.handleSuccess("Create course successfully");
       navigate("/admin/manage_courses");
     } catch (error) {
-      console.log(error);
-      setIsLoading(false);
       viewContext.handleError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -807,7 +795,7 @@ const AddCourse = () => {
             <Drawer
               title="Create a new lesson"
               width={720}
-              onClose={() => setOpenInputLesson(false)}
+              onClose={closeLessonDrawer}
               open={openInputLesson}
               styles={{
                 body: {
@@ -816,7 +804,7 @@ const AddCourse = () => {
               }}
               extra={
                 <Space>
-                  <Button onClick={() => setOpenInputLesson(false)}>
+                  <Button onClick={closeLessonDrawer}>
                     Cancel
                   </Button>
                   <Button onClick={handleOkLesson} type="primary">
@@ -871,7 +859,13 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload fileList={video} customRequest={(options) => serverUpload(options, setVideo)}>
+                      <Upload
+                        fileList={lessonFileList}
+                        customRequest={(options) =>
+                          serverUpload(options, setLessonFileList)
+                        }
+                        onRemove={() => setLessonFileList([])}
+                      >
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>
@@ -883,7 +877,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="sectionId">
-                      <Input />
+                      <Input readOnly />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -892,7 +886,7 @@ const AddCourse = () => {
             <Drawer
               title="Edit a lesson"
               width={720}
-              onClose={() => setOpenEditLesson(false)}
+              onClose={closeEditLessonDrawer}
               open={openEditLesson}
               styles={{
                 body: {
@@ -901,7 +895,7 @@ const AddCourse = () => {
               }}
               extra={
                 <Space>
-                  <Button onClick={() => setOpenEditLesson(false)}>
+                  <Button onClick={closeEditLessonDrawer}>
                     Cancel
                   </Button>
                   <Button onClick={handleEditLesson} type="primary">
@@ -956,7 +950,13 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="file" getValueFromEvent={getFile}>
-                      <Upload customRequest={(options) => serverUpload(options, setVideo)}>
+                      <Upload
+                        fileList={editLessonFileList}
+                        customRequest={(options) =>
+                          serverUpload(options, setEditLessonFileList)
+                        }
+                        onRemove={() => setEditLessonFileList([])}
+                      >
                         <Button icon={<UploadOutlined />}>
                           Upload your file
                         </Button>
@@ -968,7 +968,7 @@ const AddCourse = () => {
                   </Col>
                   <Col span={24}>
                     <Form.Item name="sectionId">
-                      <Input />
+                      <Input readOnly />
                     </Form.Item>
                   </Col>
                 </Row>

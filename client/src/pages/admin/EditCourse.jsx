@@ -96,6 +96,7 @@ import {
 import { ViewContext } from "../../context/View";
 import dayjs from "dayjs";
 import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const EditCourse = () => {
   const [courseId, setCourseId] = useState(useParams().id);
@@ -130,7 +131,7 @@ const EditCourse = () => {
   const [data, setData] = useState({
     _id: courseId,
     title: "",
-    category: "",
+    categoryId: "",
     level: "basic",
     shortDes: "",
     description: "",
@@ -177,8 +178,8 @@ const EditCourse = () => {
 
   useEffect(() => {
     const field = form.getFieldsValue();
-    field.description = field.description?.level?.content;
     setData({ ...data, ...field });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
 
   const serverUpload = async (options, callback) => {
@@ -189,32 +190,31 @@ const EditCourse = () => {
   };
   // set thumbnail
   const handleSubmit = async (formData) => {
+    if (isLoading) return;
     try {
       setIsLoading(true);
-      console.log(data, formData);
-      const dataReq = data;
-      dataReq.title = formData.title;
-      dataReq.category = formData.category;
+      const dataReq = { ...data };
+      dataReq.title = formData.title.trim();
+      dataReq.categoryId = formData.categoryId;
       dataReq.description = formData.description;
-      dataReq.shortDes = formData.shortDes;
+      dataReq.shortDes = formData.shortDes?.trim() || "";
       dataReq.level = formData.level;
       dataReq.price = formData.price;
 
-      console.log({ thumbnail: data.thumbnail.file });
       if (data.thumbnail && typeof data.thumbnail != "string") {
         let thumbnail = await uploadFile(data.thumbnail);
         dataReq.thumbnail = thumbnail.file_url;
-        console.log("get new link");
       }
-      console.log(dataReq);
-      setData((prev) => dataReq);
-      const result = await handleUpdateCourse(dataReq);
-      setIsLoading(false);
+      await handleUpdateCourse(dataReq);
+      setData((prev) => ({ ...prev, ...dataReq }));
       message.success("Update successfully");
     } catch (error) {
-      message.error(error.toString());
-      setIsLoading(false);
+      message.error(
+        error?.response?.data?.message || error.message || error.toString()
+      );
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -233,6 +233,13 @@ const EditCourse = () => {
                 <Typography.Title level={5}>Course Title</Typography.Title>
               }
               name="title"
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
+                  message: "Please enter the course title",
+                },
+              ]}
             >
               <Input
                 placeholder="Course Title"
@@ -247,13 +254,16 @@ const EditCourse = () => {
               label={
                 <Typography.Title level={5}>Courses category</Typography.Title>
               }
-              name="category"
+              name="categoryId"
+              rules={[
+                { required: true, message: "Please select a category" },
+              ]}
             >
               <Select
                 showSearch
                 placeholder="Select a category"
                 optionFilterProp="children"
-                // filterOption={filterOption}
+                filterOption={filterOption}
                 options={courseCategory}
                 size="large"
               />
@@ -265,19 +275,15 @@ const EditCourse = () => {
                 <Typography.Title level={5}>Courses level</Typography.Title>
               }
               name="level"
+              rules={[{ required: true, message: "Please select a level" }]}
             >
               <Select
                 placeholder="Select a level"
                 options={[
                   {
-                    label: "Specialized",
-                    value: "specialized",
-                    key: "specialized",
-                  },
-                  {
-                    label: "Advanced",
-                    value: "advanced",
-                    key: "advanced",
+                    label: "Basic",
+                    value: "basic",
+                    key: "basic",
                   },
                   {
                     label: "Intermediate",
@@ -285,14 +291,14 @@ const EditCourse = () => {
                     key: "intermediate",
                   },
                   {
-                    label: "Beginner",
-                    value: "beginner",
-                    key: "beginner",
+                    label: "Advanced",
+                    value: "advanced",
+                    key: "advanced",
                   },
                   {
-                    label: "Basic",
-                    value: "basic",
-                    key: "basic",
+                    label: "Specialized",
+                    value: "specialized",
+                    key: "specialized",
                   },
                 ]}
                 size="large"
@@ -324,6 +330,22 @@ const EditCourse = () => {
                 </Typography.Title>
               }
               name="description"
+              required
+              rules={[
+                {
+                  validator: (_, value) => {
+                    const text = (value || "")
+                      .replace(/<(.|\n)*?>/g, "")
+                      .trim();
+                    if (!text) {
+                      return Promise.reject(
+                        new Error("Please enter a course description")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
             >
               <ReactQuill
                 className="py-2"
@@ -347,11 +369,20 @@ const EditCourse = () => {
                 <Typography.Title level={5}>Price ( VND )</Typography.Title>
               }
               name="price"
+              rules={[
+                {
+                  type: "number",
+                  min: 0,
+                  message: "Price cannot be negative",
+                },
+              ]}
             >
               <InputNumber
                 placeholder="Enter course price"
                 size="large"
                 type="number"
+                min={0}
+                className="w-full"
               />
             </Form.Item>
           </Col>
@@ -409,7 +440,12 @@ const EditCourse = () => {
             <Typography.Title level={5}>Course thumbnail</Typography.Title>
           </Col>
           <Col span={16}>
-            <Form.Item name={"thumbnail"}>
+            <Form.Item
+              name={"thumbnail"}
+              rules={[
+                { required: true, message: "Please upload a course thumbnail" },
+              ]}
+            >
               <Upload
                 customRequest={(options) => serverUpload(options, setThumbnail)}
                 listType="picture-card"
@@ -1250,6 +1286,17 @@ const EditCourse = () => {
     });
     const [targetScheduleId, setTargetScheduleId] = useState("");
     const [scheduleFormatData, setScheduleFormatData] = useState([]);
+    const [isSubmittingSchedule, setIsSubmittingSchedule] = useState(false);
+
+    const refreshSchedule = async () => {
+      const scheduleDataRes = await Axios({
+        url: `/api/calendar/${courseId}`,
+        method: "GET",
+      });
+      setSchedule((prev) => scheduleDataRes.data);
+      const formatData = transformData(scheduleDataRes.data || []);
+      setScheduleFormatData((prev) => [...formatData]);
+    };
 
     const getDatesBetween = (startDate, endDate, dayOfWeek) => {
       const dates = [];
@@ -1396,35 +1443,40 @@ const EditCourse = () => {
       return formattedTime;
     };
     const onOkSchedule = async () => {
-      setIsLoading(true);
-      const scheduleForm = formSchedule.getFieldsValue();
-      const { startTime, endTime } = scheduleForm;
-      for (const prop in scheduleForm) {
-        console.log("prop: ", scheduleForm[prop]);
-        if (scheduleForm[prop] == undefined) {
-          setMessage((prev) => ({
-            message: `${prop} must be filled`,
-            error: true,
-          }));
-          return;
-        }
+      if (isSubmittingSchedule) return;
+      let scheduleForm;
+      try {
+        scheduleForm = await formSchedule.validateFields();
+      } catch (validationError) {
+        return; // antd already renders inline field errors
       }
-      if (startTime >= endTime) {
+      const { startTime, endTime } = scheduleForm;
+      if (!startTime || !endTime || startTime >= endTime) {
         setMessage((prev) => ({
-          message: `"Start time" cannot be greater than "End time"`,
+          message: `"Start time" must be before "End time"`,
           error: true,
         }));
         return;
       }
-      scheduleForm.userId = userId;
-      scheduleForm.courseId = courseId;
-      const newSchedule = await handleCreateSchedule(scheduleForm);
-      setIsLoading(false);
-      formSchedule.resetFields();
-      setMessage((prev) => ({
-        message: newSchedule.message,
-        error: newSchedule.error,
-      }));
+      setIsSubmittingSchedule(true);
+      setIsLoading(true);
+      try {
+        scheduleForm.userId = userId;
+        scheduleForm.courseId = courseId;
+        const newSchedule = await handleCreateSchedule(scheduleForm);
+        setMessage((prev) => ({
+          message: newSchedule.message,
+          error: newSchedule.error,
+        }));
+        if (!newSchedule.error) {
+          formSchedule.resetFields();
+          setOpenCalendar(false);
+          await refreshSchedule();
+        }
+      } finally {
+        setIsSubmittingSchedule(false);
+        setIsLoading(false);
+      }
     };
     const handleOpenEditSchedule = async (appointmentData) => {
       console.log({ appointmentData });
@@ -1468,17 +1520,33 @@ const EditCourse = () => {
     };
 
     const handleOkEditSchedule = async () => {
+      if (isSubmittingSchedule) return;
+      let data;
+      try {
+        data = await formSchedule.validateFields();
+      } catch (validationError) {
+        return;
+      }
+      setIsSubmittingSchedule(true);
       setIsLoading(true);
-      const data = formSchedule.getFieldsValue();
-      data.courseId = courseId;
-      data.userId = userId;
-      data._id = targetScheduleId;
-      const update = await handleUpdateSchedule(data);
-      setMessage((prev) => ({
-        error: true,
-        message: update.message,
-      }));
-      setIsLoading(false);
+      try {
+        data.courseId = courseId;
+        data.userId = userId;
+        data._id = targetScheduleId;
+        const update = await handleUpdateSchedule(data);
+        setMessage((prev) => ({
+          error: update.error,
+          message: update.message,
+        }));
+        if (!update.error) {
+          formSchedule.resetFields();
+          setOpenEditSchedule(false);
+          await refreshSchedule();
+        }
+      } finally {
+        setIsSubmittingSchedule(false);
+        setIsLoading(false);
+      }
     };
 
     const handleOpenMeet = (e) => {
@@ -1560,7 +1628,12 @@ const EditCourse = () => {
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleOkEditSchedule} type="primary">
+                <Button
+                  onClick={handleOkEditSchedule}
+                  type="primary"
+                  loading={isSubmittingSchedule}
+                  disabled={isSubmittingSchedule}
+                >
                   Update
                 </Button>
               </Space>
@@ -1620,14 +1693,18 @@ const EditCourse = () => {
                       </Typography.Title>
                     </Col>
                     <Col span={24}>
-                      <Form.Item name="deadline">
+                      <Form.Item
+                        name="deadline"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a start and end date",
+                          },
+                        ]}
+                      >
                         <DatePicker.RangePicker
                           className="w-full"
                           format={"YYYY-MM-DD"}
-                          onChange={(value, dateString) =>
-                            console.log(value, dateString)
-                          }
-                          onOk={(value) => console.log(value)}
                         />
                       </Form.Item>
                     </Col>
@@ -1645,7 +1722,12 @@ const EditCourse = () => {
                       </Typography.Title>
                     </Col>
                     <Col span={24}>
-                      <Form.Item name="dayOfWeek">
+                      <Form.Item
+                        name="dayOfWeek"
+                        rules={[
+                          { required: true, message: "Please select a day of week" },
+                        ]}
+                      >
                         <Select
                           showSearch
                           placeholder="Day Of Week"
@@ -1662,7 +1744,12 @@ const EditCourse = () => {
                         </Typography.Title>
                       </Col>
                       <Col span={24}>
-                        <Form.Item name="startTime">
+                        <Form.Item
+                          name="startTime"
+                          rules={[
+                            { required: true, message: "Please select a start time" },
+                          ]}
+                        >
                           <TimePicker className="" />
                         </Form.Item>
                       </Col>
@@ -1672,7 +1759,12 @@ const EditCourse = () => {
                         <Typography.Title level={5}>End Time</Typography.Title>
                       </Col>
                       <Col span={24}>
-                        <Form.Item name="endTime">
+                        <Form.Item
+                          name="endTime"
+                          rules={[
+                            { required: true, message: "Please select an end time" },
+                          ]}
+                        >
                           <TimePicker className="" />
                         </Form.Item>
                       </Col>
@@ -1713,7 +1805,12 @@ const EditCourse = () => {
                 <Button onClick={() => setOpenCalendar((prev) => false)}>
                   Cancel
                 </Button>
-                <Button onClick={onOkSchedule} type="primary">
+                <Button
+                  onClick={onOkSchedule}
+                  type="primary"
+                  loading={isSubmittingSchedule}
+                  disabled={isSubmittingSchedule}
+                >
                   Submit
                 </Button>
               </Space>
@@ -1773,14 +1870,18 @@ const EditCourse = () => {
                       </Typography.Title>
                     </Col>
                     <Col span={24}>
-                      <Form.Item name="deadline">
+                      <Form.Item
+                        name="deadline"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a start and end date",
+                          },
+                        ]}
+                      >
                         <DatePicker.RangePicker
                           className="w-full"
                           format={"YYYY-MM-DD"}
-                          onChange={(value, dateString) =>
-                            console.log(value, dateString)
-                          }
-                          onOk={(value) => console.log(value)}
                         />
                       </Form.Item>
                     </Col>
@@ -1798,7 +1899,12 @@ const EditCourse = () => {
                       </Typography.Title>
                     </Col>
                     <Col span={24}>
-                      <Form.Item name="dayOfWeek">
+                      <Form.Item
+                        name="dayOfWeek"
+                        rules={[
+                          { required: true, message: "Please select a day of week" },
+                        ]}
+                      >
                         <Select
                           showSearch
                           placeholder="Day Of Week"
@@ -1815,7 +1921,12 @@ const EditCourse = () => {
                         </Typography.Title>
                       </Col>
                       <Col span={24}>
-                        <Form.Item name="startTime">
+                        <Form.Item
+                          name="startTime"
+                          rules={[
+                            { required: true, message: "Please select a start time" },
+                          ]}
+                        >
                           <TimePicker className="" />
                         </Form.Item>
                       </Col>
@@ -1825,7 +1936,12 @@ const EditCourse = () => {
                         <Typography.Title level={5}>End Time</Typography.Title>
                       </Col>
                       <Col span={24}>
-                        <Form.Item name="endTime">
+                        <Form.Item
+                          name="endTime"
+                          rules={[
+                            { required: true, message: "Please select an end time" },
+                          ]}
+                        >
                           <TimePicker className="" />
                         </Form.Item>
                       </Col>
@@ -1898,18 +2014,19 @@ const EditCourse = () => {
         courseData.isStream != null || courseData.isStream != undefined
           ? courseData.isStream
           : false;
-      setData((prev) => ({
-        ...prev,
+      const merged = {
+        ...data,
         description: courseData.description,
         title: courseData.title,
         level: courseData.level,
         shortDes: courseData.shortDes,
-        category: courseData.categoryId.title,
+        categoryId: courseData.categoryId?._id,
         thumbnail: courseData.thumbnail,
         sections: courseData.sections,
         price: courseData.price,
         isStream: isStream,
-      }));
+      };
+      setData(merged);
 
       setThumbnail((prev) => [
         {
@@ -1917,16 +2034,16 @@ const EditCourse = () => {
         },
       ]);
 
-      form.setFieldsValue(data);
+      form.setFieldsValue(merged);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseDataApi]);
   useEffect(() => {
     if (categoryDataApi.data) {
       setCourseCategory((prev) =>
         categoryDataApi.data.map((category) => ({
           label: category.title,
-          value: category.title,
-          _id: category._id,
+          value: category._id,
         }))
       );
     }
@@ -1954,6 +2071,8 @@ const EditCourse = () => {
                 htmlType="submit"
                 className="bg-[#754FFE] text-white font-semibold self-end"
                 size="large"
+                loading={isLoading}
+                disabled={isLoading}
               >
                 Save
               </Button>

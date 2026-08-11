@@ -2,14 +2,11 @@ import { Button, Col, Form, Input, Row, Typography } from "antd"
 // import Layout from "../../layout/AppLayout"
 import login from '../../assets/login-security.gif'
 import { KeyOutlined, UserOutlined } from "@ant-design/icons"
-import { useFormik } from "formik";
-import * as Yup from 'yup';
 import { AuthContext } from "../../context/Auth";
-import { useContext, useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Axios from 'axios';
 import { ViewContext } from "../../context/View";
-import axios from "axios";
 import Spring from "../../components/Spring";
 
 
@@ -102,7 +99,7 @@ const Login = () => {
                       prefix={<KeyOutlined />}
                     />
                 </Form.Item>
-                <a href="#" className="block text-right text-base mb-2">Forget Password?</a>
+                <Link to="/forgotpassword" className="block text-right text-base mb-2">Forgot Password?</Link>
                 <Form.Item
                   wrapperCol={{
                     span: 24,

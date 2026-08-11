@@ -1,6 +1,7 @@
 import Login from "../pages/auth/Login"
 import Register from "../pages/auth/Register"
 import Verify from "../pages/auth/Verify"
+import ForgotPassword from "../pages/auth/ForgotPassword"
 
 const Routes = [
     {
@@ -22,12 +23,12 @@ const Routes = [
         permission: 'student',
         title: 'FunCourse - Please verify you email address'
     },
-    // {
-    //     path: '/forgotpassword',
-    //     view: '',
-    //     layout: 'app',
-    //     title: 'FunCourse - Forgot Password | E-Learning'
-    // },
+    {
+        path: '/forgotpassword',
+        view: ForgotPassword,
+        layout: 'app',
+        title: 'FunCourse - Forgot Password | E-Learning'
+    },
 ]
 
 export default Routes

@@ -3,10 +3,17 @@ const userController = require('../controllers/userController')
 const use = require('../helper/utility').use
 const validation = require('../middlewares/validation')
 const authMiddleware = require('../middlewares/authMiddleware')
+const { forgotPasswordLimiter, verifyResetCodeLimiter } = require('../middlewares/rateLimiter')
 
 api.post('/user/register', use(userController.register))
 
 api.post('/user/login', validation.loginValidate, use(userController.login))
+
+api.post('/user/forgot-password', forgotPasswordLimiter, validation.forgotPasswordValidate, use(userController.forgotPassword))
+
+api.post('/user/verify-reset-code', verifyResetCodeLimiter, validation.verifyResetCodeValidate, use(userController.verifyResetCode))
+
+api.post('/user/reset-password', forgotPasswordLimiter, validation.resetPasswordValidate, use(userController.resetPassword))
 
 api.get('/user/get/:userId', authMiddleware.checkToken, use(userController.get))
 

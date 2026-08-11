@@ -3,18 +3,18 @@ const Schema = mongoose.Schema;
 const processModel = require('./Process')
 const CalendarSchema = new Schema({
   // instructorId
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-  title: { type: String, default: '' },
-  description: { type: String, default: '' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
   urlMeet: { type: String, default: '' },
-  dayOfWeek: { type: Number, min: 0, max: 6 }, // 0: Sunday, 6: Saturday
-  time_start: { type: String }, // HH:mm:ss format for recurring
-  time_end: { type: String },   // HH:mm:ss format for recurring
-  day_start: { type: Date },
-  day_end: { type: Date },
+  dayOfWeek: { type: Number, min: 0, max: 6, required: true }, // 0: Sunday, 6: Saturday
+  time_start: { type: String, required: true }, // HH:mm:ss format for recurring
+  time_end: { type: String, required: true },   // HH:mm:ss format for recurring
+  day_start: { type: Date, required: true },
+  day_end: { type: Date, required: true },
   exceptions: [{ type: Date }],
-  date_created: { type: Date, default: Date.now }, 
+  date_created: { type: Date, default: Date.now },
   date_updated: { type: Date, default: Date.now }
 });
  
@@ -45,6 +45,10 @@ exports.create = async function (data) {
   } catch (err) {
     return { error: err };
   }
+};
+
+exports.findDuplicate = async function (courseId, dayOfWeek, time_start, time_end) {
+  return await Calendar.findOne({ courseId, dayOfWeek, time_start, time_end });
 };
 
 exports.getByCourseId = async function (courseId) {

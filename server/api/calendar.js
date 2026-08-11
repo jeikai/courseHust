@@ -3,11 +3,11 @@ const calendarController = require('../controllers/calendarController')
 const authMiddleware = require('../middlewares/authMiddleware')
 const use = require('../helper/utility').use
 
-api.post('/calendar', use(calendarController.create))
-api.get('/calendar/:courseId', use(calendarController.getByCourseId))
-api.get('/calendar/user/:userId', use(calendarController.getByUserId))
-api.get('/calendar/check/:userId/:courseId', use(calendarController.checkCalendar))
-api.put('/calendar/:calendarId', use(calendarController.update))
-api.delete('/calendar/:calendarId', use(calendarController.delete))
+api.post('/calendar', authMiddleware.protectInstructor, use(calendarController.create))
+api.get('/calendar/:courseId', authMiddleware.protectAny, use(calendarController.getByCourseId))
+api.get('/calendar/user/:userId', authMiddleware.protectAny, use(calendarController.getByUserId))
+api.get('/calendar/check/:userId/:courseId', authMiddleware.protectAny, use(calendarController.checkCalendar))
+api.put('/calendar/:calendarId', authMiddleware.protectInstructor, use(calendarController.update))
+api.delete('/calendar/:calendarId', authMiddleware.protectInstructor, use(calendarController.delete))
 
 module.exports = api

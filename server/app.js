@@ -9,6 +9,7 @@ const dotenv = require("dotenv");
 const connectDB = require('./config/database')
 const api = require('./api')
 const { assertVnpayConfig } = require('./helper/vnpay')
+const { assertEmailConfig } = require('./helper/mailer')
 
 var app = express();
 
@@ -21,6 +22,9 @@ dotenv.config();
 // Fail fast on boot rather than generating broken/unsigned VNPAY payment
 // URLs the first time a customer tries to check out.
 assertVnpayConfig();
+// Warns (doesn't throw) - forgot-password/email emails degrade gracefully
+// in dev via a console-only transport if unset, see helper/mailer.js.
+assertEmailConfig();
 
 const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',');
 app.use(cors({

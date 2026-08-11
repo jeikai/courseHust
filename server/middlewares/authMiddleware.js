@@ -201,6 +201,7 @@ exports.protectInstructor = async function(req, res, next){
             if (!user) return res.status(401).json({message: 'Not authorized, user not found'})
             if(user.role === 'admin' || user.role === 'teacher'){
                 req.body.instructorId  = user._id
+                req.body.userRole = user.role
                 next()
             }else{
                 return res.status(403).json({message: 'You are not admin'})

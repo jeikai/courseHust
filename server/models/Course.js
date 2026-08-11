@@ -163,6 +163,11 @@ exports.get = async function (query) {
 	}
 };
 
+exports.getRaw = async function (courseId) {
+	if (!mongoose.Types.ObjectId.isValid(courseId)) return null;
+	return await Course.findById(courseId);
+};
+
 exports.addSection = async function (courseId, sectionId) {
 	try {
 		const course = await Course.findById(courseId);
@@ -180,8 +185,14 @@ exports.addSection = async function (courseId, sectionId) {
 
 exports.update = async function (courseId, data) {
 	try {
-		const result = await Course.findByIdAndUpdate(courseId, data);
-		return await Course.findById(result._id);
+		const result = await Course.findByIdAndUpdate(courseId, data, {
+			new: true,
+			runValidators: true,
+			context: 'query',
+		});
+		if (!result) return { error: new Error('Course not found') };
+		return await Course.findById(result._id)
+			.populate(['sections', 'instructorId', 'categoryId']);
 	} catch (err) {
 		return { error: err };
 	}

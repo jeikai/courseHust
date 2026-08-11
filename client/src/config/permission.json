@@ -1,6 +1,6 @@
 {
     "admin": { "admin": true, "student": true, "instructor": false },
-    "instructor": { "admin": false, "student": true, "instructor": true },
+    "teacher": { "admin": false, "student": true, "instructor": true },
     "student": { "admin": false, "student": true, "instructor": false }
 }
   

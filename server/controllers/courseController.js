@@ -147,13 +147,36 @@ exports.getByInstructorId = async function (req, res) {
 }
 
 
+// Fields a client is allowed to set via update - never mass-assign the whole
+// request body, since it may carry stray keys (e.g. a mistyped field name)
+// that should be ignored rather than silently persisted.
+const UPDATABLE_COURSE_FIELDS = [
+    'title', 'shortDes', 'description', 'isStream', 'categoryId', 'level',
+    'courseVideo', 'tags', 'price', 'thumbnail', 'sections',
+]
+
 exports.update = async function (req, res) {
     try {
         const courseId = req.params.courseId
         const data = req.body
-        const result = await courseModel.update(courseId, data)
-        if (result.error) return res.status(500).json({ message: "Failed to update", data: result.error })
-        return res.status(200).json(result)
+
+        const existing = await courseModel.getRaw(courseId)
+        if (!existing) return res.status(404).json({ message: 'Course not found' })
+
+        if (data.userRole !== 'admin' && existing.instructorId?.toString() !== data.instructorId?.toString()) {
+            return res.status(403).json({ message: 'You are not allowed to update this course' })
+        }
+
+        const updateData = {}
+        UPDATABLE_COURSE_FIELDS.forEach((field) => {
+            if (data[field] !== undefined) updateData[field] = data[field]
+        })
+        updateData.date_updated = new Date()
+
+        const result = await courseModel.update(courseId, updateData)
+        if (result.error) return sendModelError(res, result.error)
+
+        return res.status(200).json({ message: 'Course updated successfully', data: result })
     } catch (e) {
         return res.status(500).json({ message: e.message })
     }
@@ -162,8 +185,17 @@ exports.update = async function (req, res) {
 exports.delete = async function (req, res) {
     try {
         const courseId = req.params.courseId
+        const data = req.body
+
+        const existing = await courseModel.getRaw(courseId)
+        if (!existing) return res.status(404).json({ message: 'Course not found' })
+
+        if (data.userRole !== 'admin' && existing.instructorId?.toString() !== data.instructorId?.toString()) {
+            return res.status(403).json({ message: 'You are not allowed to delete this course' })
+        }
+
         const result = await courseModel.deleteCourse(courseId)
-        if (result.error) return res.status(500).json({ message: "Failed to update", data: result.error })
+        if (result.error) return sendModelError(res, result.error)
         return res.status(200).json(result)
     } catch (e) {
         return res.status(500).json({ message: e.message })

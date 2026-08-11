@@ -1,8 +1,6 @@
 import Axios from "axios";
 
 const handleUpdateCourse = async (data) => {
-  debugger;
-  console.log("submitted data", data);
   const sections = data.sections;
   const courseId = data._id;
   const newSections = [];
@@ -133,7 +131,7 @@ const handleUpdateCourse = async (data) => {
           });
         }
         console.log({ finalSpecs: [...newSpecs, ...newQuizSpecs] });
-        const updateSection = await Axios({
+        await Axios({
           method: "PUT",
           url: `/api/section/${sectionId}`,
           data: {
@@ -183,7 +181,7 @@ const handleUpdateCourse = async (data) => {
           })
         );
 
-        const updateSection = await Axios({
+        await Axios({
           method: "PUT",
           url: `/api/section/${sectionId}`,
           data: {
@@ -236,7 +234,7 @@ const handleUpdateCourse = async (data) => {
       sections: newSections,
     },
   });
-  console.log("updatedCourse", updatedCourse.data);
+  return updatedCourse.data?.data;
 };
 
 const formatTime = (time) => {
@@ -265,12 +263,12 @@ const handleCreateSchedule = async (scheduleForm) => {
   dataReq.time_start = formatTime(startTime);
   dataReq.time_end = formatTime(endTime);
 
-  dataReq.day_start = deadline?.[0]?.["$d"]?.toString() || "";
-  dataReq.day_end = deadline?.[1]?.["$d"]?.toString() || "";
+  dataReq.day_start = deadline?.[0] ? deadline[0].toDate().toISOString() : null;
+  dataReq.day_end = deadline?.[1] ? deadline[1].toDate().toISOString() : null;
 
   dataReq.title = scheduleForm.title;
   dataReq.description = scheduleForm.description;
-  dataReq.urlMeet = scheduleForm.urlMeet;
+  dataReq.urlMeet = scheduleForm.urlMeet || "";
 
   switch (scheduleForm.dayOfWeek) {
     case "Sunday":
@@ -299,23 +297,23 @@ const handleCreateSchedule = async (scheduleForm) => {
   }
   dataReq.userId = scheduleForm.userId;
   dataReq.courseId = scheduleForm.courseId;
-  console.log({ dataReq });
   try {
-    await Axios({
+    const response = await Axios({
       method: "POST",
       url: "/api/calendar",
       data: { ...dataReq },
     });
+    return {
+      message: response.data?.message || "Create schedule successfully",
+      error: false,
+      data: response.data?.data,
+    };
   } catch (error) {
     return {
-      message: error.message,
+      message: error.response?.data?.message || error.message,
       error: true,
     };
   }
-  return {
-    message: "Create schedule successfully",
-    error: false,
-  };
 };
 
 const handleUpdateSchedule = async (data) => {
@@ -324,8 +322,8 @@ const handleUpdateSchedule = async (data) => {
     description: data.description,
     urlMeet: data.urlMeet,
   };
-  dataReq.day_start = data.deadline?.[0]?.["$d"]?.toString() || "";
-  dataReq.day_end = data.deadline?.[1]?.["$d"]?.toString() || "";
+  dataReq.day_start = data.deadline?.[0] ? data.deadline[0].toDate().toISOString() : null;
+  dataReq.day_end = data.deadline?.[1] ? data.deadline[1].toDate().toISOString() : null;
 
   dataReq.time_start = formatTime(data.startTime);
   dataReq.time_end = formatTime(data.endTime);
@@ -357,23 +355,24 @@ const handleUpdateSchedule = async (data) => {
   dataReq.userId = data.userId;
   dataReq.courseId = data.courseId;
   try {
-    await Axios({
+    const response = await Axios({
       method: "PUT",
       url: `/api/calendar/${data._id}`,
       data: {
         ...dataReq,
       },
     });
+    return {
+      message: "Update schedule successfully",
+      error: false,
+      data: response.data,
+    };
   } catch (error) {
     return {
-      message: error.message,
+      message: error.response?.data?.message || error.message,
       error: true,
     };
   }
-  return {
-    message: "Update schedule successfully",
-    error: false,
-  };
 };
 
 export { handleUpdateCourse, handleCreateSchedule, handleUpdateSchedule };
